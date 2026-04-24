@@ -6,7 +6,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "deploy": "echo 'Deployment is handled automatically by Cloudflare Pages after build'"
+    "deploy": "npx wrangler deploy"
   },
   "dependencies": {
     "astro": "^4.16.0"

@@ -1,12 +1,9 @@
-# Cloudflare Pages build settings
-# Set these in the Cloudflare Pages dashboard:
-#   Build command:  npm run build
-#   Output dir:     dist
-#   Node version:   20
+name = "blue-moon-web"
+compatibility_date = "2025-10-08"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./dist"
 
 [build]
-  command = "npm run build"
-  publish = "dist"
-
-[build.environment]
-  NODE_VERSION = "20"
+command = "npm run build"
