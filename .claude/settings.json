@@ -11,12 +11,9 @@
       "Bash(git log*)",
       "Bash(git show*)",
       "Bash(git branch*)",
-
-      // Editing sources files
       "Edit (/src/**)"
     ],
     "deny": [
-      // Package installation
       "Bash(npm install*)",
       "Bash(npm uninstall*)",
       "Bash(npm ci*)",
@@ -25,15 +22,11 @@
       "Bash(pip install*)",
       "Bash(pnpm add*)",
       "Bash(pnpm install*)",
-
-      // Deleting files or folders
       "Bash(rm*)",
       "Bash(rmdir*)",
       "Bash(del*)",
       "Bash(rd*)",
       "Bash(rimraf*)",
-
-      // Internet access
       "Bash(curl*)",
       "Bash(wget*)",
       "Bash(ssh*)",
