@@ -1,62 +1,217 @@
 ---
-const today = new Date();
+const footerLinks = [
+  { href: '/',             label: 'Home' },
+  { href: '/apartment',    label: 'Apartment' },
+  { href: '/gallery',      label: 'Gallery' },
+  { href: '/pricelist',    label: 'Pricelist' },
+  { href: '/about-mandre', label: 'About Mandre' },
+  { href: '/about-us',     label: 'About Us' },
+  { href: '/reviews',      label: 'Reviews' },
+  { href: '/contact',      label: 'Contact' },
+  { href: '/directions',   label: 'Directions' },
+];
 ---
 
-<footer>
-	&copy; {today.getFullYear()} Your name here. All rights reserved.
-	<div class="social-links">
-		<a href="https://m.webtoo.ls/@astro" target="_blank">
-			<span class="sr-only">Follow Astro on Mastodon</span>
-			<svg
-				viewBox="0 0 16 16"
-				aria-hidden="true"
-				width="32"
-				height="32"
-				astro-icon="social/mastodon"
-				><path
-					fill="currentColor"
-					d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"
-				></path></svg
-			>
-		</a>
-		<a href="https://twitter.com/astrodotbuild" target="_blank">
-			<span class="sr-only">Follow Astro on Twitter</span>
-			<svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32" astro-icon="social/twitter"
-				><path
-					fill="currentColor"
-					d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"
-				></path></svg
-			>
-		</a>
-		<a href="https://github.com/withastro/astro" target="_blank">
-			<span class="sr-only">Go to Astro's GitHub repo</span>
-			<svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32" astro-icon="social/github"
-				><path
-					fill="currentColor"
-					d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
-				></path></svg
-			>
-		</a>
-	</div>
+<footer class="footer">
+  <!-- Wave top edge -->
+  <div class="footer__wave">
+    <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,20 1440,35 L1440,60 L0,60 Z" fill="#081628"/>
+    </svg>
+  </div>
+
+  <div class="footer__body">
+    <div class="container">
+      <div class="footer__grid">
+
+        <!-- Brand column -->
+        <div class="footer__brand">
+          <a href="/" aria-label="Blue Moon Apartment">
+            <img src="/images/logo.png" alt="Blue Moon Apartment" width="80" height="80" class="footer__logo" />
+          </a>
+          <p class="footer__tagline">Your luxury family retreat on the Adriatic</p>
+          <p class="footer__season">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            Open: 1 June – 30 September 2025
+          </p>
+        </div>
+
+        <!-- Quick links -->
+        <nav class="footer__nav" aria-label="Footer navigation">
+          <h4>Quick Links</h4>
+          <ul>
+            {footerLinks.map(link => (
+              <li><a href={link.href}>{link.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+
+        <!-- Contact column -->
+        <div class="footer__contact">
+          <h4>Contact</h4>
+          <ul>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <a href="mailto:info@bluemoonapartment.com">info@bluemoonapartment.com</a>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <a href="https://wa.me/385981234567" target="_blank" rel="noopener">WhatsApp: +385 98 123 4567</a>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>Mandre, Island of Pag, Croatia</span>
+            </li>
+          </ul>
+
+          <div class="footer__booking">
+            <p>Also find us on:</p>
+            <a href="https://www.booking.com/hotel/hr/blue-moon-apartment-mandre.hr.html" target="_blank" rel="noopener" class="footer__booking-btn">
+              booking.com
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2025 Blue Moon Apartment · Goran Falkoni. All rights reserved.</p>
+        <p>Mandre, Island of Pag, Croatia</p>
+      </div>
+    </div>
+  </div>
 </footer>
+
 <style>
-	footer {
-		padding: 2em 1em 6em 1em;
-		background: linear-gradient(var(--gray-gradient)) no-repeat;
-		color: rgb(var(--gray));
-		text-align: center;
-	}
-	.social-links {
-		display: flex;
-		justify-content: center;
-		gap: 1em;
-		margin-top: 1em;
-	}
-	.social-links a {
-		text-decoration: none;
-		color: rgb(var(--gray));
-	}
-	.social-links a:hover {
-		color: rgb(var(--gray-dark));
-	}
+  .footer__wave {
+    display: block;
+    line-height: 0;
+    margin-bottom: -1px;
+  }
+  .footer__wave svg { display: block; width: 100%; height: 60px; }
+
+  .footer__body {
+    background: var(--deep-navy);
+    padding: 3.5rem 0 2rem;
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1.4fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .footer__logo {
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    opacity: 0.95;
+  }
+
+  .footer__tagline {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 0.85rem;
+    font-style: italic;
+  }
+
+  .footer__season {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--sunset-gold);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+  .footer__season svg { stroke: var(--sunset-gold); flex-shrink: 0; }
+
+  .footer__nav h4,
+  .footer__contact h4 {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sky-blue);
+    margin-bottom: 1.25rem;
+  }
+
+  .footer__nav ul,
+  .footer__contact ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .footer__nav a {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: color 0.2s;
+    text-decoration: none;
+  }
+  .footer__nav a:hover { color: var(--white); }
+
+  .footer__contact li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    color: rgba(255,255,255,0.65);
+    font-size: 0.88rem;
+  }
+  .footer__contact li svg { stroke: var(--sky-blue); flex-shrink: 0; margin-top: 2px; }
+  .footer__contact a {
+    color: rgba(255,255,255,0.65);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer__contact a:hover { color: var(--sky-blue); }
+
+  .footer__booking {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .footer__booking p {
+    color: rgba(255,255,255,0.45);
+    font-size: 0.8rem;
+  }
+  .footer__booking-btn {
+    background: #003580;
+    color: white !important;
+    padding: 0.35rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .footer__booking-btn:hover { background: #00458a; }
+
+  .footer__bottom {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .footer__bottom p {
+    color: rgba(255,255,255,0.35);
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 860px) {
+    .footer__grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .footer__brand { grid-column: 1 / -1; }
+  }
+  @media (max-width: 520px) {
+    .footer__grid { grid-template-columns: 1fr; }
+    .footer__bottom { flex-direction: column; text-align: center; }
+  }
 </style>

@@ -1,0 +1,165 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Page Not Found | Blue Moon Apartment"
+  description="The page you're looking for doesn't exist. Return to Blue Moon Apartment homepage."
+>
+
+  <section class="notfound">
+    <div class="notfound__bg" aria-hidden="true"></div>
+    <div class="container notfound__content">
+      <div class="notfound__moon" aria-hidden="true">
+        <img src="/images/logo.png" alt="" width="130" height="130" />
+      </div>
+      <h1 class="notfound__code">404</h1>
+      <h2 class="notfound__title">Lost Under the Stars?</h2>
+      <p class="notfound__text">
+        The page you're looking for seems to have drifted off like a boat on the Adriatic. Don't worry — the apartment is still here waiting for you.
+      </p>
+      <div class="notfound__links">
+        <a href="/" class="btn btn-primary">← Back to Home</a>
+        <a href="/contact" class="btn btn-sky">Check Availability</a>
+      </div>
+
+      <div class="notfound__quicklinks">
+        <p>Or go directly to:</p>
+        <ul>
+          <li><a href="/apartment">The Apartment</a></li>
+          <li><a href="/pricelist">Pricelist</a></li>
+          <li><a href="/gallery">Gallery</a></li>
+          <li><a href="/about-mandre">About Mandre</a></li>
+          <li><a href="/contact">Contact</a></li>
+          <li><a href="/directions">Directions</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  .notfound {
+    position: relative;
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 4rem 0;
+  }
+
+  .notfound__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, var(--soft-sky) 0%, var(--white) 50%, var(--warm-sand) 100%);
+    z-index: 0;
+  }
+  .notfound__bg::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(74,159,212,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .notfound__bg::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    left: -80px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(232,168,42,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .notfound__content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  .notfound__moon img {
+    border-radius: 50%;
+    opacity: 0.85;
+    filter: drop-shadow(0 8px 32px rgba(74,159,212,0.25));
+    animation: floatMoon 4s ease-in-out infinite;
+  }
+
+  @keyframes floatMoon {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-12px); }
+  }
+
+  .notfound__code {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(5rem, 15vw, 9rem);
+    font-weight: 900;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 3px var(--ocean-blue);
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .notfound__title {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    color: var(--ocean-blue);
+    margin: 0;
+  }
+
+  .notfound__text {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 480px;
+  }
+
+  .notfound__links {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+
+  .notfound__quicklinks {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(74,159,212,0.2);
+    width: 100%;
+  }
+  .notfound__quicklinks p {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.85rem;
+  }
+  .notfound__quicklinks ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 1.5rem;
+  }
+  .notfound__quicklinks a {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--sky-blue);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .notfound__quicklinks a:hover { color: var(--ocean-blue); }
+</style>

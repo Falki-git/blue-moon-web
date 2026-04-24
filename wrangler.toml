@@ -1,0 +1,12 @@
+# Cloudflare Pages build settings
+# Set these in the Cloudflare Pages dashboard:
+#   Build command:  npm run build
+#   Output dir:     dist
+#   Node version:   20
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"

@@ -1,0 +1,237 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+
+const photos = [
+  { id: 1,  cat: 'terrace',  cls: 'ph-terrace',   label: 'Terrace with Jacuzzi',        size: 'large' },
+  { id: 2,  cat: 'view',     cls: 'ph-sea',        label: 'Sea & Sunset View',           size: 'medium' },
+  { id: 3,  cat: 'living',   cls: 'ph-interior',   label: 'Living Room',                 size: 'medium' },
+  { id: 4,  cat: 'kitchen',  cls: 'ph-kitchen',    label: 'Kitchen',                     size: 'medium' },
+  { id: 5,  cat: 'bedroom',  cls: 'ph-bedroom',    label: 'Bedroom 1 — Main Bed',        size: 'medium' },
+  { id: 6,  cat: 'bedroom',  cls: 'ph-bedroom',    label: 'Bedroom 2',                   size: 'medium' },
+  { id: 7,  cat: 'bathroom', cls: 'ph-bathroom',   label: 'Bathroom 1',                  size: 'medium' },
+  { id: 8,  cat: 'terrace',  cls: 'ph-terrace',    label: 'Terrace Dining',              size: 'medium' },
+  { id: 9,  cat: 'view',     cls: 'ph-promenade',  label: 'View from the Terrace',       size: 'large' },
+  { id: 10, cat: 'living',   cls: 'ph-interior',   label: 'Living Room — Evening',       size: 'medium' },
+  { id: 11, cat: 'kitchen',  cls: 'ph-kitchen',    label: 'Kitchen — Appliances',        size: 'medium' },
+  { id: 12, cat: 'terrace',  cls: 'ph-terrace',    label: 'Jacuzzi at Sunset',           size: 'medium' },
+  { id: 13, cat: 'bathroom', cls: 'ph-bathroom',   label: 'Bathroom 2',                  size: 'medium' },
+  { id: 14, cat: 'view',     cls: 'ph-sea',        label: 'Adriatic Sea View',           size: 'medium' },
+  { id: 15, cat: 'living',   cls: 'ph-interior',   label: 'Dining Area',                 size: 'medium' },
+  { id: 16, cat: 'bedroom',  cls: 'ph-bedroom',    label: 'Bedroom — Detail',            size: 'medium' },
+];
+
+const categories = [
+  { id: 'all',      label: 'All Photos' },
+  { id: 'living',   label: 'Living Area' },
+  { id: 'kitchen',  label: 'Kitchen' },
+  { id: 'bedroom',  label: 'Bedrooms' },
+  { id: 'bathroom', label: 'Bathrooms' },
+  { id: 'terrace',  label: 'Terrace & Jacuzzi' },
+  { id: 'view',     label: 'Views & Surroundings' },
+];
+---
+
+<PageLayout
+  title="Gallery | Blue Moon Apartment, Mandre"
+  description="Photo gallery of Blue Moon Apartment — terrace, living room, bedrooms, kitchen, bathrooms and stunning Adriatic views."
+  pageTitle="Gallery"
+  pageSubtitle="A look inside Blue Moon Apartment"
+  label="Photo Gallery"
+  bgClass="ph-terrace"
+>
+
+  <section class="section">
+    <div class="container">
+
+      <!-- Filter tabs -->
+      <div class="gallery-filters" role="tablist" aria-label="Filter gallery by category">
+        {categories.map((cat, i) => (
+          <button
+            class={`gallery-filter-btn ${i === 0 ? 'is-active' : ''}`}
+            data-cat={cat.id}
+            role="tab"
+            aria-selected={i === 0 ? 'true' : 'false'}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
+      <!-- Gallery grid -->
+      <div class="gallery-grid" id="galleryGrid">
+        {photos.map(photo => (
+          <div
+            class={`gallery-item ${photo.size === 'large' ? 'gallery-item--large' : ''}`}
+            data-cat={photo.cat}
+          >
+            <div class={`img-ph ${photo.cls} gallery-item__img`} aria-hidden="true">
+              <span class="ph-icon">📷</span>
+              <span class="ph-label">{photo.label}</span>
+            </div>
+            <div class="gallery-item__overlay">
+              <span class="gallery-item__label">{photo.label}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p class="gallery-note">
+        📸 These are placeholder slots — real apartment photographs will be added before launch. Place your images in <code>/public/images/gallery/</code>.
+      </p>
+
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="background:var(--soft-sky); padding:3rem 0; text-align:center;">
+    <div class="container">
+      <h2 style="margin-bottom:0.75rem;">Like what you see?</h2>
+      <p style="color:var(--text-muted); margin-bottom:1.75rem;">Send us an inquiry and we'll get back to you within 24 hours.</p>
+      <a href="/contact" class="btn btn-primary">Check Availability →</a>
+    </div>
+  </section>
+
+</PageLayout>
+
+<style>
+  .gallery-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .gallery-filter-btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    border: 2px solid rgba(74,159,212,0.3);
+    background: var(--white);
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .gallery-filter-btn:hover {
+    border-color: var(--sky-blue);
+    color: var(--ocean-blue);
+    background: rgba(74,159,212,0.07);
+  }
+  .gallery-filter-btn.is-active {
+    background: var(--ocean-blue);
+    border-color: var(--ocean-blue);
+    color: white;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    auto-rows: 220px;
+  }
+
+  .gallery-item {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: zoom-in;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .gallery-item.is-hidden {
+    display: none;
+  }
+  .gallery-item--large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .gallery-item__img {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius) !important;
+    transition: transform 0.4s ease;
+  }
+  .gallery-item:hover .gallery-item__img {
+    transform: scale(1.04);
+  }
+
+  .gallery-item__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(8,22,40,0);
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    transition: background 0.3s ease;
+    border-radius: var(--radius);
+  }
+  .gallery-item:hover .gallery-item__overlay {
+    background: rgba(8,22,40,0.4);
+  }
+
+  .gallery-item__label {
+    color: white;
+    font-size: 0.82rem;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+  .gallery-item:hover .gallery-item__label {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .gallery-note {
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    background: var(--warm-sand);
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    border-left: 3px solid var(--sunset-gold);
+  }
+  .gallery-note code {
+    background: rgba(26,95,173,0.1);
+    color: var(--ocean-blue);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 900px) {
+    .gallery-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); auto-rows: 160px; }
+    .gallery-item--large { grid-column: span 2; }
+  }
+  @media (max-width: 400px) {
+    .gallery-grid { grid-template-columns: 1fr; auto-rows: 200px; }
+    .gallery-item--large { grid-column: span 1; grid-row: span 1; }
+  }
+</style>
+
+<script>
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('.gallery-filter-btn');
+  const items      = document.querySelectorAll<HTMLElement>('.gallery-item');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => { b.classList.remove('is-active'); b.setAttribute('aria-selected','false'); });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-selected','true');
+
+      const cat = btn.dataset.cat;
+      items.forEach(item => {
+        if (cat === 'all' || item.dataset.cat === cat) {
+          item.classList.remove('is-hidden');
+        } else {
+          item.classList.add('is-hidden');
+        }
+      });
+    });
+  });
+</script>

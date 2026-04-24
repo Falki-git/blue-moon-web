@@ -1,50 +1,603 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Welcome to Blue Moon Mandre!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+<BaseLayout
+  title="Blue Moon Apartment | Mandre, Island of Pag, Croatia"
+  description="Luxury 2-bedroom family apartment in Mandre, island of Pag. 92m², private Jacuzzi terrace, sea views, 200m from the beach. Open June–September 2025."
+>
+
+  <!-- ═══════════════════════════════════════════════════════════════ HERO -->
+  <section class="hero">
+    <div class="hero__bg img-ph ph-terrace ar-hero" aria-hidden="true">
+      <span class="ph-icon">📷</span>
+      <span class="ph-label">Terrace with sea view</span>
+    </div>
+    <div class="hero__overlay"></div>
+    <div class="hero__content container">
+      <div class="hero__logo-wrap fade-up fade-up-1">
+        <img src="/images/logo.png" alt="Blue Moon Apartment" width="110" height="110" class="hero__logo" />
+      </div>
+      <h1 class="hero__title fade-up fade-up-2">Your Adriatic Escape<br /><em>Awaits</em></h1>
+      <p class="hero__subtitle fade-up fade-up-3">Mandre · Island of Pag · Croatia</p>
+      <div class="hero__ctas fade-up fade-up-4">
+        <a href="/contact" class="btn btn-gold">Check Availability</a>
+        <a href="/apartment" class="btn btn-white">Explore the Apartment →</a>
+      </div>
+    </div>
+    <!-- Scroll cue -->
+    <div class="hero__scroll" aria-hidden="true">
+      <span></span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ FEATURE STRIP -->
+  <section class="features-strip">
+    <div class="container">
+      <ul class="features-strip__list">
+        <li class="features-strip__item">
+          <span class="feat-icon">🌊</span>
+          <span>200m from the beach</span>
+        </li>
+        <li class="features-strip__item">
+          <span class="feat-icon">🛏️</span>
+          <span>2 Bedrooms · Up to 6 guests</span>
+        </li>
+        <li class="features-strip__item">
+          <span class="feat-icon">♨️</span>
+          <span>Private Jacuzzi on terrace</span>
+        </li>
+        <li class="features-strip__item">
+          <span class="feat-icon">🌅</span>
+          <span>Panoramic sunset views</span>
+        </li>
+        <li class="features-strip__item">
+          <span class="feat-icon">🅿️</span>
+          <span>Private parking &amp; garage</span>
+        </li>
+        <li class="features-strip__item">
+          <span class="feat-icon">📶</span>
+          <span>Free Wi-Fi everywhere</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ APARTMENT HIGHLIGHT -->
+  <section class="section apt-highlight">
+    <div class="container">
+      <div class="apt-highlight__grid">
+        <div class="apt-highlight__image">
+          <div class="img-ph ph-interior ar-4-3">
+            <span class="ph-icon">📷</span>
+            <span class="ph-label">Living Room</span>
+          </div>
+          <div class="apt-highlight__badge">92 m²</div>
+        </div>
+        <div class="apt-highlight__text">
+          <span class="section-label">The Apartment</span>
+          <h2>Modern Comfort Meets the Mediterranean</h2>
+          <p>Perched on the 2nd floor of a quiet building, our semi-penthouse apartment combines contemporary design with breathtaking seaside views. Two bedrooms, two full bathrooms, a fully equipped modern kitchen, and a spacious terrace with a private Jacuzzi — everything you need for an unforgettable family holiday.</p>
+          <ul class="apt-highlight__bullets">
+            <li>✓ Two bedrooms with large, comfortable beds</li>
+            <li>✓ Two full bathrooms</li>
+            <li>✓ Open-concept kitchen &amp; living area</li>
+            <li>✓ Spacious terrace with sea &amp; sunset views</li>
+            <li>✓ Air conditioning throughout</li>
+          </ul>
+          <a href="/apartment" class="btn btn-primary">Discover the Apartment →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave -->
+  <div class="wave" aria-hidden="true">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,28 C240,56 480,0 720,28 C960,56 1200,8 1440,28 L1440,56 L0,56 Z" fill="#F7EDD8"/>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ WHY BOOK DIRECT -->
+  <section class="section direct-section" style="background: var(--warm-sand);">
+    <div class="container">
+      <div class="direct-section__header text-center">
+        <span class="section-label">No middlemen</span>
+        <h2>Why Book Direct?</h2>
+        <p class="direct-section__intro">Skip the booking platforms and connect with us directly for the best experience.</p>
+      </div>
+      <div class="grid-3 direct-cards">
+        <div class="direct-card card">
+          <div class="direct-card__icon">💰</div>
+          <h3>Best Price Guaranteed</h3>
+          <p>No OTA commission fees — booking directly means better value with no hidden platform surcharges.</p>
+        </div>
+        <div class="direct-card card">
+          <div class="direct-card__icon">💬</div>
+          <h3>Direct Communication</h3>
+          <p>Talk directly with Goran, your host. Get honest local tips, quick responses, and personal attention from day one.</p>
+        </div>
+        <div class="direct-card card">
+          <div class="direct-card__icon">📅</div>
+          <h3>Flexible &amp; Personal</h3>
+          <p>Customise your stay, discuss arrival times, and get tailored support that no booking algorithm can match.</p>
+        </div>
+      </div>
+      <div class="text-center" style="margin-top: 2.5rem;">
+        <a href="/contact" class="btn btn-primary">Send Us an Inquiry →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave -->
+  <div class="wave" aria-hidden="true" style="background: var(--warm-sand);">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,28 C240,0 480,56 720,28 C960,0 1200,56 1440,28 L1440,56 L0,56 Z" fill="#FFFFFF"/>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ PRICELIST TEASER -->
+  <section class="section price-teaser">
+    <div class="container">
+      <div class="text-center" style="margin-bottom: 2.5rem;">
+        <span class="section-label">Season 2025</span>
+        <h2>Simple, Transparent Pricing</h2>
+      </div>
+      <div class="price-teaser__cards">
+        <div class="price-card price-card--peak">
+          <div class="price-card__badge">Peak Season</div>
+          <div class="price-card__icon">☀️</div>
+          <div class="price-card__dates">1 July – 31 August</div>
+          <div class="price-card__amount">€300</div>
+          <div class="price-card__unit">per night</div>
+          <ul class="price-card__includes">
+            <li>✓ 2 Bedrooms · up to 6 guests</li>
+            <li>✓ Jacuzzi · A/C · Free Wi-Fi</li>
+            <li>✓ Private parking &amp; garage</li>
+          </ul>
+          <a href="/contact" class="btn btn-primary btn-sm">Request Booking</a>
+        </div>
+        <div class="price-card price-card--shoulder">
+          <div class="price-card__badge">Shoulder Season</div>
+          <div class="price-card__icon">🌤️</div>
+          <div class="price-card__dates">1–30 June &amp; 1–30 September</div>
+          <div class="price-card__amount">€250</div>
+          <div class="price-card__unit">per night</div>
+          <ul class="price-card__includes">
+            <li>✓ 2 Bedrooms · up to 6 guests</li>
+            <li>✓ Jacuzzi · A/C · Free Wi-Fi</li>
+            <li>✓ Private parking &amp; garage</li>
+          </ul>
+          <a href="/contact" class="btn btn-sky btn-sm">Request Booking</a>
+        </div>
+      </div>
+      <p class="price-teaser__note">Minimum stay may apply. <a href="/pricelist">View full pricelist &amp; policies →</a></p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ ABOUT MANDRE TEASER -->
+  <section class="mandre-teaser">
+    <div class="mandre-teaser__bg img-ph ph-promenade" aria-hidden="true"></div>
+    <div class="mandre-teaser__overlay"></div>
+    <div class="container mandre-teaser__content">
+      <blockquote class="mandre-teaser__quote">
+        "Mandre — <em>Small town. Big soul.</em>"
+      </blockquote>
+      <p>A quiet, family-friendly haven on the island of Pag with crystal-clear water, Blue Flag beaches, and the warmth of authentic Croatian hospitality.</p>
+      <a href="/about-mandre" class="btn btn-white" style="margin-top: 1.5rem;">Discover Mandre →</a>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ REVIEWS TEASER -->
+  <section class="section" style="background: var(--soft-sky);">
+    <div class="container">
+      <div class="text-center" style="margin-bottom: 2.5rem;">
+        <span class="section-label">Guest Experiences</span>
+        <h2>What Our Guests Say</h2>
+      </div>
+      <div class="grid-3 reviews-grid">
+        <article class="review-card card">
+          <div class="stars">★★★★★</div>
+          <blockquote>"The terrace Jacuzzi at sunset was pure magic. Our kids loved the beach and the whole atmosphere of Mandre. We'll be back next summer without question!"</blockquote>
+          <footer>
+            <strong>Müller Family</strong>
+            <span>🇩🇪 Germany · Family with 2 children</span>
+          </footer>
+        </article>
+        <article class="review-card card">
+          <div class="stars">★★★★★</div>
+          <blockquote>"Goran was an exceptional host — always available, full of great local tips. The apartment is even more beautiful than in the photos. Absolutely perfect for our family."</blockquote>
+          <footer>
+            <strong>Novak &amp; Kovač Families</strong>
+            <span>🇸🇮 Slovenia · Two families</span>
+          </footer>
+        </article>
+        <article class="review-card card">
+          <div class="stars">★★★★★</div>
+          <blockquote>"Amazing location, spotlessly clean, and the views from the terrace are simply breathtaking. The kitchen had everything we needed. Mandre is a hidden gem!"</blockquote>
+          <footer>
+            <strong>Kowalski Family</strong>
+            <span>🇵🇱 Poland · Family holiday</span>
+          </footer>
+        </article>
+      </div>
+      <div class="text-center" style="margin-top: 2.5rem;">
+        <a href="/reviews" class="btn btn-primary">Read all reviews →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ CTA BANNER -->
+  <section class="cta-banner" style="background: var(--ocean-blue);">
+    <div class="container cta-banner__inner">
+      <div>
+        <h2 style="color: white; margin-bottom: 0.5rem;">Ready to plan your holiday?</h2>
+        <p style="color: rgba(255,255,255,0.8);">We respond to all inquiries within 24 hours.</p>
+      </div>
+      <div class="cta-banner__btns">
+        <a href="/contact" class="btn btn-white">Check Availability</a>
+        <a href="/contact" class="btn" style="color:white; border: 2px solid rgba(255,255,255,0.5);">Contact Us</a>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  /* ─── Hero ───────────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    min-height: min(90vh, 700px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0 !important;
+  }
+
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(8,22,40,0.15) 0%,
+      rgba(8,22,40,0.45) 60%,
+      rgba(8,22,40,0.65) 100%
+    );
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+
+  .hero__logo {
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    filter: drop-shadow(0 4px 20px rgba(0,0,0,0.4));
+  }
+
+  .hero__title {
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 3px 20px rgba(8,22,40,0.5);
+    margin-bottom: 0.75rem;
+    line-height: 1.1;
+  }
+  .hero__title em {
+    font-style: italic;
+    color: var(--sunset-gold);
+  }
+
+  .hero__subtitle {
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero__ctas {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .hero__scroll {
+    position: absolute;
+    bottom: 1.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+  .hero__scroll span {
+    display: block;
+    width: 24px;
+    height: 36px;
+    border: 2px solid rgba(255,255,255,0.6);
+    border-radius: 12px;
+    position: relative;
+  }
+  .hero__scroll span::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 8px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 2px;
+    animation: scrollBounce 1.6s ease infinite;
+  }
+  @keyframes scrollBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    50%       { transform: translateX(-50%) translateY(8px); opacity: 0.5; }
+  }
+
+  /* ─── Feature strip ─────────────────────────────────────────────── */
+  .features-strip {
+    background: var(--white);
+    border-bottom: 1px solid rgba(74,159,212,0.12);
+    padding: 1.5rem 0;
+  }
+  .features-strip__list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 2rem;
+  }
+  .features-strip__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--text-dark);
+    white-space: nowrap;
+  }
+  .feat-icon { font-size: 1.2rem; }
+
+  /* ─── Apartment highlight ────────────────────────────────────────── */
+  .apt-highlight__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .apt-highlight__image { position: relative; }
+  .apt-highlight__badge {
+    position: absolute;
+    bottom: -1rem;
+    left: -1rem;
+    background: var(--ocean-blue);
+    color: white;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+  }
+  .apt-highlight__text h2 { margin-bottom: 1rem; }
+  .apt-highlight__text p  { margin-bottom: 1.25rem; color: var(--text-muted); }
+  .apt-highlight__bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 2rem;
+  }
+  .apt-highlight__bullets li {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.92rem;
+  }
+
+  /* ─── Why book direct ────────────────────────────────────────────── */
+  .direct-section__header { margin-bottom: 2.5rem; }
+  .direct-section__intro  { color: var(--text-muted); font-size: 1rem; margin-top: 0.75rem; }
+
+  .direct-card {
+    padding: 2rem;
+    text-align: center;
+    background: var(--white);
+  }
+  .direct-card__icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  .direct-card h3 { font-size: 1.25rem; margin-bottom: 0.75rem; }
+  .direct-card p  { color: var(--text-muted); font-size: 0.92rem; }
+
+  /* ─── Price cards ────────────────────────────────────────────────── */
+  .price-teaser__cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .price-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .price-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
+  .price-card--peak { border-top: 4px solid var(--ocean-blue); }
+  .price-card--shoulder { border-top: 4px solid var(--sky-blue); }
+
+  .price-card__badge {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.7rem;
+    border-radius: 50px;
+  }
+  .price-card--peak .price-card__badge    { background: rgba(26,95,173,0.1);  color: var(--ocean-blue); }
+  .price-card--shoulder .price-card__badge{ background: rgba(74,159,212,0.1); color: var(--sky-blue); }
+
+  .price-card__icon  { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .price-card__dates { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1rem; }
+  .price-card__amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+  .price-card--peak     .price-card__amount { color: var(--ocean-blue); }
+  .price-card--shoulder .price-card__amount { color: var(--sky-blue); }
+
+  .price-card__unit {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .price-card__includes {
+    list-style: none;
+    text-align: left;
+    margin-bottom: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .price-card__includes li {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  .price-teaser__note {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+  }
+  .price-teaser__note a { font-weight: 700; }
+
+  /* ─── Mandre teaser ──────────────────────────────────────────────── */
+  .mandre-teaser {
+    position: relative;
+    min-height: 380px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  .mandre-teaser__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0 !important;
+  }
+  .mandre-teaser__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(8,22,40,0.5);
+  }
+  .mandre-teaser__content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+  .mandre-teaser__quote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    color: white;
+    font-style: normal;
+    margin-bottom: 1.25rem;
+    text-shadow: 0 2px 12px rgba(8,22,40,0.4);
+  }
+  .mandre-teaser__quote em { color: var(--sunset-gold); }
+  .mandre-teaser__content > p {
+    color: rgba(255,255,255,0.85);
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: 1.05rem;
+  }
+
+  /* ─── Reviews ────────────────────────────────────────────────────── */
+  .review-card {
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .review-card .stars { font-size: 1rem; color: var(--sunset-gold); }
+  .review-card blockquote {
+    font-size: 0.92rem;
+    font-style: italic;
+    color: var(--text-dark);
+    line-height: 1.7;
+    flex: 1;
+  }
+  .review-card footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    border-top: 1px solid rgba(74,159,212,0.12);
+    padding-top: 0.75rem;
+  }
+  .review-card footer strong {
+    font-size: 0.9rem;
+    color: var(--ocean-blue);
+  }
+  .review-card footer span {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  /* ─── CTA Banner ─────────────────────────────────────────────────── */
+  .cta-banner { padding: 3.5rem 0; }
+  .cta-banner__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .cta-banner__btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  /* ─── Responsive ─────────────────────────────────────────────────── */
+  @media (max-width: 860px) {
+    .apt-highlight__grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .apt-highlight__badge { bottom: 1rem; left: 1rem; }
+    .direct-cards { grid-template-columns: 1fr !important; }
+    .price-teaser__cards { grid-template-columns: 1fr; max-width: 420px; }
+    .reviews-grid { grid-template-columns: 1fr !important; }
+    .cta-banner__inner { flex-direction: column; text-align: center; }
+    .cta-banner__btns { justify-content: center; }
+  }
+</style>

@@ -1,0 +1,317 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+---
+
+<PageLayout
+  title="Pricelist | Blue Moon Apartment, Mandre"
+  description="Blue Moon Apartment pricing for 2025. €300/night peak season (July–August), €250/night shoulder season (June & September). Book direct for the best price."
+  pageTitle="Pricelist"
+  pageSubtitle="Season 2025 · Transparent Pricing, No Hidden Fees"
+  label="Book Direct"
+  bgClass="ph-sea"
+>
+
+  <!-- ═══ SEASON CARDS ═══ -->
+  <section class="section">
+    <div class="container">
+      <div class="text-center header-block">
+        <span class="section-label">Season 2025</span>
+        <h2>Choose Your Season</h2>
+        <p class="subtext">All prices are per night for the entire apartment (up to 6 guests). No per-person charges.</p>
+      </div>
+
+      <div class="season-cards">
+
+        <!-- Peak -->
+        <div class="season-card season-card--peak">
+          <div class="season-card__ribbon">Most Popular</div>
+          <div class="season-card__header">
+            <div class="season-card__icon">☀️</div>
+            <h3>Peak Season</h3>
+            <p class="season-card__dates">1 July – 31 August 2025</p>
+          </div>
+          <div class="season-card__price">
+            <span class="season-card__currency">€</span>
+            <span class="season-card__amount">300</span>
+            <span class="season-card__per">/ night</span>
+          </div>
+          <ul class="season-card__features">
+            <li>✓ Entire 92 m² apartment</li>
+            <li>✓ 2 Bedrooms · up to 6 guests</li>
+            <li>✓ Private Jacuzzi on terrace</li>
+            <li>✓ Sea &amp; sunset views</li>
+            <li>✓ Free Wi-Fi &amp; cable TV</li>
+            <li>✓ Air conditioning</li>
+            <li>✓ Private parking &amp; garage</li>
+            <li>✓ Fully equipped kitchen</li>
+          </ul>
+          <a href="/contact" class="btn btn-primary" style="width:100%; justify-content:center;">Book Peak Season →</a>
+        </div>
+
+        <!-- Shoulder -->
+        <div class="season-card season-card--shoulder">
+          <div class="season-card__header">
+            <div class="season-card__icon">🌤️</div>
+            <h3>Shoulder Season</h3>
+            <p class="season-card__dates">1–30 June &amp; 1–30 September 2025</p>
+          </div>
+          <div class="season-card__price">
+            <span class="season-card__currency">€</span>
+            <span class="season-card__amount">250</span>
+            <span class="season-card__per">/ night</span>
+          </div>
+          <ul class="season-card__features">
+            <li>✓ Entire 92 m² apartment</li>
+            <li>✓ 2 Bedrooms · up to 6 guests</li>
+            <li>✓ Private Jacuzzi on terrace</li>
+            <li>✓ Sea &amp; sunset views</li>
+            <li>✓ Free Wi-Fi &amp; cable TV</li>
+            <li>✓ Air conditioning</li>
+            <li>✓ Private parking &amp; garage</li>
+            <li>✓ Fully equipped kitchen</li>
+          </ul>
+          <a href="/contact" class="btn btn-sky" style="width:100%; justify-content:center;">Book Shoulder Season →</a>
+          <p class="shoulder-note">🌿 Quieter beaches, cooler evenings — ideal for exploring the island at your own pace.</p>
+        </div>
+
+      </div>
+
+      <div class="price-note card" style="padding:1.5rem; background:var(--warm-sand); box-shadow:none; border-left:4px solid var(--sunset-gold); margin-top: 2rem;">
+        <strong>💡 Weekly stays welcome.</strong> Contact us to discuss rates for stays of 7 nights or more. A minimum stay of 3 nights applies in all seasons.
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ POLICIES ═══ -->
+  <section class="section" style="background: var(--soft-sky);">
+    <div class="container">
+      <div class="text-center" style="margin-bottom:2.5rem;">
+        <span class="section-label">Good to Know</span>
+        <h2>Booking Policies</h2>
+      </div>
+      <div class="policies-grid">
+        <div class="policy-item">
+          <div class="policy-icon">🔑</div>
+          <h4>Check-in</h4>
+          <p>From <strong>3:00 PM</strong>. Early check-in may be arranged on request, subject to availability.</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">🚪</div>
+          <h4>Check-out</h4>
+          <p>By <strong>10:00 AM</strong>. Late check-out available on request, subject to availability.</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">📅</div>
+          <h4>Minimum Stay</h4>
+          <p><strong>3 nights</strong> minimum across all seasons. Weekly rates available on request.</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">💳</div>
+          <h4>Deposit</h4>
+          <p>A deposit of <strong>30%</strong> is required to confirm your booking. The remainder is due on arrival.</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">↩️</div>
+          <h4>Cancellation</h4>
+          <p>Cancellations made <strong>30+ days</strong> before arrival receive a full refund. Later cancellations: deposit is non-refundable. Please contact us for details.</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">🐾</div>
+          <h4>Pets</h4>
+          <p>Pets are <strong>not permitted</strong> in the apartment. Please contact us if you have specific questions.</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">🚭</div>
+          <h4>Smoking</h4>
+          <p>Smoking is <strong>strictly not permitted</strong> indoors. Smoking is permitted on the terrace only.</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">👥</div>
+          <h4>Maximum Occupancy</h4>
+          <p>The apartment accommodates a maximum of <strong>6 guests</strong>. Children count toward the guest total.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ WHAT'S INCLUDED ═══ -->
+  <section class="section">
+    <div class="container">
+      <div class="text-center" style="margin-bottom:2rem;">
+        <span class="section-label">No Surprises</span>
+        <h2>Everything Included in the Price</h2>
+      </div>
+      <div class="included-grid">
+        <div class="included-item"><span>✓</span> All utilities (electricity, water, gas)</div>
+        <div class="included-item"><span>✓</span> Free Wi-Fi</div>
+        <div class="included-item"><span>✓</span> Air conditioning</div>
+        <div class="included-item"><span>✓</span> Jacuzzi / hot tub usage</div>
+        <div class="included-item"><span>✓</span> Bed linen &amp; towels</div>
+        <div class="included-item"><span>✓</span> Private parking &amp; garage</div>
+        <div class="included-item"><span>✓</span> Final cleaning</div>
+        <div class="included-item"><span>✓</span> Tourist tax (sojourn tax)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CTA ═══ -->
+  <section style="background: var(--ocean-blue); padding: 3.5rem 0; text-align:center;">
+    <div class="container">
+      <h2 style="color:white; margin-bottom:0.75rem;">Interested? Let's talk dates.</h2>
+      <p style="color:rgba(255,255,255,0.8); margin-bottom:2rem;">Send us your preferred dates and number of guests and we'll confirm availability within 24 hours.</p>
+      <a href="/contact" class="btn btn-white">Send an Inquiry →</a>
+    </div>
+  </section>
+
+</PageLayout>
+
+<style>
+  .header-block { margin-bottom: 3rem; }
+  .subtext { color: var(--text-muted); margin-top: 0.75rem; font-size: 1rem; }
+
+  .season-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .season-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: 2.5rem 2.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .season-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
+  .season-card--peak     { border-top: 5px solid var(--ocean-blue); }
+  .season-card--shoulder { border-top: 5px solid var(--sky-blue); }
+
+  .season-card__ribbon {
+    position: absolute;
+    top: 1.25rem;
+    right: -2.5rem;
+    background: var(--sunset-gold);
+    color: var(--deep-navy);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 3rem;
+    transform: rotate(35deg);
+  }
+
+  .season-card__header { text-align: center; margin-bottom: 1.5rem; }
+  .season-card__icon   { font-size: 3rem; margin-bottom: 0.5rem; }
+  .season-card__header h3 { margin-bottom: 0.4rem; }
+  .season-card__dates  { color: var(--text-muted); font-size: 0.88rem; font-weight: 600; }
+
+  .season-card__price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.3rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid rgba(74,159,212,0.15);
+  }
+
+  .season-card__currency { font-size: 1.8rem; font-weight: 700; font-family: 'Playfair Display', serif; }
+  .season-card__amount   { font-size: 4rem; font-weight: 700; line-height: 1; font-family: 'Playfair Display', serif; }
+  .season-card__per      { font-size: 0.9rem; font-weight: 700; color: var(--text-muted); }
+
+  .season-card--peak     .season-card__currency,
+  .season-card--peak     .season-card__amount   { color: var(--ocean-blue); }
+  .season-card--shoulder .season-card__currency,
+  .season-card--shoulder .season-card__amount   { color: var(--sky-blue); }
+
+  .season-card__features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  .season-card__features li {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  .shoulder-note {
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+  }
+
+  /* Policies */
+  .policies-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .policy-item {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-xs);
+    transition: transform 0.25s ease;
+  }
+  .policy-item:hover { transform: translateY(-3px); }
+
+  .policy-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+  .policy-item h4 {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: var(--ocean-blue);
+    margin-bottom: 0.5rem;
+  }
+  .policy-item p { font-size: 0.85rem; color: var(--text-dark); line-height: 1.5; }
+  .policy-item strong { color: var(--ocean-blue); }
+
+  /* Included */
+  .included-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .included-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--soft-sky);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+  .included-item span {
+    color: var(--sky-blue);
+    font-size: 1rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 860px) {
+    .season-cards { grid-template-columns: 1fr; max-width: 440px; }
+    .policies-grid { grid-template-columns: 1fr 1fr; }
+    .included-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 540px) {
+    .policies-grid { grid-template-columns: 1fr; }
+    .included-grid { grid-template-columns: 1fr; }
+  }
+</style>

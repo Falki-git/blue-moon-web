@@ -1,0 +1,11 @@
+# Cloudflare Pages redirect rules
+# Language prefix fallback — future i18n routes
+/hr/*  /hr/:splat  200
+/de/*  /de/:splat  200
+/si/*  /si/:splat  200
+/it/*  /it/:splat  200
+/pl/*  /pl/:splat  200
+/cz/*  /cz/:splat  200
+
+# 404 fallback
+/*     /404        404

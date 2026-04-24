@@ -1,0 +1,118 @@
+---
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+import CookieBanner from '../components/CookieBanner.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = 'Blue Moon Apartment — a luxury 2-bedroom family retreat on the island of Pag, Croatia. 92m², sea views, private Jacuzzi terrace, 200m from the beach. Open June–September.',
+  ogImage = '/images/og-image.jpg',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://bluemoonapartment.pages.dev');
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+
+  <!-- Canonical -->
+  <link rel="canonical" href={canonicalURL} />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content={canonicalURL} />
+  <meta property="og:title"       content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image"       content={ogImage} />
+  <meta property="og:locale"      content="en_US" />
+  <meta property="og:site_name"   content="Blue Moon Apartment" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image"       content={ogImage} />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Preconnect for Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,600&family=Nunito:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <title>{title}</title>
+</head>
+<body>
+  <Nav />
+
+  <!-- Seasonal notice -->
+  <div class="season-bar">
+    <div class="container">
+      <span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        Season 2025 — Open <strong>1 June</strong> to <strong>30 September</strong>
+      </span>
+      <a href="/contact" class="season-bar__cta">Book now →</a>
+    </div>
+  </div>
+
+  <main id="main-content">
+    <slot />
+  </main>
+
+  <Footer />
+  <WhatsAppButton />
+  <CookieBanner />
+</body>
+</html>
+
+<style is:global>
+  .season-bar {
+    background: var(--sky-blue);
+    color: white;
+    text-align: center;
+    padding: 0.45rem 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: 'Nunito', sans-serif;
+  }
+  .season-bar .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .season-bar span {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: white;
+  }
+  .season-bar svg { stroke: rgba(255,255,255,0.9); }
+  .season-bar strong { font-weight: 800; }
+  .season-bar__cta {
+    color: white;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: opacity 0.2s;
+  }
+  .season-bar__cta:hover { opacity: 0.8; color: white; }
+</style>

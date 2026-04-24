@@ -1,0 +1,35 @@
+{
+  "site": {
+    "name": "Blue Moon Apartment",
+    "tagline": "Your luxury family retreat on the Adriatic",
+    "location": "Mandre, Island of Pag, Croatia",
+    "email": "info@bluemoonapartment.com",
+    "whatsapp": "+385981234567",
+    "whatsappDisplay": "+385 98 123 4567",
+    "address": "Mandre, Island of Pag, Croatia"
+  },
+  "nav": {
+    "home": "Home",
+    "apartment": "Apartment",
+    "gallery": "Gallery",
+    "pricelist": "Pricelist",
+    "aboutMandre": "About Mandre",
+    "aboutUs": "About Us",
+    "reviews": "Reviews",
+    "contact": "Contact"
+  },
+  "footer": {
+    "tagline": "Your luxury family retreat on the Adriatic",
+    "copyright": "© 2025 Blue Moon Apartment. All rights reserved.",
+    "season": "Open: 1 June – 30 September"
+  },
+  "home": {
+    "heroHeadline": "Your Adriatic Escape Awaits",
+    "heroSubtitle": "Blue Moon Apartment · Mandre, Island of Pag · Croatia",
+    "heroCta": "Check Availability",
+    "heroCtaSecondary": "Explore the Apartment"
+  },
+  "seasonal": {
+    "notice": "Open 1 June – 30 September 2025"
+  }
+}
