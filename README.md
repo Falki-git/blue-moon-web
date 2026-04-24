@@ -1,64 +1,180 @@
-# Astro Starter Kit: Blog
+# 🌙 Blue Moon Apartment — Website
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/astro-blog-starter-template)
+A complete Astro website for the Blue Moon Apartment short-term rental in Mandre, island of Pag, Croatia.
 
-![Astro Template Preview](https://github.com/withastro/astro/assets/2244813/ff10799f-a816-4703-b967-c78997e8323d)
+---
 
-<!-- dash-content-start -->
-
-Create a blog with Astro and deploy it on Cloudflare Workers as a [static website](https://developers.cloudflare.com/workers/static-assets/).
-
-Features:
-
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and OpenGraph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
-- ✅ Built-in Observability logging
-
-<!-- dash-content-end -->
-
-## Getting Started
-
-Outside of this repo, you can start a new project with this template using [C3](https://developers.cloudflare.com/pages/get-started/c3/) (the `create-cloudflare` CLI):
+## 🚀 Quick Start
 
 ```bash
-npm create cloudflare@latest -- --template=cloudflare/templates/astro-blog-starter-template
+# Install dependencies
+npm install
+
+# Start dev server at localhost:4321
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-A live public deployment of this template is available at [https://astro-blog-starter-template.templates.workers.dev](https://astro-blog-starter-template.templates.workers.dev)
+---
 
-## 🚀 Project Structure
+## 📁 Project Structure
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+```
+blue-moon-apartment/
+├── public/
+│   ├── images/
+│   │   ├── logo.png               ← Blue Moon logo (already added)
+│   │   └── gallery/               ← ADD your apartment photos here
+│   ├── _redirects                 ← Cloudflare Pages redirect rules
+│   ├── _headers                   ← Cloudflare Pages security headers
+│   └── favicon.svg
+│
+├── src/
+│   ├── layouts/
+│   │   ├── BaseLayout.astro       ← Wraps all pages (nav, footer, meta)
+│   │   └── PageLayout.astro       ← Inner pages with hero header
+│   │
+│   ├── components/
+│   │   ├── Nav.astro              ← Navigation + language switcher
+│   │   ├── Footer.astro           ← Site footer
+│   │   ├── WhatsAppButton.astro   ← Floating WhatsApp CTA
+│   │   └── CookieBanner.astro     ← GDPR cookie consent
+│   │
+│   ├── pages/
+│   │   ├── index.astro            ← Home page
+│   │   ├── apartment.astro        ← Apartment detail
+│   │   ├── gallery.astro          ← Photo gallery
+│   │   ├── pricelist.astro        ← Pricing & policies
+│   │   ├── about-mandre.astro     ← Mandre destination guide
+│   │   ├── about-us.astro         ← Host profile (Goran)
+│   │   ├── reviews.astro          ← Guest reviews
+│   │   ├── contact.astro          ← Inquiry form & contacts
+│   │   ├── directions.astro       ← How to get here
+│   │   └── 404.astro              ← Custom 404 page
+│   │
+│   ├── styles/
+│   │   └── global.css             ← Brand variables, typography, utilities
+│   │
+│   └── i18n/
+│       └── en.json                ← English translations (add more languages here)
+│
+├── astro.config.mjs
+├── package.json
+└── wrangler.toml                  ← Cloudflare Pages build config
+```
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+---
 
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
+## ✏️ Before You Launch — Checklist
 
-Any static assets, like images, can be placed in the `public/` directory.
+### Content to Personalise
 
-## 🧞 Commands
+- [ ] **`src/pages/about-us.astro`** — Fill in the `[Placeholder]` paragraphs with your personal story as a host.
+- [ ] **`src/pages/about-mandre.astro`** — Fill in the "Goran's Picks" section (01–05) with your real local recommendations.
+- [ ] **All pages** — Replace `info@bluemoonapartment.com` with your real email address.
+- [ ] **All pages** — Replace `+385981234567` with your real WhatsApp/phone number.
+- [ ] **`src/pages/pricelist.astro`** — Update check-in/check-out times and exact deposit/cancellation policy if needed.
 
-All commands are run from the root of the project, from a terminal:
+### Photos
 
-| Command                           | Action                                           |
-| :-------------------------------- | :----------------------------------------------- |
-| `npm install`                     | Installs dependencies                            |
-| `npm run dev`                     | Starts local dev server at `localhost:4321`      |
-| `npm run build`                   | Build your production site to `./dist/`          |
-| `npm run preview`                 | Preview your build locally, before deploying     |
-| `npm run astro ...`               | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help`         | Get help using the Astro CLI                     |
-| `npm run build && npm run deploy` | Deploy your production site to Cloudflare        |
-| `npm wrangler tail`               | View real-time logs for all Workers              |
+Add your apartment photos to `/public/images/gallery/` and update the `<img>` placeholders in each page. The placeholder `div` elements with class `img-ph` are your targets — replace them with real `<img>` or `<picture>` tags using Astro's `<Image />` component.
 
-## 👀 Want to learn more?
+Example replacement:
+```astro
+<!-- Before (placeholder) -->
+<div class="img-ph ph-terrace ar-4-3">
+  <span class="ph-icon">📷</span>
+</div>
 
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+<!-- After (real photo) -->
+<img
+  src="/images/gallery/terrace-jacuzzi.jpg"
+  alt="Terrace with Jacuzzi and sea view"
+  width="800"
+  height="600"
+  loading="lazy"
+  class="apt-photo"
+/>
+```
 
-## Credit
+### Contact Form
 
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+The form uses `data-netlify="true"` for serverless form handling. On Cloudflare Pages, you have two options:
+
+**Option A — Formspree (recommended):**
+1. Create a free account at [formspree.io](https://formspree.io)
+2. Replace the form `action` in `contact.astro` with your Formspree endpoint:
+   ```html
+   <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+   ```
+3. Remove the `data-netlify` attribute.
+
+**Option B — Cloudflare Pages Functions:**
+Create `/functions/form.js` to handle form submissions server-side.
+
+### Maps
+
+In `directions.astro` and `contact.astro`, replace the map placeholder divs with a real Google Maps embed:
+1. Go to [maps.google.com](https://maps.google.com) and search for "Mandre, Pag, Croatia"
+2. Click Share → Embed a map → Copy the iframe code
+3. Replace the `<div class="img-ph...">` with the iframe
+
+### OG Image
+
+Create a 1200×630px social sharing image at `/public/images/og-image.jpg`.
+
+---
+
+## 🌍 Adding Languages (i18n)
+
+Language routing is prepared. To add Croatian (HR):
+
+1. Create `/src/i18n/hr.json` with translated strings.
+2. Create `/src/pages/hr/index.astro` (and other pages under `/src/pages/hr/`).
+3. Use the translations from the JSON file in each page.
+
+---
+
+## ☁️ Deploying to Cloudflare Pages
+
+1. Push this repository to GitHub.
+2. Log in to [Cloudflare Dashboard](https://dash.cloudflare.com) → Pages → Create a project.
+3. Connect your GitHub repository.
+4. Set the build settings:
+   - **Build command:** `npm run build`
+   - **Build output directory:** `dist`
+   - **Node version (env variable):** `NODE_VERSION = 20`
+5. Click Deploy. Your site will be live at `your-project.pages.dev`.
+6. Add your custom domain in Pages → Custom Domains.
+
+---
+
+## 🎨 Customising the Design
+
+All brand colours are in `src/styles/global.css` as CSS custom properties:
+
+```css
+:root {
+  --white:       #FFFFFF;
+  --soft-sky:    #EAF6FC;
+  --sky-blue:    #4A9FD4;
+  --ocean-blue:  #1A5FAD;
+  --deep-navy:   #081628;
+  --warm-sand:   #F7EDD8;
+  --sunset-gold: #E8A82A;
+}
+```
+
+Change any value here and it updates across the entire site.
+
+---
+
+## 📞 Support
+
+Built for Goran Falkoni — Blue Moon Apartment, Mandre, Island of Pag, Croatia.
+Website: bluemoonapartment.pages.dev
