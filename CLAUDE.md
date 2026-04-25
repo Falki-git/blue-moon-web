@@ -73,9 +73,28 @@ No test or lint scripts are configured.
 
 Real photos are not yet added. All images are CSS placeholder `<div>` elements using `.img-ph` + category modifier classes (`.ph-terrace`, `.ph-sea`, etc.) defined in `src/styles/global.css:207`. When adding real images, replace these divs with `<img>` or Astro `<Image>` components.
 
-## Adding New Features or Fixing Bugs
+## Git Branching Workflow
 
-**IMPORTANT**: When you work on a new feature or bug, create a git branch first. Then work on changes in that branch for the remainder of the session.
+### Branch purposes
+| Branch | Purpose |
+|--------|---------|
+| `main` | Production only — always 100% identical to what is live on Cloudflare Pages. Never commit or push here directly. |
+| `development` | Integration branch for all ongoing work. The default base for new branches. |
+| Feature/fix branches | Short-lived branches cut from `development`, merged back via PR. |
+
+### Workflow for any change
+1. Branch from `development`: `git checkout development && git checkout -b <branch-name>`
+2. Make changes on the feature/fix branch
+3. Open a PR targeting `development` (never `main`)
+4. Merge into `development` when ready
+
+### Deploying to production
+**IMPORTANT**: Never open a PR from `development` → `main` on your own initiative. Only open this PR when the user explicitly asks for it (e.g., "create a PR to main", "open the deployment PR"). Never merge `development` into `main` directly.
+
+1. When the user requests it, open a PR from `development` → `main`
+2. User reviews, approves, and merges the PR
+3. After user confirms the merge, sync `development`: `git checkout development && git merge main`
+4. Continue new work from `development`
 
 ## Additional Documentation
 
