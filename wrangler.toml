@@ -8,3 +8,15 @@ not_found_handling = "404-page"
 
 [build]
 command = "npm run build"
+
+[env.development]
+name = "dev-blue-moon-web"
+compatibility_date = "2025-10-08"
+compatibility_flags = ["nodejs_compat"]
+
+[env.development.assets]
+directory = "./dist"
+not_found_handling = "404-page"
+
+[env.development.build]
+command = "npm run build"
