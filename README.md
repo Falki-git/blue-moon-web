@@ -177,4 +177,4 @@ Change any value here and it updates across the entire site.
 ## 📞 Support
 
 Built for Goran Falkoni — Blue Moon Apartment, Mandre, Island of Pag, Croatia.
-Website: bluemoonapartment.pages.dev
+Website: https://blue-moon-web.gfalkoni.workers.dev/
