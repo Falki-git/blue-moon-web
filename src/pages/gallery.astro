@@ -361,6 +361,11 @@ const categories = [
     transition: background var(--transition-fast);
   }
   .gallery-modal__close:hover { background: rgba(255, 255, 255, 0.3); }
+  .gallery-modal__close::after {
+    content: '';
+    position: absolute;
+    inset: -20px;
+  }
 
   .gallery-modal__nav {
     position: fixed;
@@ -380,6 +385,11 @@ const categories = [
     transition: background var(--transition-fast);
   }
   .gallery-modal__nav:hover { background: rgba(255, 255, 255, 0.3); }
+  .gallery-modal__nav::after {
+    content: '';
+    position: absolute;
+    inset: -20px;
+  }
   .gallery-modal__nav--prev { left: 1rem; }
   .gallery-modal__nav--next { right: 1rem; }
 
@@ -516,6 +526,7 @@ const categories = [
 
   modalClose.addEventListener('click', closeModal);
   modalBackdrop.addEventListener('click', closeModal);
+  modalStage.addEventListener('click', () => loadSlide(currentIndex + 1));
   modalPrev.addEventListener('click', () => loadSlide(currentIndex - 1));
   modalNext.addEventListener('click', () => loadSlide(currentIndex + 1));
 
