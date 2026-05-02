@@ -113,6 +113,7 @@ const categories = [
             <div
               class={`gallery-item ${photo.size === 'large' ? 'gallery-item--large' : ''}`}
               data-cat={photo.cat}
+              data-label={photo.label}
             >
               {photo.src
                 ? <Image
@@ -140,6 +141,22 @@ const categories = [
 
     </div>
   </section>
+
+  <!-- Lightbox modal -->
+  <div id="galleryModal" class="gallery-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Image viewer">
+    <div class="gallery-modal__backdrop" id="modalBackdrop"></div>
+    <button class="gallery-modal__close" id="modalClose" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button class="gallery-modal__nav gallery-modal__nav--prev" id="modalPrev" aria-label="Previous image">
+      <svg width="10" height="18" viewBox="0 0 10 18" fill="none" aria-hidden="true"><path d="M9 1L1 9L9 17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="gallery-modal__stage" id="modalStage"></div>
+    <button class="gallery-modal__nav gallery-modal__nav--next" id="modalNext" aria-label="Next image">
+      <svg width="10" height="18" viewBox="0 0 10 18" fill="none" aria-hidden="true"><path d="M1 1L9 9L1 17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="gallery-modal__caption" id="modalCaption"></div>
+  </div>
 
   <!-- CTA -->
   <section style="background:var(--soft-sky); padding:3rem 0; text-align:center;">
@@ -289,6 +306,112 @@ const categories = [
     .gallery-grid { grid-template-columns: 1fr; auto-rows: 200px; }
     .gallery-item--large { grid-column: span 1; grid-row: span 1; }
   }
+
+  /* ── Lightbox ── */
+  .gallery-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    align-items: center;
+    justify-content: center;
+  }
+  .gallery-modal.is-open { display: flex; }
+
+  .gallery-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 22, 40, 0.92);
+  }
+
+  .gallery-modal__stage {
+    position: relative;
+    z-index: 1;
+    /* width/height set dynamically via JS to match image aspect ratio exactly */
+  }
+  .gallery-modal__stage :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+  }
+  .gallery-modal__stage :global(.img-ph) {
+    width: min(600px, 80vw);
+    height: min(400px, 60vh);
+    border-radius: var(--radius);
+  }
+
+  .gallery-modal__close {
+    position: fixed;
+    top: 1rem;
+    right: 1.25rem;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    outline: none;
+    color: #fff;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-fast);
+  }
+  .gallery-modal__close:hover { background: rgba(255, 255, 255, 0.3); }
+  .gallery-modal__close::after {
+    content: '';
+    position: absolute;
+    inset: -20px;
+  }
+
+  .gallery-modal__nav {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    outline: none;
+    color: #fff;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-fast);
+  }
+  .gallery-modal__nav:hover { background: rgba(255, 255, 255, 0.3); }
+  .gallery-modal__nav::after {
+    content: '';
+    position: absolute;
+    inset: -20px;
+  }
+  .gallery-modal__nav--prev { left: 1rem; }
+  .gallery-modal__nav--next { right: 1rem; }
+
+  .gallery-modal__caption {
+    position: fixed;
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    color: #fff;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .gallery-modal__nav--prev { left: 0.25rem; }
+    .gallery-modal__nav--next { right: 0.25rem; }
+    .gallery-modal__nav { width: 2.25rem; height: 2.25rem; }
+  }
 </style>
 
 <script>
@@ -318,5 +441,110 @@ const categories = [
         }
       });
     });
+  });
+
+  // ── Lightbox ──
+  const modal         = document.getElementById('galleryModal') as HTMLElement;
+  const modalStage    = document.getElementById('modalStage') as HTMLElement;
+  const modalCaption  = document.getElementById('modalCaption') as HTMLElement;
+  const modalClose    = document.getElementById('modalClose') as HTMLButtonElement;
+  const modalPrev     = document.getElementById('modalPrev') as HTMLButtonElement;
+  const modalNext     = document.getElementById('modalNext') as HTMLButtonElement;
+  const modalBackdrop = document.getElementById('modalBackdrop') as HTMLElement;
+
+  let currentIndex = 0;
+
+  function getVisibleItems(): HTMLElement[] {
+    return Array.from(document.querySelectorAll<HTMLElement>('.gallery-item:not(.is-hidden)'));
+  }
+
+  function getHighestSrc(img: HTMLImageElement): string {
+    if (!img.srcset) return img.src;
+    const entries = img.srcset.split(',').map(s => {
+      const parts = s.trim().split(' ');
+      return { url: parts[0], w: parseInt(parts[1]) || 0 };
+    });
+    entries.sort((a, b) => b.w - a.w);
+    return entries[0].url;
+  }
+
+  function sizeStage(naturalWidth: number, naturalHeight: number) {
+    const maxW = window.innerWidth * 0.9;
+    const maxH = window.innerHeight * 0.85;
+    const ratio = naturalWidth / naturalHeight;
+    let w = maxW;
+    let h = w / ratio;
+    if (h > maxH) { h = maxH; w = h * ratio; }
+    modalStage.style.width  = Math.round(w) + 'px';
+    modalStage.style.height = Math.round(h) + 'px';
+  }
+
+  function loadSlide(index: number) {
+    const visible = getVisibleItems();
+    if (!visible.length) return;
+    currentIndex = (index + visible.length) % visible.length;
+    const item = visible[currentIndex];
+
+    const imgEl = item.querySelector<HTMLImageElement>('img');
+    if (imgEl) {
+      const src = getHighestSrc(imgEl);
+      const alt = (item.dataset.label || '').replace(/"/g, '&quot;');
+      sizeStage(imgEl.naturalWidth, imgEl.naturalHeight);
+      modalStage.innerHTML = `<img src="${src}" alt="${alt}">`;
+    } else {
+      const ph = item.querySelector('.img-ph');
+      modalStage.style.width  = '';
+      modalStage.style.height = '';
+      modalStage.innerHTML = ph ? ph.outerHTML : '';
+    }
+
+    modalCaption.textContent = item.dataset.label || '';
+  }
+
+  function openModal(index: number) {
+    loadSlide(index);
+    modal.classList.add('is-open');
+    modal.removeAttribute('aria-hidden');
+    document.body.style.overflow = 'hidden';
+    modalClose.focus();
+  }
+
+  function closeModal() {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    modalStage.innerHTML = '';
+    modalStage.style.width  = '';
+    modalStage.style.height = '';
+  }
+
+  document.querySelectorAll<HTMLElement>('.gallery-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const visible = getVisibleItems();
+      const idx = visible.indexOf(item);
+      if (idx !== -1) openModal(idx);
+    });
+  });
+
+  modalClose.addEventListener('click', closeModal);
+  modalBackdrop.addEventListener('click', closeModal);
+  modalStage.addEventListener('click', () => loadSlide(currentIndex + 1));
+  modalPrev.addEventListener('click', () => loadSlide(currentIndex - 1));
+  modalNext.addEventListener('click', () => loadSlide(currentIndex + 1));
+
+  document.addEventListener('keydown', e => {
+    if (!modal.classList.contains('is-open')) return;
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'ArrowLeft') loadSlide(currentIndex - 1);
+    if (e.key === 'ArrowRight') loadSlide(currentIndex + 1);
+  });
+
+  let touchStartX = 0;
+  modal.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+  modal.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) dx < 0 ? loadSlide(currentIndex + 1) : loadSlide(currentIndex - 1);
   });
 </script>
