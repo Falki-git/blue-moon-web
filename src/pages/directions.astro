@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
+import heroBg from '../assets/gallery/how to get to the apartment.jpg';
 ---
 
 <PageLayout
@@ -9,7 +11,7 @@ import PageLayout from '../layouts/PageLayout.astro';
   pageSubtitle="Mandre, Island of Pag, Croatia"
   label="Directions"
   bgClass="ph-town"
-  bgImage="/images/gallery/how%20to%20get%20to%20the%20apartment.jpg"
+  bgImage={heroBg}
 >
 
   <!-- ═══ DISTANCE OVERVIEW ═══ -->
@@ -209,7 +211,7 @@ import PageLayout from '../layouts/PageLayout.astro';
           </div>
         </div>
         <div>
-          <img src="/images/gallery/how%20to%20get%20to%20the%20apartment.jpg" alt="Building &amp; Parking" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <Image src={heroBg} alt="Building &amp; Parking" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
         </div>
       </div>
     </div>

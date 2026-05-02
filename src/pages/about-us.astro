@@ -1,5 +1,9 @@
 ---
+import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
+import heroBg from '../assets/gallery/outdoor.jpg';
+import hostPic from '../assets/gallery/host picture.jpg';
+import terrace3 from '../assets/gallery/terrace-3.jpg';
 ---
 
 <PageLayout
@@ -9,7 +13,7 @@ import PageLayout from '../layouts/PageLayout.astro';
   pageSubtitle="A warm welcome from Mandre, island of Pag"
   label="About Us"
   bgClass="ph-sea"
-  bgImage="/images/gallery/outdoor.jpg"
+  bgImage={heroBg}
 >
 
   <!-- ═══ HOST INTRO ═══ -->
@@ -19,7 +23,7 @@ import PageLayout from '../layouts/PageLayout.astro';
 
         <div class="host-photo-col">
           <div class="host-photo-wrap">
-            <img src="/images/gallery/host%20picture.jpg" alt="Goran Falkoni" class="host-photo" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:50%; display:block;" />
+            <Image src={hostPic} alt="Goran Falkoni" widths={[300, 600]} sizes="(max-width: 640px) 70vw, 320px" class="host-photo" style="width:100%; height:auto; aspect-ratio:1/1; object-fit:cover; border-radius:50%; display:block;" />
             <div class="host-badge">
               <span class="host-badge__icon">⭐</span>
               <div>
@@ -75,7 +79,7 @@ import PageLayout from '../layouts/PageLayout.astro';
     <div class="container">
       <div class="story-grid">
         <div>
-          <img src="/images/gallery/terrace-3.jpg" alt="The Terrace" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <Image src={terrace3} alt="The Terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
         </div>
         <div>
           <span class="section-label">The Story</span>

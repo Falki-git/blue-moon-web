@@ -1,5 +1,6 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
+import heroBg from '../assets/gallery/terrace-5.jpg';
 
 const reviews = [
   {
@@ -118,7 +119,7 @@ const avgRating = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).t
   pageSubtitle="Honest reviews from families who stayed with us"
   label="Guest Reviews"
   bgClass="ph-sea"
-  bgImage="/images/gallery/terrace-5.jpg"
+  bgImage={heroBg}
 >
 
   <!-- ═══ SUMMARY BAR ═══ -->

@@ -1,5 +1,13 @@
 ---
+import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
+import heroBg from '../assets/gallery/terrace-1.jpg';
+import terrace2 from '../assets/gallery/terrace-2.jpg';
+import jacuzzi from '../assets/gallery/jacuzzi.png';
+import bedroom1 from '../assets/gallery/bedroom1-1.jpg';
+import bedroom2 from '../assets/gallery/bedroom2-1.jpg';
+import kitchen from '../assets/gallery/kitchen1-1.jpg';
+import bathroom from '../assets/gallery/bathroom1-1.jpg';
 ---
 
 <PageLayout
@@ -9,7 +17,7 @@ import PageLayout from '../layouts/PageLayout.astro';
   pageSubtitle="92 m² · 2 Bedrooms · Up to 6 Guests · 2nd Floor · Sea &amp; Sunset Views"
   label="Blue Moon Apartment"
   bgClass="ph-terrace"
-  bgImage="/images/gallery/terrace-1.jpg"
+  bgImage={heroBg}
 >
 
   <!-- ═══ OVERVIEW ═══ -->
@@ -29,7 +37,7 @@ import PageLayout from '../layouts/PageLayout.astro';
           </div>
         </div>
         <div>
-          <img src="/images/gallery/terrace-2.jpg" alt="Terrace sea view" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <Image src={terrace2} alt="Terrace sea view" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
         </div>
       </div>
     </div>
@@ -40,7 +48,7 @@ import PageLayout from '../layouts/PageLayout.astro';
     <div class="container">
       <div class="apt-grid apt-grid--reverse">
         <div>
-          <img src="/images/gallery/jacuzzi.png" alt="Terrace with Jacuzzi" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <Image src={jacuzzi} alt="Terrace with Jacuzzi" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
         </div>
         <div>
           <span class="section-label">Outdoor Living</span>
@@ -66,8 +74,8 @@ import PageLayout from '../layouts/PageLayout.astro';
           <p style="margin-top:1rem;">The layout works perfectly for two couples travelling together, or a family of four to six — each couple or set of parents gets their own private bedroom.</p>
         </div>
         <div style="display:flex; flex-direction:column; gap:1rem;">
-          <img src="/images/gallery/bedroom1-1.jpg" alt="Bedroom 1" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:var(--radius); display:block;" />
-          <img src="/images/gallery/bedroom2-1.jpg" alt="Bedroom 2" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <Image src={bedroom1} alt="Bedroom 1" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:16/9; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <Image src={bedroom2} alt="Bedroom 2" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:16/9; object-fit:cover; border-radius:var(--radius); display:block;" />
         </div>
       </div>
     </div>
@@ -78,7 +86,7 @@ import PageLayout from '../layouts/PageLayout.astro';
     <div class="container">
       <div class="apt-grid apt-grid--reverse">
         <div>
-          <img src="/images/gallery/kitchen1-1.jpg" alt="Kitchen" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <Image src={kitchen} alt="Kitchen" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
         </div>
         <div>
           <span class="section-label">Cook &amp; Entertain</span>
@@ -114,7 +122,7 @@ import PageLayout from '../layouts/PageLayout.astro';
           </ul>
         </div>
         <div>
-          <img src="/images/gallery/bathroom1-1.jpg" alt="Bathroom" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <Image src={bathroom} alt="Bathroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
         </div>
       </div>
     </div>

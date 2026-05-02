@@ -1,5 +1,8 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import heroCover from '../assets/gallery/Blue Moon cover picture.jpg';
+import livingRoom from '../assets/gallery/livingroom-1.jpg';
 ---
 
 <BaseLayout
@@ -10,7 +13,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <!-- ═══════════════════════════════════════════════════════════════ HERO -->
   <section class="hero">
     <div class="hero__bg" aria-hidden="true">
-      <img src="/images/gallery/Blue%20Moon%20cover%20picture.jpg" alt="" style="width:100%; height:100%; object-fit:cover; object-position:center 20%;" />
+      <Image src={heroCover} alt="" widths={[800, 1280, 1920]} sizes="100vw" style="width:100%; height:100%; object-fit:cover; object-position:center 20%;" loading="eager" />
     </div>
     <div class="hero__overlay"></div>
     <div class="hero__content container">
@@ -64,7 +67,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="container">
       <div class="apt-highlight__grid">
         <div class="apt-highlight__image">
-          <img src="/images/gallery/livingroom-1.jpg" alt="Living Room" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <Image src={livingRoom} alt="Living Room" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
           <div class="apt-highlight__badge">92 m²</div>
         </div>
         <div class="apt-highlight__text">
