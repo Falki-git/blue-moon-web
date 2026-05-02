@@ -1,55 +1,64 @@
 ---
+import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
+import heroBg from '../assets/gallery/Blue Moon cover picture.jpg';
+
+const galleryImages = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/gallery/*.{jpg,jpeg,png}',
+  { eager: true }
+);
+const img = (filename: string) =>
+  galleryImages[`../assets/gallery/${filename}`]?.default;
 
 const photos = [
   // ── Terrace & Jacuzzi ──
-  { id: 1,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace with Jacuzzi',   size: 'large',  src: '/images/gallery/jacuzzi.png' },
-  { id: 2,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: '/images/gallery/terrace-1.jpg' },
-  { id: 3,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: '/images/gallery/terrace-2.jpg' },
-  { id: 4,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: '/images/gallery/terrace-3.jpg' },
-  { id: 5,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: '/images/gallery/terrace-4.jpg' },
-  { id: 6,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: '/images/gallery/terrace-5.jpg' },
-  { id: 7,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: '/images/gallery/terrace-6.jpg' },
-  { id: 8,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: '/images/gallery/terrace-7.jpg' },
-  { id: 9,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: '/images/gallery/terrace-8.jpg' },
-  { id: 10, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: '/images/gallery/terrace-9.jpg' },
-  { id: 11, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: '/images/gallery/terrace-10.jpg' },
-  { id: 12, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: '/images/gallery/terrace-11.jpg' },
-  { id: 13, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace Panorama',       size: 'large',  src: '/images/gallery/terrace-12.jpg' },
+  { id: 1,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace with Jacuzzi',   size: 'large',  src: img('jacuzzi.png') },
+  { id: 2,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-1.jpg') },
+  { id: 3,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-2.jpg') },
+  { id: 4,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-3.jpg') },
+  { id: 5,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-4.jpg') },
+  { id: 6,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-5.jpg') },
+  { id: 7,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-6.jpg') },
+  { id: 8,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-7.jpg') },
+  { id: 9,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-8.jpg') },
+  { id: 10, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-9.jpg') },
+  { id: 11, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-10.jpg') },
+  { id: 12, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-11.jpg') },
+  { id: 13, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace Panorama',       size: 'large',  src: img('terrace-12.jpg') },
   // ── Living Room ──
-  { id: 14, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'large',  src: '/images/gallery/livingroom-1.jpg' },
-  { id: 15, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: '/images/gallery/livingroom-2.jpg' },
-  { id: 16, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: '/images/gallery/livingroom-3.jpg' },
-  { id: 17, cat: 'living',   cls: 'ph-interior', label: 'Dining Area',            size: 'medium', src: '/images/gallery/livingroom-4.jpg' },
-  { id: 18, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: '/images/gallery/livingroom-5.jpg' },
-  { id: 19, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: '/images/gallery/livingroom-6.jpg' },
-  { id: 20, cat: 'living',   cls: 'ph-interior', label: 'Open-Plan Living',       size: 'medium', src: '/images/gallery/livingroom-7.jpg' },
-  { id: 21, cat: 'living',   cls: 'ph-interior', label: 'Hallway',               size: 'medium', src: '/images/gallery/hallway-1.jpg' },
-  { id: 22, cat: 'living',   cls: 'ph-interior', label: 'Hallway',               size: 'medium', src: '/images/gallery/hallway-2.jpg' },
-  { id: 23, cat: 'living',   cls: 'ph-interior', label: 'Hallway',               size: 'medium', src: '/images/gallery/hallway-3.jpg' },
+  { id: 14, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'large',  src: img('livingroom-1.jpg') },
+  { id: 15, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: img('livingroom-2.jpg') },
+  { id: 16, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: img('livingroom-3.jpg') },
+  { id: 17, cat: 'living',   cls: 'ph-interior', label: 'Dining Area',            size: 'medium', src: img('livingroom-4.jpg') },
+  { id: 18, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: img('livingroom-5.jpg') },
+  { id: 19, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: img('livingroom-6.jpg') },
+  { id: 20, cat: 'living',   cls: 'ph-interior', label: 'Open-Plan Living',       size: 'medium', src: img('livingroom-7.jpg') },
+  { id: 21, cat: 'living',   cls: 'ph-interior', label: 'Hallway',               size: 'medium', src: img('hallway-1.jpg') },
+  { id: 22, cat: 'living',   cls: 'ph-interior', label: 'Hallway',               size: 'medium', src: img('hallway-2.jpg') },
+  { id: 23, cat: 'living',   cls: 'ph-interior', label: 'Hallway',               size: 'medium', src: img('hallway-3.jpg') },
   // ── Kitchen ──
-  { id: 24, cat: 'kitchen',  cls: 'ph-kitchen',  label: 'Kitchen',               size: 'large',  src: '/images/gallery/kitchen1-1.jpg' },
-  { id: 25, cat: 'kitchen',  cls: 'ph-kitchen',  label: 'Kitchen',               size: 'medium', src: '/images/gallery/kitchen1-2.jpg' },
-  { id: 26, cat: 'kitchen',  cls: 'ph-kitchen',  label: 'Kitchen — Detail',      size: 'medium', src: '/images/gallery/kitchen1-3.jpg' },
+  { id: 24, cat: 'kitchen',  cls: 'ph-kitchen',  label: 'Kitchen',               size: 'large',  src: img('kitchen1-1.jpg') },
+  { id: 25, cat: 'kitchen',  cls: 'ph-kitchen',  label: 'Kitchen',               size: 'medium', src: img('kitchen1-2.jpg') },
+  { id: 26, cat: 'kitchen',  cls: 'ph-kitchen',  label: 'Kitchen — Detail',      size: 'medium', src: img('kitchen1-3.jpg') },
   // ── Bedroom 1 ──
-  { id: 27, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'large',  src: '/images/gallery/bedroom1-1.jpg', subgroupLabel: 'Bedroom 1' },
-  { id: 28, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'medium', src: '/images/gallery/bedroom1-2.jpg' },
-  { id: 29, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'medium', src: '/images/gallery/bedroom1-3.jpg' },
-  { id: 30, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'medium', src: '/images/gallery/bedroom1-4.jpg' },
+  { id: 27, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'large',  src: img('bedroom1-1.jpg'), subgroupLabel: 'Bedroom 1' },
+  { id: 28, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'medium', src: img('bedroom1-2.jpg') },
+  { id: 29, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'medium', src: img('bedroom1-3.jpg') },
+  { id: 30, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'medium', src: img('bedroom1-4.jpg') },
   // ── Bedroom 2 ──
-  { id: 31, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'large',  src: '/images/gallery/bedroom2-1.jpg', subgroupLabel: 'Bedroom 2' },
-  { id: 32, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: '/images/gallery/bedroom2-2.jpg' },
-  { id: 33, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: '/images/gallery/bedroom2-3.jpg' },
-  { id: 34, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: '/images/gallery/bedroom2-4.jpg' },
-  { id: 35, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: '/images/gallery/bedroom2-5.jpg' },
-  { id: 36, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: '/images/gallery/bedroom2-6.jpg' },
+  { id: 31, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'large',  src: img('bedroom2-1.jpg'), subgroupLabel: 'Bedroom 2' },
+  { id: 32, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: img('bedroom2-2.jpg') },
+  { id: 33, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: img('bedroom2-3.jpg') },
+  { id: 34, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: img('bedroom2-4.jpg') },
+  { id: 35, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: img('bedroom2-5.jpg') },
+  { id: 36, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: img('bedroom2-6.jpg') },
   // ── Bathrooms ──
-  { id: 37, cat: 'bathroom', cls: 'ph-bathroom', label: 'Bathroom 1',            size: 'medium', src: '/images/gallery/bathroom1-1.jpg', subgroupLabel: 'Bathroom 1' },
-  { id: 38, cat: 'bathroom', cls: 'ph-bathroom', label: 'Bathroom 1',            size: 'medium', src: '/images/gallery/bathroom1-2.jpg' },
-  { id: 39, cat: 'bathroom', cls: 'ph-bathroom', label: 'Bathroom 2',            size: 'medium', src: '/images/gallery/Bathroom2.jpg', subgroupLabel: 'Bathroom 2' },
+  { id: 37, cat: 'bathroom', cls: 'ph-bathroom', label: 'Bathroom 1',            size: 'medium', src: img('bathroom1-1.jpg'), subgroupLabel: 'Bathroom 1' },
+  { id: 38, cat: 'bathroom', cls: 'ph-bathroom', label: 'Bathroom 1',            size: 'medium', src: img('bathroom1-2.jpg') },
+  { id: 39, cat: 'bathroom', cls: 'ph-bathroom', label: 'Bathroom 2',            size: 'medium', src: img('Bathroom2.jpg'), subgroupLabel: 'Bathroom 2' },
   // ── Views & Outdoor ──
-  { id: 40, cat: 'view',     cls: 'ph-sea',      label: 'Building & Outdoor',    size: 'large',  src: '/images/gallery/outdoor.jpg' },
-  { id: 41, cat: 'view',     cls: 'ph-sea',      label: 'Mandre — Location',     size: 'medium', src: '/images/gallery/location.jpg' },
+  { id: 40, cat: 'view',     cls: 'ph-sea',      label: 'Building & Outdoor',    size: 'large',  src: img('outdoor.jpg') },
+  { id: 41, cat: 'view',     cls: 'ph-sea',      label: 'Mandre — Location',     size: 'medium', src: img('location.jpg') },
 ];
 
 const categories = [
@@ -70,7 +79,7 @@ const categories = [
   pageSubtitle="A look inside Blue Moon Apartment"
   label="Photo Gallery"
   bgClass="ph-terrace"
-  bgImage="/images/gallery/Blue%20Moon%20cover%20picture.jpg"
+  bgImage={heroBg}
 >
 
   <section class="section">
@@ -104,7 +113,16 @@ const categories = [
               data-cat={photo.cat}
             >
               {photo.src
-                ? <img src={photo.src} alt={photo.label} class="gallery-item__img" />
+                ? <Image
+                    src={photo.src}
+                    alt={photo.label}
+                    class="gallery-item__img"
+                    widths={photo.size === 'large' ? [600, 1000, 1600] : [400, 700, 1100]}
+                    sizes={photo.size === 'large'
+                      ? '(max-width: 400px) 100vw, (max-width: 640px) 100vw, (max-width: 900px) 66vw, 50vw'
+                      : '(max-width: 400px) 100vw, (max-width: 640px) 50vw, (max-width: 900px) 33vw, 25vw'}
+                    loading="lazy"
+                  />
                 : <div class={`img-ph ${photo.cls} gallery-item__img`} aria-hidden="true">
                     <span class="ph-icon">📷</span>
                     <span class="ph-label">{photo.label}</span>
@@ -204,8 +222,7 @@ const categories = [
 
   .gallery-item__img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: 100%;    
     display: block;
     border-radius: var(--radius) !important;
     transition: transform 0.4s ease;
