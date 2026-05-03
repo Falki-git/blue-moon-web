@@ -295,6 +295,25 @@ import plitvice from '../assets/gallery/about-mandre/plitvice.jpg';
     <div class="container">
       <div class="mandre-grid">
         <div>
+          <span class="section-label">Explore More</span>
+          <h2>🧭 Day Trips &amp; Excursions</h2>
+          <p>Mandre's location makes it an ideal base for exploring some of Croatia's most spectacular natural and cultural highlights.</p>
+          <ul class="trip-list">
+            <li>
+              <strong>🔴 Life on Mars Trail</strong>
+              <span>Described as the most beautiful and unique trail in Croatia — a short drive from the apartment.</span>
+            </li>
+            <li>
+              <strong>⛵ Islands of Silba &amp; Olib</strong>
+              <span>Organised boat trips available from Luka Mandre — car-free islands of extraordinary charm.</span>
+            </li>
+            <li>
+              <strong>🏞️ Krka &amp; Plitvička Jezera National Parks</strong>
+              <span>Two of Croatia's most spectacular parks within reach — Krka (~90 min) for waterfalls and swimming, Plitvice (~2 hrs) for breathtaking turquoise lakes. Guided excursions available for both.</span>
+            </li>
+          </ul>
+        </div>
+        <div>
           <div class="carousel" id="daytrips-carousel">
             <div class="carousel__track">
               <div class="carousel__slide" data-caption="Life on Mars Trail"><Image src={lifeOnMars1} alt="Life on Mars Trail" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
@@ -320,25 +339,6 @@ import plitvice from '../assets/gallery/about-mandre/plitvice.jpg';
             </div>
             <div class="carousel__caption">Life on Mars trail</div>
           </div>
-        </div>
-        <div>
-          <span class="section-label">Explore More</span>
-          <h2>🧭 Day Trips &amp; Excursions</h2>
-          <p>Mandre's location makes it an ideal base for exploring some of Croatia's most spectacular natural and cultural highlights.</p>
-          <ul class="trip-list">
-            <li>
-              <strong>🔴 Life on Mars Trail</strong>
-              <span>Described as the most beautiful and unique trail in Croatia — a short drive from the apartment.</span>
-            </li>
-            <li>
-              <strong>⛵ Islands of Silba &amp; Olib</strong>
-              <span>Organised boat trips available from Luka Mandre — car-free islands of extraordinary charm.</span>
-            </li>
-            <li>
-              <strong>🏞️ Krka &amp; Plitvička Jezera National Parks</strong>
-              <span>Two of Croatia's most spectacular parks within reach — Krka (~90 min) for waterfalls and swimming, Plitvice (~2 hrs) for breathtaking turquoise lakes. Guided excursions available for both.</span>
-            </li>
-          </ul>
         </div>
       </div>
     </div>
@@ -547,7 +547,6 @@ import plitvice from '../assets/gallery/about-mandre/plitvice.jpg';
   }
   @media (max-width: 860px) {
     .mandre-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .mandre-grid--reverse > * { order: unset !important; }
     .convenience-grid { grid-template-columns: 1fr 1fr; }
     .distances-grid   { grid-template-columns: 1fr 1fr; }
   }
