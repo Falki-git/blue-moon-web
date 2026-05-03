@@ -23,7 +23,7 @@ const languages = [
 const currentPath = Astro.url.pathname;
 ---
 
-<nav class="nav">
+<nav class="nav" id="siteNav">
   <div class="nav__inner container">
 
     <a href="/" class="nav__logo" aria-label="Blue Moon Apartment - Home">
@@ -70,15 +70,25 @@ const currentPath = Astro.url.pathname;
   .nav {
     background: var(--white);
     border-bottom: 1px solid rgba(74,159,212,0.15);
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: 200;
+    box-shadow: 0 0 0 0 rgba(8,22,40,0);
+    transition: box-shadow 0.35s ease, border-color 0.35s ease;
+  }
+  .nav.is-scrolled {
+    border-bottom-color: transparent;
+    box-shadow: 0 6px 20px rgba(8,22,40,0.18);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav { transition: none; }
   }
 
   .nav__inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 78px;
+    height: var(--nav-height);
     gap: 1.5rem;
   }
 
@@ -223,7 +233,7 @@ const currentPath = Astro.url.pathname;
 
     .nav__menu {
       position: absolute;
-      top: 78px;
+      top: var(--nav-height);
       left: 0; right: 0;
       background: var(--white);
       flex-direction: column;
@@ -276,4 +286,31 @@ const currentPath = Astro.url.pathname;
     langMenu?.classList.remove('is-open');
     langBtn?.setAttribute('aria-expanded', 'false');
   });
+
+  const nav       = document.getElementById('siteNav');
+  const seasonBar = document.getElementById('seasonBar');
+  if (nav) {
+    let lastY = 0;
+    let ticking = false;
+    const update = () => {
+      const y = window.scrollY;
+      nav.classList.toggle('is-scrolled', y > 4);
+      if (seasonBar) {
+        if (y > 50 && y > lastY) {
+          seasonBar.classList.add('is-hidden');
+        } else if (y < lastY || y <= 0) {
+          seasonBar.classList.remove('is-hidden');
+        }
+      }
+      lastY = y;
+      ticking = false;
+    };
+    update();
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+  }
 </script>
