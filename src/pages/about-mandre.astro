@@ -21,6 +21,12 @@ import family5 from '../assets/gallery/about-mandre/family-5.jpg';
 import family6 from '../assets/gallery/about-mandre/family-6.jpg';
 import pagCheese from '../assets/gallery/about-mandre/pag-cheese.jpg';
 import pagLamb from '../assets/gallery/about-mandre/pag-lamb.jpg';
+import lifeOnMars1 from '../assets/gallery/about-mandre/life-on-mars-1.jpg';
+import lifeOnMars2 from '../assets/gallery/about-mandre/life-on-mars-2.jpg';
+import boatExcursion1 from '../assets/gallery/about-mandre/boat-excursion-1.jpg';
+import silba from '../assets/gallery/about-mandre/silba.jpg';
+import krka from '../assets/gallery/about-mandre/krka.jpg';
+import plitvice from '../assets/gallery/about-mandre/plitvice.jpg';
 ---
 
 <PageLayout
@@ -289,7 +295,30 @@ import pagLamb from '../assets/gallery/about-mandre/pag-lamb.jpg';
     <div class="container">
       <div class="mandre-grid">
         <div>
-          <div class="img-ph ph-trail ar-4-3"><span class="ph-icon">📷</span><span class="ph-label">Life on Mars Trail</span></div>
+          <div class="carousel" id="daytrips-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={lifeOnMars1} alt="Life on Mars trail" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={lifeOnMars2} alt="Life on Mars trail" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={boatExcursion1} alt="Boat excursion from Luka Mandre" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={silba} alt="Island of Silba" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={krka} alt="Krka National Park" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={plitvice} alt="Plitvice Lakes National Park" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+              <button class="carousel__dot" aria-label="Slide 6"></button>
+            </div>
+          </div>
         </div>
         <div>
           <span class="section-label">Explore More</span>
@@ -297,24 +326,16 @@ import pagLamb from '../assets/gallery/about-mandre/pag-lamb.jpg';
           <p>Mandre's location makes it an ideal base for exploring some of Croatia's most spectacular natural and cultural highlights.</p>
           <ul class="trip-list">
             <li>
-              <strong>⛵ Islands of Silba &amp; Olib</strong>
-              <span>Organised boat trips available from Mandre — car-free islands of extraordinary charm.</span>
-            </li>
-            <li>
-              <strong>🏞️ Krka National Park</strong>
-              <span>Guided excursions available, ~90 min away. Spectacular waterfalls and swimming pools.</span>
-            </li>
-            <li>
-              <strong>💧 Plitvička Jezera</strong>
-              <span>Croatia's most famous National Park — a breathtaking chain of turquoise lakes and waterfalls.</span>
-            </li>
-            <li>
-              <strong>🛶 Rent a Boat</strong>
-              <span>Explore the uninhabited islands of Maun and Škrda at your own pace.</span>
-            </li>
-            <li>
               <strong>🔴 Life on Mars Trail</strong>
               <span>Described as the most beautiful and unique trail in Croatia — a short drive from the apartment.</span>
+            </li>
+            <li>
+              <strong>⛵ Islands of Silba &amp; Olib</strong>
+              <span>Organised boat trips available from Luka Mandre — car-free islands of extraordinary charm.</span>
+            </li>
+            <li>
+              <strong>🏞️ Krka &amp; Plitvička Jezera National Parks</strong>
+              <span>Two of Croatia's most spectacular parks within reach — Krka (~90 min) for waterfalls and swimming, Plitvice (~2 hrs) for breathtaking turquoise lakes. Guided excursions available for both.</span>
             </li>
           </ul>
         </div>
