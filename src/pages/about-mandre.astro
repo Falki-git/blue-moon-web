@@ -297,12 +297,12 @@ import plitvice from '../assets/gallery/about-mandre/plitvice.jpg';
         <div>
           <div class="carousel" id="daytrips-carousel">
             <div class="carousel__track">
-              <div class="carousel__slide"><Image src={lifeOnMars1} alt="Life on Mars trail" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
-              <div class="carousel__slide"><Image src={lifeOnMars2} alt="Life on Mars trail" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
-              <div class="carousel__slide"><Image src={boatExcursion1} alt="Boat excursion from Luka Mandre" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
-              <div class="carousel__slide"><Image src={silba} alt="Island of Silba" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
-              <div class="carousel__slide"><Image src={krka} alt="Krka National Park" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
-              <div class="carousel__slide"><Image src={plitvice} alt="Plitvice Lakes National Park" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide" data-caption="Life on Mars Trail"><Image src={lifeOnMars1} alt="Life on Mars Trail" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide" data-caption="Life on Mars Trail"><Image src={lifeOnMars2} alt="Life on Mars Trail" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide" data-caption="Boat excursion from Luka Mandre"><Image src={boatExcursion1} alt="Boat excursion from Luka Mandre" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide" data-caption="Island of Silba"><Image src={silba} alt="Island of Silba" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide" data-caption="Krka National Park"><Image src={krka} alt="Krka National Park" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide" data-caption="Plitvice Lakes National Park"><Image src={plitvice} alt="Plitvice Lakes National Park" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
             </div>
             <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
               <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -318,6 +318,7 @@ import plitvice from '../assets/gallery/about-mandre/plitvice.jpg';
               <button class="carousel__dot" aria-label="Slide 5"></button>
               <button class="carousel__dot" aria-label="Slide 6"></button>
             </div>
+            <div class="carousel__caption">Life on Mars trail</div>
           </div>
         </div>
         <div>
@@ -621,6 +622,20 @@ import plitvice from '../assets/gallery/about-mandre/plitvice.jpg';
     transition: background var(--transition);
   }
   .carousel__dot--active { background: white; }
+  .carousel__caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.45);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-align: center;
+    z-index: 2;
+  }
 </style>
 
 <script>
@@ -632,10 +647,14 @@ import plitvice from '../assets/gallery/about-mandre/plitvice.jpg';
     const total = dots.length;
     let current = 0;
 
+    const slides = carousel.querySelectorAll<HTMLElement>('.carousel__slide');
+    const caption = carousel.querySelector<HTMLElement>('.carousel__caption');
+
     function goTo(index: number) {
       current = ((index % total) + total) % total;
       track.style.transform = `translateX(-${current * 100}%)`;
       dots.forEach((dot, i) => dot.classList.toggle('carousel__dot--active', i === current));
+      if (caption) caption.textContent = slides[current]?.dataset.caption ?? '';
     }
 
     prevBtn?.addEventListener('click', () => goTo(current - 1));
