@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import heroCover from '../assets/gallery/hot-tub.png';
 import livingRoom from '../assets/gallery/livingroom-1.jpg';
+import mandreAerial from '../assets/gallery/mandre-aerial.jpg';
 ---
 
 <BaseLayout
@@ -172,7 +173,7 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
 
   <!-- ═══════════════════════════════════════════════════════════════ ABOUT MANDRE TEASER -->
   <section class="mandre-teaser">
-    <div class="mandre-teaser__bg img-ph ph-promenade" aria-hidden="true"></div>
+    <Image class="mandre-teaser__bg" src={mandreAerial} alt="" aria-hidden="true" />
     <div class="mandre-teaser__overlay"></div>
     <div class="container mandre-teaser__content">
       <blockquote class="mandre-teaser__quote">
@@ -510,7 +511,8 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
     inset: 0;
     width: 100%;
     height: 100%;
-    border-radius: 0 !important;
+    object-fit: cover;
+    object-position: center;
   }
   .mandre-teaser__overlay {
     position: absolute;
