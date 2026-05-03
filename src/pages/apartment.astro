@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
-import heroBg from '../assets/gallery/terrace-1.jpg';
+import heroBg from '../assets/gallery/livingroom8.jpg';
 import hotTub from '../assets/gallery/hot-tub.png';
 import bedroom1 from '../assets/gallery/bedroom1-1.jpg';
 import bedroom1b from '../assets/gallery/bedroom1-2.jpg';
@@ -351,10 +351,12 @@ import livingroom7 from '../assets/gallery/livingroom-7.jpg';
   .apt-grid--reverse > *:last-child  { order: 1; }
 
   .overview-stats {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    justify-content: start;
+    align-items: end;
     gap: 2rem;
     margin-top: 2rem;
-    flex-wrap: wrap;
   }
   .stat { display: flex; flex-direction: column; align-items: center; }
   .stat__num {
@@ -370,6 +372,8 @@ import livingroom7 from '../assets/gallery/livingroom-7.jpg';
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--text-muted);
+    white-space: nowrap;
+    text-align: center;
   }
 
   .feat-list {
@@ -510,7 +514,7 @@ import livingroom7 from '../assets/gallery/livingroom-7.jpg';
   }
   @media (max-width: 560px) {
     .amenity-grid { grid-template-columns: 1fr; }
-    .overview-stats { gap: 1.5rem; }
+    .overview-stats { gap: 1rem; }
     .family-callout { flex-direction: column; }
   }
 </style>
