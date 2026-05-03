@@ -62,15 +62,15 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://bluemoon
   <Nav />
 
   <!-- Seasonal notice -->
-  <div class="season-bar" id="seasonBar">
+  <a href="/contact" class="season-bar" id="seasonBar" aria-label="Season 2026 open 1 June to 30 September — Book now">
     <div class="container">
       <span>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         Season 2026 — Open <strong>1 June</strong> to <strong>30 September</strong>
       </span>
-      <a href="/contact" class="season-bar__cta">Book now →</a>
+      <span class="season-bar__cta">Book now →</span>
     </div>
-  </div>
+  </a>
 
   <main id="main-content">
     <slot />
@@ -94,9 +94,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://bluemoon
     position: sticky;
     top: var(--nav-height);
     z-index: 199;
-    transition: transform 0.35s ease;
+    transition: transform 0.35s ease, opacity 0.2s;
     will-change: transform;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
   }
+  .season-bar:hover { opacity: 0.88; }
   .season-bar.is-hidden {
     transform: translateY(-100%);
   }
@@ -108,7 +112,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://bluemoon
     align-items: center;
     justify-content: center;
     gap: 1.25rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
   .season-bar span {
     display: flex;
@@ -116,14 +120,19 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://bluemoon
     gap: 0.4rem;
     color: white;
   }
-  .season-bar svg { stroke: rgba(255,255,255,0.9); }
+  .season-bar svg { stroke: rgba(255,255,255,0.9); flex-shrink: 0; }
   .season-bar strong { font-weight: 800; }
   .season-bar__cta {
     color: white;
     font-weight: 800;
     text-decoration: underline;
     text-underline-offset: 2px;
-    transition: opacity 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
-  .season-bar__cta:hover { opacity: 0.8; color: white; }
+  @media (max-width: 600px) {
+    .season-bar { padding: 0.3rem 0; font-size: 0.74rem; }
+    .season-bar .container { gap: 0.7rem; }
+    .season-bar svg { width: 11px; height: 11px; }
+  }
 </style>
