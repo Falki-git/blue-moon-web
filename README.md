@@ -93,8 +93,8 @@ Example replacement:
 
 <!-- After (real photo) -->
 <img
-  src="/images/gallery/terrace-jacuzzi.jpg"
-  alt="Terrace with Jacuzzi and sea view"
+  src="/images/gallery/terrace-hot-tub.jpg"
+  alt="Terrace with hot tub and sea view"
   width="800"
   height="600"
   loading="lazy"

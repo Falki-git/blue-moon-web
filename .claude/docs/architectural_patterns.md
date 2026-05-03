@@ -81,7 +81,7 @@ All images are placeholder `<div>` elements; real photos are not yet loaded:
 ```astro
 <div class="img-ph ph-terrace ar-4-3" aria-hidden="true">
   <span class="ph-icon">📷</span>
-  <span class="ph-label">Terrace with Jacuzzi</span>
+  <span class="ph-label">Terrace with Hot Tub</span>
 </div>
 ```
 
