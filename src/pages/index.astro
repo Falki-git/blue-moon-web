@@ -1,13 +1,14 @@
 ---
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import heroCover from '../assets/gallery/jacuzzi.png';
+import heroCover from '../assets/gallery/hot-tub.png';
 import livingRoom from '../assets/gallery/livingroom-1.jpg';
+import mandreAerial from '../assets/gallery/mandre-aerial.jpg';
 ---
 
 <BaseLayout
   title="Blue Moon Apartment | Mandre, Island of Pag, Croatia"
-  description="Luxury 2-bedroom family apartment in Mandre, island of Pag. 92m², private Jacuzzi terrace, sea views, 200m from the beach. Open June–September 2026."
+  description="Luxury 2-bedroom family apartment in Mandre, island of Pag. 92m², private hot tub terrace, sea views, 200m from the beach. Open June–September 2026."
 >
 
   <!-- ═══════════════════════════════════════════════════════════════ HERO -->
@@ -43,8 +44,12 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
           <span>2 Bedrooms · Up to 6 guests</span>
         </li>
         <li class="features-strip__item">
+          <span class="feat-icon">🛀</span>
+          <span>2 Bathrooms</span>
+        </li>
+        <li class="features-strip__item">
           <span class="feat-icon">♨️</span>
-          <span>Private Jacuzzi on terrace</span>
+          <span>Private hot tub on terrace</span>
         </li>
         <li class="features-strip__item">
           <span class="feat-icon">🌅</span>
@@ -53,10 +58,6 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
         <li class="features-strip__item">
           <span class="feat-icon">🅿️</span>
           <span>Private parking &amp; garage</span>
-        </li>
-        <li class="features-strip__item">
-          <span class="feat-icon">📶</span>
-          <span>Free Wi-Fi everywhere</span>
         </li>
       </ul>
     </div>
@@ -73,7 +74,7 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
         <div class="apt-highlight__text">
           <span class="section-label">The Apartment</span>
           <h2>Modern Comfort Meets the Mediterranean</h2>
-          <p>Perched on the 2nd floor of a quiet building, our semi-penthouse apartment combines contemporary design with breathtaking seaside views. Two bedrooms, two full bathrooms, a fully equipped modern kitchen, and a spacious terrace with a private Jacuzzi — everything you need for an unforgettable family holiday.</p>
+          <p>Perched on the 2nd floor of a quiet building, our semi-penthouse apartment combines contemporary design with breathtaking seaside views. Two bedrooms, two full bathrooms, a fully equipped modern kitchen, and a spacious terrace with a private hot tub — everything you need for an unforgettable family holiday.</p>
           <ul class="apt-highlight__bullets">
             <li>✓ Two bedrooms with large, comfortable beds</li>
             <li>✓ Two full bathrooms</li>
@@ -135,45 +136,44 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
   <!-- ═══════════════════════════════════════════════════════════════ PRICELIST TEASER -->
   <section class="section price-teaser">
     <div class="container">
-      <div class="text-center" style="margin-bottom: 2.5rem;">
+      <div class="text-center" style="margin-bottom: 2rem;">
         <span class="section-label">Season 2026</span>
         <h2>Simple, Transparent Pricing</h2>
       </div>
       <div class="price-teaser__cards">
+        <div class="price-card price-card--early">
+          <div class="price-card__badge">Early Summer</div>
+          <div class="price-card__icon">🌿</div>
+          <div class="price-card__dates">1–30 June</div>
+          <div class="price-card__amount"><span class="price-card__currency">€</span>250</div>
+          <div class="price-card__unit">per night</div>
+          <a href="/contact" class="btn btn-sky btn-sm">Request Booking</a>
+        </div>
         <div class="price-card price-card--peak">
           <div class="price-card__badge">Peak Season</div>
           <div class="price-card__icon">☀️</div>
           <div class="price-card__dates">1 July – 31 August</div>
-          <div class="price-card__amount">€300</div>
+          <div class="price-card__amount"><span class="price-card__currency">€</span>300</div>
           <div class="price-card__unit">per night</div>
-          <ul class="price-card__includes">
-            <li>✓ 2 Bedrooms · up to 6 guests</li>
-            <li>✓ Jacuzzi · A/C · Free Wi-Fi</li>
-            <li>✓ Private parking &amp; garage</li>
-          </ul>
+          <a href="/contact" class="btn btn-gold btn-sm">Request Booking</a>
+        </div>
+        <div class="price-card price-card--golden">
+          <div class="price-card__badge">Golden September</div>
+          <div class="price-card__icon">🍂</div>
+          <div class="price-card__dates">1–30 September</div>
+          <div class="price-card__amount"><span class="price-card__currency">€</span>250</div>
+          <div class="price-card__unit">per night</div>
           <a href="/contact" class="btn btn-primary btn-sm">Request Booking</a>
         </div>
-        <div class="price-card price-card--shoulder">
-          <div class="price-card__badge">Shoulder Season</div>
-          <div class="price-card__icon">🌤️</div>
-          <div class="price-card__dates">1–30 June &amp; 1–30 September</div>
-          <div class="price-card__amount">€250</div>
-          <div class="price-card__unit">per night</div>
-          <ul class="price-card__includes">
-            <li>✓ 2 Bedrooms · up to 6 guests</li>
-            <li>✓ Jacuzzi · A/C · Free Wi-Fi</li>
-            <li>✓ Private parking &amp; garage</li>
-          </ul>
-          <a href="/contact" class="btn btn-sky btn-sm">Request Booking</a>
-        </div>
       </div>
-      <p class="price-teaser__note">Minimum stay may apply. <a href="/pricelist">View full pricelist &amp; policies →</a></p>
+      <p class="price-teaser__note">All prices are per night for the entire apartment (up to 6 guests). No per-person charges. Everything included. A minimum stay of 5 nights applies in all seasons.</p>
+      <p class="price-teaser__link"><a href="/pricelist">View full pricelist &amp; policies →</a></p>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════ ABOUT MANDRE TEASER -->
   <section class="mandre-teaser">
-    <div class="mandre-teaser__bg img-ph ph-promenade" aria-hidden="true"></div>
+    <Image class="mandre-teaser__bg" src={mandreAerial} alt="" aria-hidden="true" />
     <div class="mandre-teaser__overlay"></div>
     <div class="container mandre-teaser__content">
       <blockquote class="mandre-teaser__quote">
@@ -194,7 +194,7 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
       <div class="grid-3 reviews-grid">
         <article class="review-card card">
           <div class="stars">★★★★★</div>
-          <blockquote>"The terrace Jacuzzi at sunset was pure magic. Our kids loved the beach and the whole atmosphere of Mandre. We'll be back next summer without question!"</blockquote>
+          <blockquote>"The terrace hot tub at sunset was pure magic. Our kids loved the beach and the whole atmosphere of Mandre. We'll be back next summer without question!"</blockquote>
           <footer>
             <strong>Müller Family</strong>
             <span>🇩🇪 Germany · Family with 2 children</span>
@@ -418,9 +418,9 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
   /* ─── Price cards ────────────────────────────────────────────────── */
   .price-teaser__cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    max-width: 760px;
+    max-width: 1060px;
     margin: 0 auto;
   }
 
@@ -428,7 +428,7 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
     background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
-    padding: 2.5rem 2rem;
+    padding: 1.75rem 1.75rem 1.5rem;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
@@ -438,8 +438,9 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
   }
-  .price-card--peak { border-top: 4px solid var(--ocean-blue); }
-  .price-card--shoulder { border-top: 4px solid var(--sky-blue); }
+  .price-card--early  { border-top: 4px solid var(--sky-blue); }
+  .price-card--peak   { border-top: 4px solid var(--sunset-gold); }
+  .price-card--golden { border-top: 4px solid var(--ocean-blue); }
 
   .price-card__badge {
     position: absolute;
@@ -451,51 +452,51 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
     padding: 0.25rem 0.7rem;
     border-radius: 50px;
   }
-  .price-card--peak .price-card__badge    { background: rgba(26,95,173,0.1);  color: var(--ocean-blue); }
-  .price-card--shoulder .price-card__badge{ background: rgba(74,159,212,0.1); color: var(--sky-blue); }
+  .price-card--early  .price-card__badge { background: rgba(74,159,212,0.1);  color: var(--sky-blue); }
+  .price-card--peak   .price-card__badge { background: rgba(230,169,80,0.1);  color: var(--sunset-gold); }
+  .price-card--golden .price-card__badge { background: rgba(26,95,173,0.1);   color: var(--ocean-blue); }
 
-  .price-card__icon  { font-size: 2.5rem; margin-bottom: 0.75rem; }
-  .price-card__dates { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1rem; }
+  .price-card__icon  { font-size: 2rem; margin-bottom: 0.4rem; }
+  .price-card__dates { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.6rem; }
   .price-card__amount {
     font-family: 'Playfair Display', serif;
     font-size: 3.5rem;
     font-weight: 700;
     line-height: 1;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.15rem;
   }
-  .price-card--peak     .price-card__amount { color: var(--ocean-blue); }
-  .price-card--shoulder .price-card__amount { color: var(--sky-blue); }
+  .price-card--early  .price-card__amount { color: var(--sky-blue); }
+  .price-card--peak   .price-card__amount { color: var(--sunset-gold); }
+  .price-card--golden .price-card__amount { color: var(--ocean-blue); }
+
+  .price-card__currency { font-size: 1.8rem; font-weight: 700; vertical-align: middle; }
 
   .price-card__unit {
     font-size: 0.85rem;
     font-weight: 700;
     color: var(--text-muted);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
 
-  .price-card__includes {
-    list-style: none;
-    text-align: left;
-    margin-bottom: 1.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  .price-card__includes li {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-dark);
-  }
-
   .price-teaser__note {
     text-align: center;
-    margin-top: 1.5rem;
+    margin-top: 2rem;
     color: var(--text-muted);
-    font-size: 0.88rem;
+    font-size: 0.9rem;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
   }
-  .price-teaser__note a { font-weight: 700; }
+
+  .price-teaser__link {
+    text-align: center;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
 
   /* ─── Mandre teaser ──────────────────────────────────────────────── */
   .mandre-teaser {
@@ -510,7 +511,8 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
     inset: 0;
     width: 100%;
     height: 100%;
-    border-radius: 0 !important;
+    object-fit: cover;
+    object-position: center;
   }
   .mandre-teaser__overlay {
     position: absolute;
@@ -586,7 +588,7 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
     .apt-highlight__grid { grid-template-columns: 1fr; gap: 2.5rem; }
     .apt-highlight__badge { bottom: 1rem; left: 1rem; }
     .direct-cards { grid-template-columns: 1fr !important; }
-    .price-teaser__cards { grid-template-columns: 1fr; max-width: 420px; }
+    .price-teaser__cards { grid-template-columns: 1fr; max-width: 440px; }
     .reviews-grid { grid-template-columns: 1fr !important; }
     .cta-banner__inner { flex-direction: column; text-align: center; }
     .cta-banner__btns { justify-content: center; }

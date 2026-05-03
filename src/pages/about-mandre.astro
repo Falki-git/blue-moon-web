@@ -1,6 +1,32 @@
 ---
+import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
-import heroBg from '../assets/gallery/location.jpg';
+import heroBg from '../assets/gallery/about-mandre/about-mandre.jpg';
+import mandre1 from '../assets/gallery/about-mandre/mandre-1.jpg';
+import mandre2 from '../assets/gallery/about-mandre/mandre-2.jpg';
+import mandre3 from '../assets/gallery/about-mandre/mandre-3.jpg';
+import mandre4 from '../assets/gallery/about-mandre/mandre-4.jpg';
+import mandre5 from '../assets/gallery/about-mandre/mandre-5.jpg';
+import beaches1 from '../assets/gallery/about-mandre/beaches-1.jpg';
+import beaches2 from '../assets/gallery/about-mandre/beaches-2.jpg';
+import beaches3 from '../assets/gallery/about-mandre/beaches-3.jpg';
+import beaches4 from '../assets/gallery/about-mandre/beaches-4.jpg';
+import beaches5 from '../assets/gallery/about-mandre/beaches-5.jpg';
+import beaches6 from '../assets/gallery/about-mandre/beaches-6.jpg';
+import family1 from '../assets/gallery/about-mandre/family-1.jpg';
+import family2 from '../assets/gallery/about-mandre/family-2.jpg';
+import family3 from '../assets/gallery/about-mandre/family-3.png';
+import family4 from '../assets/gallery/about-mandre/family-4.png';
+import family5 from '../assets/gallery/about-mandre/family-5.jpg';
+import family6 from '../assets/gallery/about-mandre/family-6.jpg';
+import pagCheese from '../assets/gallery/about-mandre/pag-cheese.jpg';
+import pagLamb from '../assets/gallery/about-mandre/pag-lamb.jpg';
+import lifeOnMars1 from '../assets/gallery/about-mandre/life-on-mars-1.jpg';
+import lifeOnMars2 from '../assets/gallery/about-mandre/life-on-mars-2.jpg';
+import boatExcursion1 from '../assets/gallery/about-mandre/boat-excursion-1.jpg';
+import silba from '../assets/gallery/about-mandre/silba.jpg';
+import krka from '../assets/gallery/about-mandre/krka.jpg';
+import plitvice from '../assets/gallery/about-mandre/plitvice.jpg';
 ---
 
 <PageLayout
@@ -11,6 +37,7 @@ import heroBg from '../assets/gallery/location.jpg';
   label="About Mandre"
   bgClass="ph-town"
   bgImage={heroBg}
+  heroObjectPosition="center 54.7%"
 >
 
   <!-- ═══ THE TOWN ═══ -->
@@ -20,11 +47,32 @@ import heroBg from '../assets/gallery/location.jpg';
         <div>
           <span class="section-label">The Town</span>
           <h2>Mandre — Small Town, Big Soul</h2>
-          <p>Mandre is a small, quiet tourist town nestled in a sheltered cove on the western shore of the island of Pag. What makes it special isn't what it has too much of — it's what it has just enough of. Clean sea, friendly locals, a relaxed pace, and a promenade where families gather in the evenings under the Adriatic sky.</p>
+          <p>Mandre is a small, quiet tourist town nestled in a sheltered cove on the western shore of the island of Pag. It has exactly what a perfect Adriatic escape calls for: clean sea, friendly locals, a relaxed pace, and a promenade where families gather in the evenings under the Adriatic sky.</p>
           <p style="margin-top:1rem;">Unlike the busier destinations on the island, Mandre has managed to remain authentic and peaceful. There's no industry, no noise, and no crowds — just the gentle rhythm of island life. For families seeking a genuine Croatian holiday, this is it.</p>
         </div>
         <div>
-          <div class="img-ph ph-town ar-4-3"><span class="ph-icon">📷</span><span class="ph-label">Mandre town view</span></div>
+          <div class="carousel" id="mandre-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={mandre1} alt="Mandre town" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={mandre2} alt="Mandre town" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={mandre3} alt="Mandre town" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={mandre4} alt="Mandre town" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={mandre5} alt="Mandre town" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -35,7 +83,30 @@ import heroBg from '../assets/gallery/location.jpg';
     <div class="container">
       <div class="mandre-grid mandre-grid--reverse">
         <div>
-          <div class="img-ph ph-beach ar-4-3"><span class="ph-icon">📷</span><span class="ph-label">Mala Mandra Beach</span></div>
+          <div class="carousel" id="beaches-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={beaches1} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={beaches2} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={beaches3} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={beaches4} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={beaches5} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={beaches6} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+              <button class="carousel__dot" aria-label="Slide 6"></button>
+            </div>
+          </div>
         </div>
         <div>
           <span class="section-label">Crystal Clear Waters</span>
@@ -76,7 +147,30 @@ import heroBg from '../assets/gallery/location.jpg';
           </ul>
         </div>
         <div>
-          <div class="img-ph ph-promenade ar-4-3"><span class="ph-icon">📷</span><span class="ph-label">Mandre promenade</span></div>
+          <div class="carousel" id="family-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={family1} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={family2} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={family3} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={family4} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={family5} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={family6} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+              <button class="carousel__dot" aria-label="Slide 6"></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -132,13 +226,28 @@ import heroBg from '../assets/gallery/location.jpg';
           <div class="food-card" style="margin-top:1rem;">
             <div class="food-card__emoji">🍖</div>
             <div>
-              <h4>Paški Janjetina — Pag Lamb</h4>
+              <h4>Paška Janjetina — Pag Lamb</h4>
               <p>Slow-roasted over an open fire, Pag lamb is melt-in-your-mouth tender, with a unique flavour imparted by the same salty island herbs the animals graze on. Available at local restaurants, it's a must-order dish for any visitor to the island.</p>
             </div>
           </div>
         </div>
         <div>
-          <div class="img-ph ph-food ar-4-3"><span class="ph-icon">📷</span><span class="ph-label">Pag cheese &amp; lamb</span></div>
+          <div class="carousel" id="food-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={pagCheese} alt="Paški sir — Pag cheese" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={pagLamb} alt="Paški janjetina — Pag lamb" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -187,34 +296,50 @@ import heroBg from '../assets/gallery/location.jpg';
     <div class="container">
       <div class="mandre-grid">
         <div>
-          <div class="img-ph ph-trail ar-4-3"><span class="ph-icon">📷</span><span class="ph-label">Life on Mars Trail</span></div>
-        </div>
-        <div>
           <span class="section-label">Explore More</span>
           <h2>🧭 Day Trips &amp; Excursions</h2>
           <p>Mandre's location makes it an ideal base for exploring some of Croatia's most spectacular natural and cultural highlights.</p>
           <ul class="trip-list">
             <li>
-              <strong>⛵ Islands of Silba &amp; Olib</strong>
-              <span>Organised boat trips available from Mandre — car-free islands of extraordinary charm.</span>
-            </li>
-            <li>
-              <strong>🏞️ Krka National Park</strong>
-              <span>Guided excursions available, ~90 min away. Spectacular waterfalls and swimming pools.</span>
-            </li>
-            <li>
-              <strong>💧 Plitvička Jezera</strong>
-              <span>Croatia's most famous National Park — a breathtaking chain of turquoise lakes and waterfalls.</span>
-            </li>
-            <li>
-              <strong>🛶 Rent a Boat</strong>
-              <span>Explore the uninhabited islands of Maun and Škrda at your own pace.</span>
-            </li>
-            <li>
               <strong>🔴 Life on Mars Trail</strong>
               <span>Described as the most beautiful and unique trail in Croatia — a short drive from the apartment.</span>
             </li>
+            <li>
+              <strong>⛵ Islands of Silba &amp; Olib</strong>
+              <span>Organised boat trips available from Luka Mandre — car-free islands of extraordinary charm.</span>
+            </li>
+            <li>
+              <strong>🏞️ Krka &amp; Plitvička Jezera National Parks</strong>
+              <span>Two of Croatia's most spectacular parks within reach — Krka (~90 min) for waterfalls and swimming, Plitvice (~2 hrs) for breathtaking turquoise lakes. Guided excursions available for both.</span>
+            </li>
           </ul>
+        </div>
+        <div>
+          <div class="carousel" id="daytrips-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide" data-caption="Life on Mars Trail"><Image src={lifeOnMars1} alt="Life on Mars Trail" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide" data-caption="Life on Mars Trail"><Image src={lifeOnMars2} alt="Life on Mars Trail" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide" data-caption="Boat excursion from Luka Mandre"><Image src={boatExcursion1} alt="Boat excursion from Luka Mandre" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide" data-caption="Island of Silba"><Image src={silba} alt="Island of Silba" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide" data-caption="Krka National Park"><Image src={krka} alt="Krka National Park" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide" data-caption="Plitvice Lakes National Park"><Image src={plitvice} alt="Plitvice Lakes National Park" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+              <button class="carousel__dot" aria-label="Slide 6"></button>
+            </div>
+            <div class="carousel__caption">Life on Mars trail</div>
+          </div>
         </div>
       </div>
     </div>
@@ -423,7 +548,6 @@ import heroBg from '../assets/gallery/location.jpg';
   }
   @media (max-width: 860px) {
     .mandre-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .mandre-grid--reverse > * { order: unset !important; }
     .convenience-grid { grid-template-columns: 1fr 1fr; }
     .distances-grid   { grid-template-columns: 1fr 1fr; }
   }
@@ -435,4 +559,113 @@ import heroBg from '../assets/gallery/location.jpg';
   @media (max-width: 440px) {
     .picks-grid { grid-template-columns: 1fr; }
   }
+
+  .carousel {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    width: 100%;
+  }
+  .carousel__track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.4s ease;
+  }
+  .carousel__slide {
+    min-width: 100%;
+    height: 100%;
+  }
+  .carousel__slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .carousel__btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: background var(--transition);
+    color: var(--ocean-blue);
+  }
+  .carousel__btn:hover { background: white; }
+  .carousel__btn--prev { left: 0.75rem; }
+  .carousel__btn--next { right: 0.75rem; }
+  .carousel__dots {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 2;
+  }
+  .carousel__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background var(--transition);
+  }
+  .carousel__dot--active { background: white; }
+  .carousel__caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.45);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-align: center;
+    z-index: 2;
+  }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.carousel').forEach(carousel => {
+    const track = carousel.querySelector('.carousel__track') as HTMLElement;
+    const dots = carousel.querySelectorAll('.carousel__dot');
+    const prevBtn = carousel.querySelector('.carousel__btn--prev');
+    const nextBtn = carousel.querySelector('.carousel__btn--next');
+    const total = dots.length;
+    let current = 0;
+
+    const slides = carousel.querySelectorAll<HTMLElement>('.carousel__slide');
+    const caption = carousel.querySelector<HTMLElement>('.carousel__caption');
+
+    function goTo(index: number) {
+      current = ((index % total) + total) % total;
+      track.style.transform = `translateX(-${current * 100}%)`;
+      dots.forEach((dot, i) => dot.classList.toggle('carousel__dot--active', i === current));
+      if (caption) caption.textContent = slides[current]?.dataset.caption ?? '';
+    }
+
+    prevBtn?.addEventListener('click', () => goTo(current - 1));
+    nextBtn?.addEventListener('click', () => goTo(current + 1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+
+    let touchStartX = 0;
+    carousel.addEventListener('touchstart', (e: TouchEvent) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    carousel.addEventListener('touchend', (e: TouchEvent) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) goTo(dx < 0 ? current + 1 : current - 1);
+    });
+  });
+</script>
