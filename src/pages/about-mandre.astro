@@ -1,6 +1,24 @@
 ---
+import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
 import heroBg from '../assets/gallery/mandre-aerial.jpg';
+import mandre1 from '../assets/gallery/about-mandre/mandre-1.jpg';
+import mandre2 from '../assets/gallery/about-mandre/mandre-2.jpg';
+import mandre3 from '../assets/gallery/about-mandre/mandre-3.jpg';
+import mandre4 from '../assets/gallery/about-mandre/mandre-4.jpg';
+import mandre5 from '../assets/gallery/about-mandre/mandre-5.jpg';
+import beaches1 from '../assets/gallery/about-mandre/beaches-1.jpg';
+import beaches2 from '../assets/gallery/about-mandre/beaches-2.jpg';
+import beaches3 from '../assets/gallery/about-mandre/beaches-3.jpg';
+import beaches4 from '../assets/gallery/about-mandre/beaches-4.jpg';
+import beaches5 from '../assets/gallery/about-mandre/beaches-5.jpg';
+import beaches6 from '../assets/gallery/about-mandre/beaches-6.jpg';
+import family1 from '../assets/gallery/about-mandre/family-1.jpg';
+import family2 from '../assets/gallery/about-mandre/family-2.jpg';
+import family3 from '../assets/gallery/about-mandre/family-3.png';
+import family4 from '../assets/gallery/about-mandre/family-4.png';
+import family5 from '../assets/gallery/about-mandre/family-5.jpg';
+import family6 from '../assets/gallery/about-mandre/family-6.jpg';
 ---
 
 <PageLayout
@@ -24,7 +42,28 @@ import heroBg from '../assets/gallery/mandre-aerial.jpg';
           <p style="margin-top:1rem;">Unlike the busier destinations on the island, Mandre has managed to remain authentic and peaceful. There's no industry, no noise, and no crowds — just the gentle rhythm of island life. For families seeking a genuine Croatian holiday, this is it.</p>
         </div>
         <div>
-          <div class="img-ph ph-town ar-4-3"><span class="ph-icon">📷</span><span class="ph-label">Mandre town view</span></div>
+          <div class="carousel" id="mandre-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={mandre1} alt="Mandre town" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={mandre2} alt="Mandre town" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={mandre3} alt="Mandre town" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={mandre4} alt="Mandre town" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={mandre5} alt="Mandre town" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -35,7 +74,30 @@ import heroBg from '../assets/gallery/mandre-aerial.jpg';
     <div class="container">
       <div class="mandre-grid mandre-grid--reverse">
         <div>
-          <div class="img-ph ph-beach ar-4-3"><span class="ph-icon">📷</span><span class="ph-label">Mala Mandra Beach</span></div>
+          <div class="carousel" id="beaches-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={beaches1} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={beaches2} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={beaches3} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={beaches4} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={beaches5} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={beaches6} alt="Mandre beach" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+              <button class="carousel__dot" aria-label="Slide 6"></button>
+            </div>
+          </div>
         </div>
         <div>
           <span class="section-label">Crystal Clear Waters</span>
@@ -76,7 +138,30 @@ import heroBg from '../assets/gallery/mandre-aerial.jpg';
           </ul>
         </div>
         <div>
-          <div class="img-ph ph-promenade ar-4-3"><span class="ph-icon">📷</span><span class="ph-label">Mandre promenade</span></div>
+          <div class="carousel" id="family-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={family1} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={family2} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={family3} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={family4} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={family5} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={family6} alt="Mandre family activities" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+              <button class="carousel__dot" aria-label="Slide 6"></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -435,4 +520,95 @@ import heroBg from '../assets/gallery/mandre-aerial.jpg';
   @media (max-width: 440px) {
     .picks-grid { grid-template-columns: 1fr; }
   }
+
+  .carousel {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    width: 100%;
+  }
+  .carousel__track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.4s ease;
+  }
+  .carousel__slide {
+    min-width: 100%;
+    height: 100%;
+  }
+  .carousel__slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .carousel__btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: background var(--transition);
+    color: var(--ocean-blue);
+  }
+  .carousel__btn:hover { background: white; }
+  .carousel__btn--prev { left: 0.75rem; }
+  .carousel__btn--next { right: 0.75rem; }
+  .carousel__dots {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 2;
+  }
+  .carousel__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background var(--transition);
+  }
+  .carousel__dot--active { background: white; }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.carousel').forEach(carousel => {
+    const track = carousel.querySelector('.carousel__track') as HTMLElement;
+    const dots = carousel.querySelectorAll('.carousel__dot');
+    const prevBtn = carousel.querySelector('.carousel__btn--prev');
+    const nextBtn = carousel.querySelector('.carousel__btn--next');
+    const total = dots.length;
+    let current = 0;
+
+    function goTo(index: number) {
+      current = ((index % total) + total) % total;
+      track.style.transform = `translateX(-${current * 100}%)`;
+      dots.forEach((dot, i) => dot.classList.toggle('carousel__dot--active', i === current));
+    }
+
+    prevBtn?.addEventListener('click', () => goTo(current - 1));
+    nextBtn?.addEventListener('click', () => goTo(current + 1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+
+    let touchStartX = 0;
+    carousel.addEventListener('touchstart', (e: TouchEvent) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    carousel.addEventListener('touchend', (e: TouchEvent) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) goTo(dx < 0 ? current + 1 : current - 1);
+    });
+  });
+</script>
