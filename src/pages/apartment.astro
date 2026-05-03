@@ -12,6 +12,9 @@ import carouselImg2 from '../assets/gallery/livingroom-3.jpg';
 import carouselImg3 from '../assets/gallery/terrace-10.jpg';
 import carouselImg4 from '../assets/gallery/terrace-12.jpg';
 import carouselImg5 from '../assets/gallery/hallway-2.jpg';
+import terrace11 from '../assets/gallery/terrace-11.jpg';
+import terrace6 from '../assets/gallery/terrace-6.jpg';
+import livingroom7 from '../assets/gallery/livingroom-7.jpg';
 ---
 
 <PageLayout
@@ -73,7 +76,28 @@ import carouselImg5 from '../assets/gallery/hallway-2.jpg';
     <div class="container">
       <div class="apt-grid apt-grid--reverse">
         <div>
-          <Image src={hotTub} alt="Terrace with hot tub" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <div class="carousel" id="terrace-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={terrace11} alt="Terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={hotTub} alt="Hot tub on terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={terrace6} alt="Terrace view" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={carouselImg4} alt="Terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={livingroom7} alt="Living room" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+            </div>
+          </div>
         </div>
         <div>
           <span class="section-label">Outdoor Living</span>
@@ -425,8 +449,7 @@ import carouselImg5 from '../assets/gallery/hallway-2.jpg';
 </style>
 
 <script>
-  const carousel = document.getElementById('overview-carousel');
-  if (carousel) {
+  document.querySelectorAll<HTMLElement>('.carousel').forEach(carousel => {
     const track = carousel.querySelector('.carousel__track') as HTMLElement;
     const dots = carousel.querySelectorAll('.carousel__dot');
     const prevBtn = carousel.querySelector('.carousel__btn--prev');
@@ -450,5 +473,5 @@ import carouselImg5 from '../assets/gallery/hallway-2.jpg';
       const dx = e.changedTouches[0].clientX - touchStartX;
       if (Math.abs(dx) > 40) goTo(dx < 0 ? current + 1 : current - 1);
     });
-  }
+  });
 </script>
