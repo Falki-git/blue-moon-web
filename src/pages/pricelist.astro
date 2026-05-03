@@ -5,7 +5,7 @@ import heroBg from '../assets/gallery/terrace-4.jpg';
 
 <PageLayout
   title="Pricelist | Blue Moon Apartment, Mandre"
-  description="Blue Moon Apartment pricing for 2026. €300/night peak season (July–August), €250/night shoulder season (June & September). Book direct for the best price."
+  description="Blue Moon Apartment pricing for 2026. €300/night peak season (July–August), €250/night early summer (June) and golden September. Book direct for the best price."
   pageTitle="Pricelist"
   pageSubtitle="Season 2026 · Transparent Pricing, No Hidden Fees"
   label="Book Direct"
@@ -23,6 +23,32 @@ import heroBg from '../assets/gallery/terrace-4.jpg';
       </div>
 
       <div class="season-cards">
+
+        <!-- Early Summer -->
+        <div class="season-card season-card--early">
+          <div class="season-card__header">
+            <div class="season-card__icon">🌿</div>
+            <h3>Early Summer</h3>
+            <p class="season-card__dates">1–30 June 2026</p>
+          </div>
+          <div class="season-card__price">
+            <span class="season-card__currency">€</span>
+            <span class="season-card__amount">250</span>
+            <span class="season-card__per">/ night</span>
+          </div>
+          <ul class="season-card__features">
+            <li>✓ Entire 92 m² apartment</li>
+            <li>✓ 2 Bedrooms · up to 6 guests</li>
+            <li>✓ Private hot tub on terrace</li>
+            <li>✓ Sea &amp; sunset views</li>
+            <li>✓ Free Wi-Fi &amp; cable TV</li>
+            <li>✓ Air conditioning</li>
+            <li>✓ Private parking &amp; garage</li>
+            <li>✓ Fully equipped kitchen</li>
+          </ul>
+          <a href="/contact" class="btn btn-gold" style="width:100%; justify-content:center;">Book Early Summer →</a>
+          <p class="shoulder-note">🌿 Peaceful beaches, warm evenings — June is perfect for families who love space and calm.</p>
+        </div>
 
         <!-- Peak -->
         <div class="season-card season-card--peak">
@@ -50,12 +76,12 @@ import heroBg from '../assets/gallery/terrace-4.jpg';
           <a href="/contact" class="btn btn-primary" style="width:100%; justify-content:center;">Book Peak Season →</a>
         </div>
 
-        <!-- Shoulder -->
-        <div class="season-card season-card--shoulder">
+        <!-- Golden September -->
+        <div class="season-card season-card--golden">
           <div class="season-card__header">
-            <div class="season-card__icon">🌤️</div>
-            <h3>Shoulder Season</h3>
-            <p class="season-card__dates">1–30 June &amp; 1–30 September 2026</p>
+            <div class="season-card__icon">🍂</div>
+            <h3>Golden September</h3>
+            <p class="season-card__dates">1–30 September 2026</p>
           </div>
           <div class="season-card__price">
             <span class="season-card__currency">€</span>
@@ -72,8 +98,8 @@ import heroBg from '../assets/gallery/terrace-4.jpg';
             <li>✓ Private parking &amp; garage</li>
             <li>✓ Fully equipped kitchen</li>
           </ul>
-          <a href="/contact" class="btn btn-sky" style="width:100%; justify-content:center;">Book Shoulder Season →</a>
-          <p class="shoulder-note">🌿 Quieter beaches, cooler evenings — ideal for exploring the island at your own pace.</p>
+          <a href="/contact" class="btn btn-sky" style="width:100%; justify-content:center;">Book Golden September →</a>
+          <p class="shoulder-note">🍃 Quieter beaches, cooler evenings — ideal for exploring the island at your own pace.</p>
         </div>
 
       </div>
@@ -173,9 +199,9 @@ import heroBg from '../assets/gallery/terrace-4.jpg';
 
   .season-cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    max-width: 860px;
+    max-width: 1100px;
     margin: 0 auto;
   }
 
@@ -192,8 +218,9 @@ import heroBg from '../assets/gallery/terrace-4.jpg';
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
   }
-  .season-card--peak     { border-top: 5px solid var(--ocean-blue); }
-  .season-card--shoulder { border-top: 5px solid var(--sky-blue); }
+  .season-card--early  { border-top: 5px solid var(--sunset-gold); }
+  .season-card--peak   { border-top: 5px solid var(--ocean-blue); }
+  .season-card--golden { border-top: 5px solid var(--sky-blue); }
 
   .season-card__ribbon {
     position: absolute;
@@ -228,10 +255,12 @@ import heroBg from '../assets/gallery/terrace-4.jpg';
   .season-card__amount   { font-size: 4rem; font-weight: 700; line-height: 1; font-family: 'Playfair Display', serif; }
   .season-card__per      { font-size: 0.9rem; font-weight: 700; color: var(--text-muted); }
 
-  .season-card--peak     .season-card__currency,
-  .season-card--peak     .season-card__amount   { color: var(--ocean-blue); }
-  .season-card--shoulder .season-card__currency,
-  .season-card--shoulder .season-card__amount   { color: var(--sky-blue); }
+  .season-card--early  .season-card__currency,
+  .season-card--early  .season-card__amount   { color: var(--sunset-gold); }
+  .season-card--peak   .season-card__currency,
+  .season-card--peak   .season-card__amount   { color: var(--ocean-blue); }
+  .season-card--golden .season-card__currency,
+  .season-card--golden .season-card__amount   { color: var(--sky-blue); }
 
   .season-card__features {
     list-style: none;
@@ -308,7 +337,7 @@ import heroBg from '../assets/gallery/terrace-4.jpg';
   }
 
   @media (max-width: 860px) {
-    .season-cards { grid-template-columns: 1fr; max-width: 440px; }
+    .season-cards { grid-template-columns: 1fr; max-width: 460px; }
     .policies-grid { grid-template-columns: 1fr 1fr; }
     .included-grid { grid-template-columns: 1fr 1fr; }
   }

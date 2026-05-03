@@ -140,6 +140,19 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
         <h2>Simple, Transparent Pricing</h2>
       </div>
       <div class="price-teaser__cards">
+        <div class="price-card price-card--early">
+          <div class="price-card__badge">Early Summer</div>
+          <div class="price-card__icon">🌿</div>
+          <div class="price-card__dates">1–30 June</div>
+          <div class="price-card__amount">€250</div>
+          <div class="price-card__unit">per night</div>
+          <ul class="price-card__includes">
+            <li>✓ 2 Bedrooms · up to 6 guests</li>
+            <li>✓ Hot tub · A/C · Free Wi-Fi</li>
+            <li>✓ Private parking &amp; garage</li>
+          </ul>
+          <a href="/contact" class="btn btn-gold btn-sm">Request Booking</a>
+        </div>
         <div class="price-card price-card--peak">
           <div class="price-card__badge">Peak Season</div>
           <div class="price-card__icon">☀️</div>
@@ -153,10 +166,10 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
           </ul>
           <a href="/contact" class="btn btn-primary btn-sm">Request Booking</a>
         </div>
-        <div class="price-card price-card--shoulder">
-          <div class="price-card__badge">Shoulder Season</div>
-          <div class="price-card__icon">🌤️</div>
-          <div class="price-card__dates">1–30 June &amp; 1–30 September</div>
+        <div class="price-card price-card--golden">
+          <div class="price-card__badge">Golden September</div>
+          <div class="price-card__icon">🍂</div>
+          <div class="price-card__dates">1–30 September</div>
           <div class="price-card__amount">€250</div>
           <div class="price-card__unit">per night</div>
           <ul class="price-card__includes">
@@ -418,9 +431,9 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
   /* ─── Price cards ────────────────────────────────────────────────── */
   .price-teaser__cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    max-width: 760px;
+    max-width: 1060px;
     margin: 0 auto;
   }
 
@@ -438,8 +451,9 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
   }
-  .price-card--peak { border-top: 4px solid var(--ocean-blue); }
-  .price-card--shoulder { border-top: 4px solid var(--sky-blue); }
+  .price-card--early  { border-top: 4px solid var(--sunset-gold); }
+  .price-card--peak   { border-top: 4px solid var(--ocean-blue); }
+  .price-card--golden { border-top: 4px solid var(--sky-blue); }
 
   .price-card__badge {
     position: absolute;
@@ -451,8 +465,9 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
     padding: 0.25rem 0.7rem;
     border-radius: 50px;
   }
-  .price-card--peak .price-card__badge    { background: rgba(26,95,173,0.1);  color: var(--ocean-blue); }
-  .price-card--shoulder .price-card__badge{ background: rgba(74,159,212,0.1); color: var(--sky-blue); }
+  .price-card--early  .price-card__badge { background: rgba(230,169,80,0.1);  color: var(--sunset-gold); }
+  .price-card--peak   .price-card__badge { background: rgba(26,95,173,0.1);   color: var(--ocean-blue); }
+  .price-card--golden .price-card__badge { background: rgba(74,159,212,0.1);  color: var(--sky-blue); }
 
   .price-card__icon  { font-size: 2.5rem; margin-bottom: 0.75rem; }
   .price-card__dates { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1rem; }
@@ -463,8 +478,9 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
     line-height: 1;
     margin-bottom: 0.2rem;
   }
-  .price-card--peak     .price-card__amount { color: var(--ocean-blue); }
-  .price-card--shoulder .price-card__amount { color: var(--sky-blue); }
+  .price-card--early  .price-card__amount { color: var(--sunset-gold); }
+  .price-card--peak   .price-card__amount { color: var(--ocean-blue); }
+  .price-card--golden .price-card__amount { color: var(--sky-blue); }
 
   .price-card__unit {
     font-size: 0.85rem;
@@ -586,7 +602,7 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
     .apt-highlight__grid { grid-template-columns: 1fr; gap: 2.5rem; }
     .apt-highlight__badge { bottom: 1rem; left: 1rem; }
     .direct-cards { grid-template-columns: 1fr !important; }
-    .price-teaser__cards { grid-template-columns: 1fr; max-width: 420px; }
+    .price-teaser__cards { grid-template-columns: 1fr; max-width: 440px; }
     .reviews-grid { grid-template-columns: 1fr !important; }
     .cta-banner__inner { flex-direction: column; text-align: center; }
     .cta-banner__btns { justify-content: center; }
