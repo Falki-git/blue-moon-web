@@ -135,7 +135,7 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
   <!-- ═══════════════════════════════════════════════════════════════ PRICELIST TEASER -->
   <section class="section price-teaser">
     <div class="container">
-      <div class="text-center" style="margin-bottom: 2.5rem;">
+      <div class="text-center" style="margin-bottom: 2rem;">
         <span class="section-label">Season 2026</span>
         <h2>Simple, Transparent Pricing</h2>
       </div>
@@ -144,43 +144,29 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
           <div class="price-card__badge">Early Summer</div>
           <div class="price-card__icon">🌿</div>
           <div class="price-card__dates">1–30 June</div>
-          <div class="price-card__amount">€250</div>
+          <div class="price-card__amount"><span class="price-card__currency">€</span>250</div>
           <div class="price-card__unit">per night</div>
-          <ul class="price-card__includes">
-            <li>✓ 2 Bedrooms · up to 6 guests</li>
-            <li>✓ Hot tub · A/C · Free Wi-Fi</li>
-            <li>✓ Private parking &amp; garage</li>
-          </ul>
           <a href="/contact" class="btn btn-sky btn-sm">Request Booking</a>
         </div>
         <div class="price-card price-card--peak">
           <div class="price-card__badge">Peak Season</div>
           <div class="price-card__icon">☀️</div>
           <div class="price-card__dates">1 July – 31 August</div>
-          <div class="price-card__amount">€300</div>
+          <div class="price-card__amount"><span class="price-card__currency">€</span>300</div>
           <div class="price-card__unit">per night</div>
-          <ul class="price-card__includes">
-            <li>✓ 2 Bedrooms · up to 6 guests</li>
-            <li>✓ Hot tub · A/C · Free Wi-Fi</li>
-            <li>✓ Private parking &amp; garage</li>
-          </ul>
           <a href="/contact" class="btn btn-gold btn-sm">Request Booking</a>
         </div>
         <div class="price-card price-card--golden">
           <div class="price-card__badge">Golden September</div>
           <div class="price-card__icon">🍂</div>
           <div class="price-card__dates">1–30 September</div>
-          <div class="price-card__amount">€250</div>
+          <div class="price-card__amount"><span class="price-card__currency">€</span>250</div>
           <div class="price-card__unit">per night</div>
-          <ul class="price-card__includes">
-            <li>✓ 2 Bedrooms · up to 6 guests</li>
-            <li>✓ Hot tub · A/C · Free Wi-Fi</li>
-            <li>✓ Private parking &amp; garage</li>
-          </ul>
           <a href="/contact" class="btn btn-primary btn-sm">Request Booking</a>
         </div>
       </div>
-      <p class="price-teaser__note">Minimum stay may apply. <a href="/pricelist">View full pricelist &amp; policies →</a></p>
+      <p class="price-teaser__note">All prices are per night for the entire apartment (up to 6 guests). No per-person charges. Everything included. A minimum stay of 5 nights applies in all seasons.</p>
+      <p class="price-teaser__link"><a href="/pricelist">View full pricelist &amp; policies →</a></p>
     </div>
   </section>
 
@@ -441,7 +427,7 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
     background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
-    padding: 2.5rem 2rem;
+    padding: 1.75rem 1.75rem 1.5rem;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
@@ -469,49 +455,47 @@ import livingRoom from '../assets/gallery/livingroom-1.jpg';
   .price-card--peak   .price-card__badge { background: rgba(230,169,80,0.1);  color: var(--sunset-gold); }
   .price-card--golden .price-card__badge { background: rgba(26,95,173,0.1);   color: var(--ocean-blue); }
 
-  .price-card__icon  { font-size: 2.5rem; margin-bottom: 0.75rem; }
-  .price-card__dates { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1rem; }
+  .price-card__icon  { font-size: 2rem; margin-bottom: 0.4rem; }
+  .price-card__dates { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.6rem; }
   .price-card__amount {
     font-family: 'Playfair Display', serif;
     font-size: 3.5rem;
     font-weight: 700;
     line-height: 1;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.15rem;
   }
   .price-card--early  .price-card__amount { color: var(--sky-blue); }
   .price-card--peak   .price-card__amount { color: var(--sunset-gold); }
   .price-card--golden .price-card__amount { color: var(--ocean-blue); }
 
+  .price-card__currency { font-size: 1.8rem; font-weight: 700; vertical-align: middle; }
+
   .price-card__unit {
     font-size: 0.85rem;
     font-weight: 700;
     color: var(--text-muted);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
 
-  .price-card__includes {
-    list-style: none;
-    text-align: left;
-    margin-bottom: 1.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  .price-card__includes li {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-dark);
-  }
-
   .price-teaser__note {
     text-align: center;
-    margin-top: 1.5rem;
+    margin-top: 2rem;
     color: var(--text-muted);
-    font-size: 0.88rem;
+    font-size: 0.9rem;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
   }
-  .price-teaser__note a { font-weight: 700; }
+
+  .price-teaser__link {
+    text-align: center;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
 
   /* ─── Mandre teaser ──────────────────────────────────────────────── */
   .mandre-teaser {
