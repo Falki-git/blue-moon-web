@@ -19,6 +19,8 @@ import family3 from '../assets/gallery/about-mandre/family-3.png';
 import family4 from '../assets/gallery/about-mandre/family-4.png';
 import family5 from '../assets/gallery/about-mandre/family-5.jpg';
 import family6 from '../assets/gallery/about-mandre/family-6.jpg';
+import pagCheese from '../assets/gallery/about-mandre/pag-cheese.jpg';
+import pagLamb from '../assets/gallery/about-mandre/pag-lamb.jpg';
 ---
 
 <PageLayout
@@ -217,13 +219,28 @@ import family6 from '../assets/gallery/about-mandre/family-6.jpg';
           <div class="food-card" style="margin-top:1rem;">
             <div class="food-card__emoji">🍖</div>
             <div>
-              <h4>Paški Janjetina — Pag Lamb</h4>
+              <h4>Paška Janjetina — Pag Lamb</h4>
               <p>Slow-roasted over an open fire, Pag lamb is melt-in-your-mouth tender, with a unique flavour imparted by the same salty island herbs the animals graze on. Available at local restaurants, it's a must-order dish for any visitor to the island.</p>
             </div>
           </div>
         </div>
         <div>
-          <div class="img-ph ph-food ar-4-3"><span class="ph-icon">📷</span><span class="ph-label">Pag cheese &amp; lamb</span></div>
+          <div class="carousel" id="food-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={pagCheese} alt="Paški sir — Pag cheese" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={pagLamb} alt="Paški janjetina — Pag lamb" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
