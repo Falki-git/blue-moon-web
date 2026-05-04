@@ -63,26 +63,27 @@ import locationImg from '../assets/gallery/location.jpg';
             </ul>
 
             <!-- Host values -->
-            <div class="host-values">
+            <div class="host-values-group">
+              <span class="host-values-group__label">Why book direct?</span>
               <div class="host-value">
                 <span class="host-value__icon">💬</span>
                 <div>
                   <strong>Always reachable</strong>
-                  <span>We respond to messages within a few hours, usually much faster.</span>
+                  <span>We respond within a few hours, usually much faster.</span>
                 </div>
               </div>
               <div class="host-value">
                 <span class="host-value__icon">🗺️</span>
                 <div>
                   <strong>Local knowledge</strong>
-                  <span>Ask us anything — restaurants, beaches, boat trips, hidden spots.</span>
+                  <span>Restaurants, beaches, boat trips, hidden spots — just ask.</span>
                 </div>
               </div>
               <div class="host-value">
                 <span class="host-value__icon">🏡</span>
                 <div>
                   <strong>Care for the details</strong>
-                  <span>The apartment is maintained to the standard we'd want for our own family.</span>
+                  <span>Maintained to the standard we'd want for our own family.</span>
                 </div>
               </div>
             </div>
@@ -296,25 +297,34 @@ import locationImg from '../assets/gallery/location.jpg';
   .contact-method a { text-decoration: none; transition: color 0.2s; }
   .contact-method a:hover { color: var(--sky-blue); }
 
-  .host-values {
+  .host-values-group {
     display: flex;
     flex-direction: column;
-    gap: 0.65rem;
+    gap: 0.6rem;
     margin-bottom: 1.5rem;
+    background: var(--white);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--sky-blue);
+    padding: 1rem 1.1rem;
+    box-shadow: var(--shadow-xs);
+  }
+  .host-values-group__label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sky-blue);
+    margin-bottom: 0.25rem;
   }
   .host-value {
     display: flex;
     align-items: flex-start;
-    gap: 0.85rem;
-    padding: 0.85rem 1rem;
-    background: var(--white);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-xs);
+    gap: 0.7rem;
   }
-  .host-value__icon { font-size: 1.25rem; flex-shrink: 0; margin-top: 1px; }
-  .host-value div   { display: flex; flex-direction: column; gap: 0.1rem; }
-  .host-value strong { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ocean-blue); }
-  .host-value span   { font-size: 0.85rem; color: var(--text-muted); }
+  .host-value__icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .host-value div   { display: flex; flex-direction: column; gap: 0.05rem; }
+  .host-value strong { font-size: 0.82rem; font-weight: 800; color: var(--ocean-blue); }
+  .host-value span   { font-size: 0.8rem; color: var(--text-muted); }
 
   .contact-map { margin-bottom: 1.25rem; }
   .contact-map__link {
