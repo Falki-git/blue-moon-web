@@ -1,7 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
-import heroBg from '../assets/gallery/how to get to the apartment.jpg';
+import heroBg from '../assets/gallery/outside.jpg';
+import findAptImg from '../assets/gallery/how to get to the apartment.jpg';
 import parkingImg from '../assets/gallery/outdoor.jpg';
 ---
 
@@ -9,43 +10,12 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
   title="Directions | Blue Moon Apartment, Mandre, Island of Pag"
   description="How to reach Blue Moon Apartment in Mandre, island of Pag, Croatia. Directions by car from Zadar and Zagreb, by ferry, and parking information on arrival."
   pageTitle="How to Find Us"
-  pageSubtitle="Mandre, Island of Pag, Croatia"
+  pageSubtitle="Riječka ulica 30, Mandre, Island of Pag, Croatia"
   label="Directions"
   bgClass="ph-town"
   bgImage={heroBg}
   heroObjectPosition="center 72%"
 >
-
-  <!-- ═══ DISTANCE OVERVIEW ═══ -->
-  <section class="section-sm" style="background:var(--soft-sky);">
-    <div class="container">
-      <div class="distance-strip">
-        <div class="dist-item">
-          <span class="dist-from">🏙️ Zadar</span>
-          <span class="dist-arrow">→</span>
-          <span class="dist-time">~1 hour</span>
-        </div>
-        <div class="dist-sep" aria-hidden="true"></div>
-        <div class="dist-item">
-          <span class="dist-from">🏛️ Zagreb</span>
-          <span class="dist-arrow">→</span>
-          <span class="dist-time">~3.5 hours</span>
-        </div>
-        <div class="dist-sep" aria-hidden="true"></div>
-        <div class="dist-item">
-          <span class="dist-from">✈️ Zadar Airport</span>
-          <span class="dist-arrow">→</span>
-          <span class="dist-time">~75 km</span>
-        </div>
-        <div class="dist-sep" aria-hidden="true"></div>
-        <div class="dist-item">
-          <span class="dist-from">🏖️ Beach</span>
-          <span class="dist-arrow">→</span>
-          <span class="dist-time">200 m walk</span>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- ═══ ROUTES ═══ -->
   <section class="section">
@@ -57,44 +27,10 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
 
       <div class="routes-grid">
 
-        <!-- Route 1 -->
+        <!-- Route 1: Zagreb -->
         <div class="route-card card">
           <div class="route-card__header">
             <span class="route-icon">🚗</span>
-            <div>
-              <h3>From Zadar</h3>
-              <span class="route-time">~1 hour · ~75 km</span>
-            </div>
-          </div>
-          <ol class="route-steps">
-            <li>
-              <span class="step-num">1</span>
-              <p>From Zadar, take the main coastal road towards <strong>Nin</strong> and then <strong>Posedarje</strong>.</p>
-            </li>
-            <li>
-              <span class="step-num">2</span>
-              <p>Cross the <strong>Paški most (Pag Bridge)</strong> — a striking structure connecting the mainland to the island of Pag. No toll.</p>
-            </li>
-            <li>
-              <span class="step-num">3</span>
-              <p>After the bridge, follow the island road southward through <strong>Pag town</strong>. Continue north towards <strong>Novalja</strong>.</p>
-            </li>
-            <li>
-              <span class="step-num">4</span>
-              <p>Before reaching Novalja, turn <strong>left towards Kolan</strong>, then follow signs to <strong>Mandre</strong>. The village is clearly signposted.</p>
-            </li>
-            <li>
-              <span class="step-num">5</span>
-              <p>Enter Mandre. You will receive the exact address and parking instructions with your booking confirmation.</p>
-            </li>
-          </ol>
-          <a href="https://maps.google.com/?q=Mandre,+Island+of+Pag,+Croatia&saddr=Zadar,+Croatia" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Open in Google Maps →</a>
-        </div>
-
-        <!-- Route 2 -->
-        <div class="route-card card">
-          <div class="route-card__header">
-            <span class="route-icon">🏎️</span>
             <div>
               <h3>From Zagreb</h3>
               <span class="route-time">~3.5 hours · ~280 km</span>
@@ -107,33 +43,37 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
             </li>
             <li>
               <span class="step-num">2</span>
-              <p>Exit at <strong>Zadar North</strong> or <strong>Zadar East</strong>. Follow signs towards Zadar city and then the <strong>island of Pag</strong>.</p>
+              <p>Exit at <strong>Otok Pag / Posedarje</strong> and follow signs towards <strong>Otok Pag</strong>.</p>
             </li>
             <li>
               <span class="step-num">3</span>
-              <p>Head towards <strong>Posedarje</strong> and cross the <strong>Pag Bridge</strong> onto the island.</p>
+              <p>Cross the <strong>Pag Bridge</strong> onto the island.</p>
             </li>
             <li>
               <span class="step-num">4</span>
-              <p>Follow the island road through Pag town, continue north, then turn left to <strong>Kolan</strong> and on to <strong>Mandre</strong>.</p>
+              <p>Follow the signs towards <strong>Novalja</strong>, then turn left to <strong>Kolan</strong> and on to <strong>Mandre</strong>.</p>
+            </li>
+            <li>
+              <span class="step-num">5</span>
+              <p>Enter Mandre. The apartment is at <strong>Riječka ulica 30, Mandre</strong>.</p>
             </li>
           </ol>
-          <a href="https://maps.google.com/?q=Mandre,+Island+of+Pag,+Croatia&saddr=Zagreb,+Croatia" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Open in Google Maps →</a>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Navigate with Google Maps →</a>
         </div>
 
-        <!-- Route 3 -->
+        <!-- Route 2: Ferry -->
         <div class="route-card card">
           <div class="route-card__header">
             <span class="route-icon">⛴️</span>
             <div>
-              <h3>By Ferry (from the North)</h3>
+              <h3>By Ferry</h3>
               <span class="route-time">Shorter route if coming from Rijeka or beyond</span>
             </div>
           </div>
           <ol class="route-steps">
             <li>
               <span class="step-num">1</span>
-              <p>Head to <strong>Prizna</strong> on the mainland coast — a small ferry port south of Karlobag on the Adriatic Highway.</p>
+              <p>Head to <strong>Prizna</strong> on the mainland coast — the ferry port across from <strong>Žigljen</strong> on the island of Pag.</p>
             </li>
             <li>
               <span class="step-num">2</span>
@@ -144,10 +84,13 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
               <p>From Žigljen (near Novalja), drive <strong>south</strong> through Novalja and Kolan towards <strong>Mandre</strong>. Approximately 20 minutes from the ferry port.</p>
             </li>
           </ol>
-          <a href="https://www.jadrolinija.hr" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Jadrolinija ferry schedule →</a>
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <a href="https://www.jadrolinija.hr/en/" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Jadrolinija ferry schedule →</a>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ&waypoints=Trajekt+Prizna" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Navigate via Ferry →</a>
+          </div>
         </div>
 
-        <!-- Route 4 -->
+        <!-- Route 3: Airport -->
         <div class="route-card card">
           <div class="route-card__header">
             <span class="route-icon">✈️</span>
@@ -159,18 +102,59 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
           <ol class="route-steps">
             <li>
               <span class="step-num">1</span>
-              <p><strong>Zadar Airport (ZAD)</strong> is the most convenient airport for Mandre, with many seasonal European connections including Ryanair and easyJet routes.</p>
+              <p><strong>Zadar Airport (ZAD)</strong> has many seasonal European connections including Ryanair and easyJet routes. Rent a car at the airport — a car is useful for island exploration.</p>
             </li>
             <li>
               <span class="step-num">2</span>
-              <p>Rent a car at the airport (recommended — a car is useful for island exploration). The drive to Mandre follows the same route as from Zadar city.</p>
+              <p>From the airport, head towards <strong>Zemunik Donji</strong>, then continue to <strong>Suhovare</strong>.</p>
             </li>
             <li>
               <span class="step-num">3</span>
-              <p><strong>Split Airport (SPU)</strong> is an alternative, ~2 hours away. <strong>Rijeka Airport (RJK)</strong> is another option, ~2.5 hours via the Prizna ferry.</p>
+              <p>Follow the road towards the <strong>Pag Bridge (Paški Most)</strong> and cross onto the island.</p>
+            </li>
+            <li>
+              <span class="step-num">4</span>
+              <p>Continue north along the island towards <strong>Novalja</strong>, then turn left to <strong>Kolan</strong> and on to <strong>Mandre</strong>.</p>
             </li>
           </ol>
-          <a href="https://maps.google.com/?q=Mandre,+Island+of+Pag,+Croatia&saddr=Zadar+Airport,+Croatia" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Directions from Airport →</a>
+          <a href="https://www.google.com/maps/dir/?api=1&origin=Zadar+Airport&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Navigate from Airport →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FINDING THE APARTMENT ═══ -->
+  <section class="section" style="background:var(--soft-sky);">
+    <div class="container">
+      <div class="find-apt-grid">
+
+        <div>
+          <Image
+            src={findAptImg}
+            alt="Blue Moon Apartment entrance and building"
+            widths={[400, 700, 1100]}
+            sizes="(max-width: 960px) 100vw, 50vw"
+            style="width:100%; height:auto; border-radius:var(--radius-lg); display:block;"
+          />
+        </div>
+
+        <div class="find-apt-content">
+          <span class="section-label">Finding Us</span>
+          <h2>The Apartment</h2>
+          <p class="find-apt-address">
+            <svg width="14" height="18" viewBox="0 0 14 20" fill="none" aria-hidden="true" style="flex-shrink:0; margin-top:2px;"><path d="M7 0C3.134 0 0 3.134 0 7c0 5.25 7 13 7 13s7-7.75 7-13C14 3.134 10.866 0 7 0z" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="2.4" stroke="currentColor" stroke-width="1.4"/></svg>
+            Riječka ulica 30, Mandre, Island of Pag, Croatia
+          </p>
+          <ol class="find-apt-steps">
+            <li>Enter Mandre. As you drive into the town you'll pass the <strong>Lorenco store</strong> on your left.</li>
+            <li>Turn <strong>left onto Široka ulica</strong>.</li>
+            <li>Take the <strong>third right</strong>, then the <strong>second right</strong> onto <strong>Riječka ulica</strong>.</li>
+            <li>The apartment is at <strong>Riječka ulica 30</strong>. Outdoor parking and a private garage are available on site.</li>
+          </ol>
+          <div class="find-apt-ctas">
+            <a href="https://www.google.com/maps/dir/?api=1&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" target="_blank" rel="noopener" class="btn btn-primary">Navigate with Google Maps →</a>
+          </div>
         </div>
 
       </div>
@@ -208,9 +192,6 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
             </div>
           </div>
 
-          <div class="highlight-box" style="margin-top:1.5rem;">
-            <strong>📬 Exact address and parking details</strong> will be provided in your booking confirmation email once your stay is confirmed.
-          </div>
         </div>
         <div>
           <Image src={parkingImg} alt="Building &amp; Parking" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; object-position:right center; border-radius:var(--radius); display:block;" />
@@ -255,14 +236,14 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
       </div>
       <div class="nearby-grid">
         <div class="nearby-item"><span class="nearby-dist">200 m</span><span class="nearby-label">🏖️ Beach (2 min walk)</span></div>
-        <div class="nearby-item"><span class="nearby-dist">Across<br/>the street</span><span class="nearby-label">🛒 Grocery store</span></div>
-        <div class="nearby-item"><span class="nearby-dist">5 min</span><span class="nearby-label">🐟 Fish market</span></div>
-        <div class="nearby-item"><span class="nearby-dist">5 min</span><span class="nearby-label">💊 Pharmacy</span></div>
+        <div class="nearby-item"><span class="nearby-dist">Across<br/>the street</span><span class="nearby-label">🛒 Bakmaz grocery store</span></div>
+        <div class="nearby-item"><span class="nearby-dist">5 min</span><span class="nearby-label">🐟 Fish market near Konzum</span></div>
+        <div class="nearby-item"><span class="nearby-dist">5 min</span><span class="nearby-label">💊 Pharmacy near Konzum</span></div>
         <div class="nearby-item"><span class="nearby-dist">5 min</span><span class="nearby-label">☕ Promenade cafés</span></div>
-        <div class="nearby-item"><span class="nearby-dist">5 min</span><span class="nearby-label">🛝 Children's playground</span></div>
-        <div class="nearby-item"><span class="nearby-dist">20 min</span><span class="nearby-label">🏛️ Pag town</span></div>
-        <div class="nearby-item"><span class="nearby-dist">20 min</span><span class="nearby-label">🎵 Zrće Beach</span></div>
-        <div class="nearby-item"><span class="nearby-dist">1 hr</span><span class="nearby-label">🌆 Zadar</span></div>
+        <div class="nearby-item"><span class="nearby-dist">5 min</span><span class="nearby-label">🛝 Children's playground near Konzum</span></div>
+        <div class="nearby-item"><span class="nearby-dist">20 min</span><span class="nearby-label">🏛️ Drive to Pag town</span></div>
+        <div class="nearby-item"><span class="nearby-dist">20 min</span><span class="nearby-label">🎵 Drive to Zrće Beach</span></div>
+        <div class="nearby-item"><span class="nearby-dist">1 hr</span><span class="nearby-label">🌆 Drive to Zadar</span></div>
       </div>
     </div>
   </section>
@@ -270,6 +251,44 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
 </PageLayout>
 
 <style>
+  /* Finding the apartment */
+  .find-apt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+    align-items: center;
+  }
+  .find-apt-content h2 { margin: 0.5rem 0 1rem; }
+  .find-apt-address {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-weight: 700;
+    color: var(--ocean-blue);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+  .find-apt-steps {
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-bottom: 2rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+  .find-apt-steps li::marker { color: var(--sky-blue); font-weight: 800; }
+  .find-apt-steps strong { color: var(--text-dark); }
+  .find-apt-ctas {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 960px) {
+    .find-apt-grid { grid-template-columns: 1fr; gap: 2rem; }
+  }
+
   /* Distance strip */
   .distance-strip {
     display: flex;
@@ -300,8 +319,14 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
   }
+  .routes-grid .route-card:last-child {
+    grid-column: 1 / -1;
+    max-width: calc(50% - 1rem);
+    justify-self: center;
+  }
 
-  .route-card { padding: 2rem; }
+  .route-card { padding: 2rem; display: flex; flex-direction: column; }
+  .route-card > :last-child { margin-top: auto; }
   .route-card__header {
     display: flex;
     align-items: flex-start;
@@ -434,6 +459,7 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
 
   @media (max-width: 860px) {
     .routes-grid { grid-template-columns: 1fr; }
+    .routes-grid .route-card:last-child { grid-column: auto; max-width: 100%; justify-self: stretch; }
     .parking-grid { grid-template-columns: 1fr; gap: 2rem; }
     .distance-strip { flex-direction: column; gap: 0.25rem; }
     .dist-sep { width: 80px; height: 1px; margin: 0; }
