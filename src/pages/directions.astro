@@ -58,7 +58,7 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
               <p>Enter Mandre. The apartment is at <strong>Riječka ulica 30, Mandre</strong>.</p>
             </li>
           </ol>
-          <a href="https://maps.google.com/?q=Mandre,+Island+of+Pag,+Croatia&saddr=Zagreb,+Croatia" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Open in Google Maps →</a>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Navigate with Google Maps →</a>
         </div>
 
         <!-- Route 2: Ferry -->
@@ -84,7 +84,10 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
               <p>From Žigljen (near Novalja), drive <strong>south</strong> through Novalja and Kolan towards <strong>Mandre</strong>. Approximately 20 minutes from the ferry port.</p>
             </li>
           </ol>
-          <a href="https://www.jadrolinija.hr" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Jadrolinija ferry schedule →</a>
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <a href="https://www.jadrolinija.hr/en/" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Jadrolinija ferry schedule →</a>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ&waypoints=Trajekt+Prizna" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Navigate via Ferry →</a>
+          </div>
         </div>
 
         <!-- Route 3: Airport -->
@@ -322,7 +325,8 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
     justify-self: center;
   }
 
-  .route-card { padding: 2rem; }
+  .route-card { padding: 2rem; display: flex; flex-direction: column; }
+  .route-card > :last-child { margin-top: auto; }
   .route-card__header {
     display: flex;
     align-items: flex-start;
