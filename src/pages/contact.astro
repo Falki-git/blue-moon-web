@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
 import locationImg from '../assets/gallery/location.jpg';
+import heroImg from '../assets/gallery/hot-tub-2.jpg';
 ---
 
 <PageLayout
@@ -10,7 +11,9 @@ import locationImg from '../assets/gallery/location.jpg';
   pageTitle="Get In Touch"
   pageSubtitle="We respond to all inquiries within 24 hours"
   label="Contact & Booking"
-  bgClass="ph-sea"
+  bgImage={heroImg}
+  heroObjectPosition="center 20%"
+  showHeroLogo={true}
 >
 
   <section class="section">
