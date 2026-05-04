@@ -13,6 +13,10 @@
       "Bash(git branch*)",
       "Edit (/src/**)"
     ],
+	"ask": [
+      "Bash(git commit*)",
+      "Bash(git push*)"
+    ],
     "deny": [
       "Bash(npm install*)",
       "Bash(npm uninstall*)",
