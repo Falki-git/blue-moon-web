@@ -19,8 +19,9 @@ import bathroom2 from '../assets/gallery/Bathroom2.jpg';
 import carouselImg1 from '../assets/gallery/livingroom-5.jpg';
 import carouselImg2 from '../assets/gallery/livingroom-3.jpg';
 import carouselImg3 from '../assets/gallery/terrace-13.jpg';
-import carouselImg4 from '../assets/gallery/terrace-12.jpg';
-import carouselImg5 from '../assets/gallery/hallway-2.jpg';
+import carouselImg4 from '../assets/gallery/bedroom1-5.jpg';
+import carouselImg5 from '../assets/gallery/reviews-1.jpg';
+import terrace12 from '../assets/gallery/terrace-12.jpg';
 import terrace11 from '../assets/gallery/terrace-11.jpg';
 import terrace6 from '../assets/gallery/terrace-6.jpg';
 import hotTub2 from '../assets/gallery/hot-tub-2.jpg';
@@ -59,8 +60,8 @@ import livingroom7 from '../assets/gallery/livingroom-7.jpg';
               <div class="carousel__slide"><Image src={carouselImg1} alt="Living room" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
               <div class="carousel__slide"><Image src={carouselImg2} alt="Living room" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
               <div class="carousel__slide"><Image src={carouselImg3} alt="Terrace view" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="object-position: 30% center;" /></div>
-              <div class="carousel__slide"><Image src={carouselImg4} alt="Terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
-              <div class="carousel__slide"><Image src={carouselImg5} alt="Hallway" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={carouselImg4} alt="Bedroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="object-position: left center;" /></div>
+              <div class="carousel__slide"><Image src={carouselImg5} alt="Guest review" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
             </div>
             <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
               <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -92,7 +93,7 @@ import livingroom7 from '../assets/gallery/livingroom-7.jpg';
               <div class="carousel__slide"><Image src={hotTub} alt="Hot tub on terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
               <div class="carousel__slide"><Image src={hotTub2} alt="Hot tub on terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
               <div class="carousel__slide"><Image src={terrace6} alt="Terrace view" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
-              <div class="carousel__slide"><Image src={carouselImg4} alt="Terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={terrace12} alt="Terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
               <div class="carousel__slide"><Image src={livingroom7} alt="Living room" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
             </div>
             <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
@@ -127,13 +128,7 @@ import livingroom7 from '../assets/gallery/livingroom-7.jpg';
   <!-- ═══ BEDROOMS ═══ -->
   <section class="section">
     <div class="container">
-      <div class="apt-grid">
-        <div>
-          <span class="section-label">Rest &amp; Comfort</span>
-          <h2>Two Bedrooms</h2>
-          <p>Both bedrooms are furnished with large, comfortable, king-size beds and quality linens to ensure a restful night's sleep. There's ample wardrobe space, and the rooms are kept cool by the air conditioning system.</p>
-          <p style="margin-top:1rem;">The layout works perfectly for two couples travelling together, or a family of four to six — each couple or set of parents gets their own private bedroom.</p>
-        </div>
+      <div class="apt-grid apt-grid--reverse">
         <div>
           <div class="carousel" id="bedroom-carousel" style="aspect-ratio: 16/9;">
             <div class="carousel__track">
@@ -159,6 +154,12 @@ import livingroom7 from '../assets/gallery/livingroom-7.jpg';
               <button class="carousel__dot" aria-label="Slide 6"></button>
             </div>
           </div>
+        </div>
+        <div>
+          <span class="section-label">Rest &amp; Comfort</span>
+          <h2>Two Bedrooms</h2>
+          <p>Both bedrooms are furnished with large, comfortable, king-size beds and quality linens to ensure a restful night's sleep. There's ample wardrobe space, and the rooms are kept cool by the air conditioning system.</p>
+          <p style="margin-top:1rem;">The layout works perfectly for two couples travelling together, or a family of four to six — each couple or set of parents gets their own private bedroom.</p>
         </div>
       </div>
     </div>
@@ -211,18 +212,7 @@ import livingroom7 from '../assets/gallery/livingroom-7.jpg';
   <!-- ═══ BATHROOMS ═══ -->
   <section class="section">
     <div class="container">
-      <div class="apt-grid">
-        <div>
-          <span class="section-label">Two Full Bathrooms</span>
-          <h2>Comfort for the Whole Family</h2>
-          <p>Two full bathrooms mean no queuing in the morning. Each bathroom is modern and equipped with a shower and a toilet. The apartment also provides a hairdryer and iron for your convenience.</p>
-          <ul class="feat-list" style="margin-top:1rem;">
-            <li>🚿 Two full bathrooms with showers</li>
-            <li>💇 Hairdryer provided</li>
-            <li>👔 Iron &amp; ironing board</li>
-            <li>🫧 Washing machine</li>
-          </ul>
-        </div>
+      <div class="apt-grid apt-grid--reverse">
         <div>
           <div class="carousel" id="bathroom-carousel">
             <div class="carousel__track">
@@ -242,6 +232,17 @@ import livingroom7 from '../assets/gallery/livingroom-7.jpg';
               <button class="carousel__dot" aria-label="Slide 3"></button>
             </div>
           </div>
+        </div>
+        <div>
+          <span class="section-label">Two Full Bathrooms</span>
+          <h2>Comfort for the Whole Family</h2>
+          <p>Two full bathrooms mean no queuing in the morning. Each bathroom is modern and equipped with a shower and a toilet. The apartment also provides a hairdryer and iron for your convenience.</p>
+          <ul class="feat-list" style="margin-top:1rem;">
+            <li>🚿 Two full bathrooms with showers</li>
+            <li>💇 Hairdryer provided</li>
+            <li>👔 Iron &amp; ironing board</li>
+            <li>🫧 Washing machine</li>
+          </ul>
         </div>
       </div>
     </div>
