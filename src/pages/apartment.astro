@@ -356,7 +356,7 @@ import livingroom7 from '../assets/gallery/livingroom-7.jpg';
   .overview-stats {
     display: grid;
     grid-template-columns: repeat(4, auto);
-    justify-content: start;
+    justify-content: center;
     align-items: end;
     gap: 2rem;
     margin-top: 2rem;
@@ -517,7 +517,10 @@ import livingroom7 from '../assets/gallery/livingroom-7.jpg';
   }
   @media (max-width: 560px) {
     .amenity-grid { grid-template-columns: 1fr; }
-    .overview-stats { gap: 1rem; }
+    .overview-stats {
+      grid-template-columns: repeat(2, auto);
+      gap: 1.5rem;
+    }
     .family-callout { flex-direction: column; }
   }
 </style>
