@@ -31,6 +31,45 @@ const reviews = [
   },
   {
     id: 3,
+    name: 'Viktória',
+    country: 'Slovakia',
+    flag: '🇸🇰',
+    type: 'Verified guest',
+    rating: 10,
+    date: 'September 2025',
+    title: 'Superb accommodation, close to the beach',
+    text: 'Superb accommodation, beautiful, clean, fully equipped, gorgeous sea view, close to the beach… superb.',
+    highlights: ['Sea view', 'Close to beach', 'Fully equipped'],
+    booking: 'Booking.com',
+  },
+  {
+    id: 4,
+    name: 'Jana',
+    country: 'Czech Republic',
+    flag: '🇨🇿',
+    type: 'Verified guest',
+    rating: 10,
+    date: 'August 2025',
+    title: '',
+    text: '',
+    highlights: [],
+    booking: 'Booking.com',
+  },
+  {
+    id: 5,
+    name: 'Adam',
+    country: 'Poland',
+    flag: '🇵🇱',
+    type: 'Verified guest',
+    rating: 10,
+    date: 'August 2025',
+    title: 'Quiet area, close to the sea and restaurants',
+    text: 'Quiet area, close to the sea and restaurants.',
+    highlights: ['Quiet location', 'Sea proximity', 'Restaurants nearby'],
+    booking: 'Booking.com',
+  },
+  {
+    id: 6,
     name: 'Alex',
     country: 'Germany',
     flag: '🇩🇪',
@@ -43,7 +82,7 @@ const reviews = [
     booking: 'Booking.com',
   },
   {
-    id: 4,
+    id: 7,
     name: 'Patryk',
     country: 'Poland',
     flag: '🇵🇱',
@@ -56,7 +95,7 @@ const reviews = [
     booking: 'Booking.com',
   },
   {
-    id: 5,
+    id: 8,
     name: 'Žiga',
     country: 'Slovenia',
     flag: '🇸🇮',
@@ -69,7 +108,7 @@ const reviews = [
     booking: 'Booking.com',
   },
   {
-    id: 6,
+    id: 9,
     name: 'Iveta',
     country: 'Slovakia',
     flag: '🇸🇰',
@@ -82,7 +121,7 @@ const reviews = [
     booking: 'Booking.com',
   },
   {
-    id: 7,
+    id: 10,
     name: 'Paolo',
     country: 'Italy',
     flag: '🇮🇹',
@@ -95,7 +134,7 @@ const reviews = [
     booking: 'Booking.com',
   },
   {
-    id: 8,
+    id: 11,
     name: 'Korban / Łukasz',
     country: 'Poland',
     flag: '🇵🇱',
@@ -108,7 +147,7 @@ const reviews = [
     booking: 'Booking.com',
   },
   {
-    id: 9,
+    id: 12,
     name: 'Pavla',
     country: 'Czech Republic',
     flag: '🇨🇿',
@@ -188,8 +227,8 @@ const avgRating = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).t
                 <span class="review-full__badge">{review.booking}</span>
               </div>
             </header>
-            <h3 class="review-full__title">"{review.title}"</h3>
-            <blockquote class="review-full__text">{review.text}</blockquote>
+            {review.title && <h3 class="review-full__title">"{review.title}"</h3>}
+            {review.text && <blockquote class="review-full__text">{review.text}</blockquote>}
             <div class="review-full__highlights">
               {review.highlights.map(h => (
                 <span class="highlight-chip">{h}</span>
