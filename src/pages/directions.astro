@@ -1,7 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
-import heroBg from '../assets/gallery/how to get to the apartment.jpg';
+import heroBg from '../assets/gallery/outside.jpg';
+import findAptImg from '../assets/gallery/how to get to the apartment.jpg';
 import parkingImg from '../assets/gallery/outdoor.jpg';
 ---
 
@@ -29,7 +30,7 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
         <!-- Route 1: Zagreb -->
         <div class="route-card card">
           <div class="route-card__header">
-            <span class="route-icon">🏎️</span>
+            <span class="route-icon">🚗</span>
             <div>
               <h3>From Zagreb</h3>
               <span class="route-time">~3.5 hours · ~280 km</span>
@@ -86,41 +87,7 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
           <a href="https://www.jadrolinija.hr" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Jadrolinija ferry schedule →</a>
         </div>
 
-        <!-- Route 3: Zadar -->
-        <div class="route-card card">
-          <div class="route-card__header">
-            <span class="route-icon">🚗</span>
-            <div>
-              <h3>From Zadar</h3>
-              <span class="route-time">~1 hour · ~75 km</span>
-            </div>
-          </div>
-          <ol class="route-steps">
-            <li>
-              <span class="step-num">1</span>
-              <p>From Zadar, take the main coastal road towards <strong>Nin</strong> and then <strong>Posedarje</strong>.</p>
-            </li>
-            <li>
-              <span class="step-num">2</span>
-              <p>Cross the <strong>Paški most (Pag Bridge)</strong> — a striking structure connecting the mainland to the island of Pag. No toll.</p>
-            </li>
-            <li>
-              <span class="step-num">3</span>
-              <p>After the bridge, follow the island road southward through <strong>Pag town</strong>. Continue north towards <strong>Novalja</strong>.</p>
-            </li>
-            <li>
-              <span class="step-num">4</span>
-              <p>Before reaching Novalja, turn <strong>left towards Kolan</strong>, then follow signs to <strong>Mandre</strong>. The village is clearly signposted.</p>
-            </li>
-            <li>
-              <span class="step-num">5</span>
-              <p>Enter Mandre. The apartment is at <strong>Riječka ulica 30, Mandre</strong>.</p>
-            </li>
-          </ol>
-          <a href="https://maps.google.com/?q=Mandre,+Island+of+Pag,+Croatia&saddr=Zadar,+Croatia" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">Open in Google Maps →</a>
-        </div>
-
-        <!-- Route 4: Airport -->
+        <!-- Route 3: Airport -->
         <div class="route-card card">
           <div class="route-card__header">
             <span class="route-icon">✈️</span>
@@ -151,13 +118,13 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
   </section>
 
   <!-- ═══ FINDING THE APARTMENT ═══ -->
-  <section class="section">
+  <section class="section" style="background:var(--soft-sky);">
     <div class="container">
       <div class="find-apt-grid">
 
         <div>
           <Image
-            src={heroBg}
+            src={findAptImg}
             alt="Blue Moon Apartment entrance and building"
             widths={[400, 700, 1100]}
             sizes="(max-width: 960px) 100vw, 50vw"
@@ -349,6 +316,11 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
   }
+  .routes-grid .route-card:last-child {
+    grid-column: 1 / -1;
+    max-width: calc(50% - 1rem);
+    justify-self: center;
+  }
 
   .route-card { padding: 2rem; }
   .route-card__header {
@@ -483,6 +455,7 @@ import parkingImg from '../assets/gallery/outdoor.jpg';
 
   @media (max-width: 860px) {
     .routes-grid { grid-template-columns: 1fr; }
+    .routes-grid .route-card:last-child { grid-column: auto; max-width: 100%; justify-self: stretch; }
     .parking-grid { grid-template-columns: 1fr; gap: 2rem; }
     .distance-strip { flex-direction: column; gap: 0.25rem; }
     .dist-sep { width: 80px; height: 1px; margin: 0; }
