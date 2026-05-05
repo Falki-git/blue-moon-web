@@ -28,8 +28,8 @@ npm run preview
 blue-moon-apartment/
 ├── public/
 │   ├── images/
-│   │   ├── logo.png               ← Blue Moon logo (already added)
-│   │   └── gallery/               ← ADD your apartment photos here
+│   │   ├── logo.svg               ← Blue Moon logo (footer, 404)
+│   │   └── nav-logo.svg           ← Navigation bar logo variant
 │   ├── _redirects                 ← Cloudflare Pages redirect rules
 │   ├── _headers                   ← Cloudflare Pages security headers
 │   └── favicon.svg
@@ -47,15 +47,17 @@ blue-moon-apartment/
 │   │
 │   ├── pages/
 │   │   ├── index.astro            ← Home page
-│   │   ├── apartment.astro        ← Apartment detail
-│   │   ├── gallery.astro          ← Photo gallery
+│   │   ├── apartment.astro        ← Apartment detail with image carousels
+│   │   ├── gallery.astro          ← Photo gallery with lightbox & filter
 │   │   ├── pricelist.astro        ← Pricing & policies
-│   │   ├── about-mandre.astro     ← Mandre destination guide
-│   │   ├── about-us.astro         ← Host profile (Goran)
+│   │   ├── about-mandre.astro     ← Mandre destination guide with carousels
 │   │   ├── reviews.astro          ← Guest reviews
 │   │   ├── contact.astro          ← Inquiry form & contacts
-│   │   ├── directions.astro       ← How to get here
+│   │   ├── directions.astro       ← How to get here (Google Maps embed)
 │   │   └── 404.astro              ← Custom 404 page
+│   │
+│   ├── assets/
+│   │   └── gallery/               ← Apartment & destination photos (Astro Image)
 │   │
 │   ├── styles/
 │   │   └── global.css             ← Brand variables, typography, utilities
@@ -72,19 +74,10 @@ blue-moon-apartment/
 
 ## ✏️ Before You Launch — Checklist
 
-### Content to Personalise
-
-- [ ] **`src/pages/about-us.astro`** — Fill in the `[Placeholder]` paragraphs with your personal story as a host.
-- [ ] **`src/pages/about-mandre.astro`** — Fill in the "Goran's Picks" section (01–05) with your real local recommendations.
-- [ ] **All pages** — Replace `info@bluemoonapartment.com` with your real email address.
-- [ ] **All pages** — Replace `+385981234567` with your real WhatsApp/phone number.
-- [ ] **`src/pages/pricelist.astro`** — Update check-in/check-out times and exact deposit/cancellation policy if needed.
-
 ### Photos
 
-Add your apartment photos to `/public/images/gallery/` and update the `<img>` placeholders in each page. The placeholder `div` elements with class `img-ph` are your targets — replace them with real `<img>` or `<picture>` tags using Astro's `<Image />` component.
+Real photos are in `src/assets/gallery/` and already used in the gallery page and carousels. Some page sections still use CSS placeholder `div` elements with class `img-ph` — replace these with Astro's `<Image />` component:
 
-Example replacement:
 ```astro
 <!-- Before (placeholder) -->
 <div class="img-ph ph-terrace ar-4-3">
@@ -92,37 +85,29 @@ Example replacement:
 </div>
 
 <!-- After (real photo) -->
-<img
-  src="/images/gallery/terrace-hot-tub.jpg"
-  alt="Terrace with hot tub and sea view"
-  width="800"
-  height="600"
-  loading="lazy"
-  class="apt-photo"
-/>
+---
+import { Image } from 'astro:assets';
+import terracePhoto from '../assets/gallery/terrace-1.jpg';
+---
+<Image src={terracePhoto} alt="Terrace with hot tub and sea view"
+  widths={[400, 700, 1100]}
+  sizes="(max-width: 900px) 100vw, 50vw" />
 ```
 
 ### Contact Form
 
-The form uses `data-netlify="true"` for serverless form handling. On Cloudflare Pages, you have two options:
+The form in `contact.astro` uses `data-netlify="true"`, but **Netlify Forms does not work on Cloudflare Pages** — this is an open TODO. Two replacement options:
 
-**Option A — Formspree (recommended):**
+**Option A — Formspree (easiest):**
 1. Create a free account at [formspree.io](https://formspree.io)
 2. Replace the form `action` in `contact.astro` with your Formspree endpoint:
    ```html
    <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
    ```
-3. Remove the `data-netlify` attribute.
+3. Remove the `data-netlify` and `netlify-honeypot` attributes.
 
 **Option B — Cloudflare Pages Functions:**
-Create `/functions/form.js` to handle form submissions server-side.
-
-### Maps
-
-In `directions.astro` and `contact.astro`, replace the map placeholder divs with a real Google Maps embed:
-1. Go to [maps.google.com](https://maps.google.com) and search for "Mandre, Pag, Croatia"
-2. Click Share → Embed a map → Copy the iframe code
-3. Replace the `<div class="img-ph...">` with the iframe
+Create `/functions/form.js` to handle submissions server-side (requires Cloudflare account).
 
 ### OG Image
 
@@ -177,4 +162,3 @@ Change any value here and it updates across the entire site.
 ## 📞 Support
 
 Built for Goran Falkoni — Blue Moon Apartment, Mandre, Island of Pag, Croatia.
-Website: https://blue-moon-web.gfalkoni.workers.dev/
