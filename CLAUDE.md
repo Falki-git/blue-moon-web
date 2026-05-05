@@ -89,12 +89,14 @@ Real photos are not yet added. All images are CSS placeholder `<div>` elements u
 4. Merge into `development` when ready
 
 ### Deploying to production
-**IMPORTANT**: Never open a PR from `development` → `main` on your own initiative. Only open this PR when the user explicitly asks for it (e.g., "create a PR to main", "open the deployment PR"). Never merge `development` into `main` directly.
+**IMPORTANT**: Never open a PR from `development` → `main` on your own initiative. Only open this PR when the user explicitly asks for it (e.g., "create a PR to main", "open the deployment PR"). Never merge `development` into `main` directly. 
 
 1. When the user requests it, open a PR from `development` → `main`
 2. User reviews, approves, and merges the PR
 3. After user confirms the merge, sync `development`: `git checkout development && git merge main`
 4. Continue new work from `development`
+
+**IMPORTANT**: If a user doesn't specify details of opening a PR, always assume the user means opening a PR from a feature/bugfix branch against the `development` branch.
 
 ## Additional Documentation
 
