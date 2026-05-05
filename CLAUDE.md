@@ -15,7 +15,7 @@ Operates seasonally (June–September). Multi-language support (7 languages) is 
 | Styling | Vanilla CSS — scoped component styles + global design system |
 | Fonts | Google Fonts: Playfair Display (serif headings), Nunito (sans-serif body) |
 | Hosting | Cloudflare Pages (configured via `wrangler.toml`) |
-| Forms | Netlify Forms (`data-netlify="true"` on form elements) |
+| Forms | Netlify Forms (`data-netlify="true"`) — code is in place but **Netlify Forms does not function on Cloudflare Pages**; form handling is an open TODO |
 | Interactivity | Vanilla JS inline `<script>` blocks only — no frontend framework |
 
 ## Key Directories
@@ -26,9 +26,11 @@ src/
   components/       # Nav, Footer, WhatsAppButton, CookieBanner
   pages/            # File-based routes — one .astro file per URL
   styles/           # global.css — CSS variables, resets, utility classes
+  assets/
+    gallery/        # Real apartment & destination photos — processed by Astro Image at build time
   i18n/             # en.json — translation strings (multi-lang framework, not yet active)
 public/
-  images/           # logo.png; gallery/ (placeholder — real photos not yet added)
+  images/           # logo.svg, nav-logo.svg, og-image.jpg, favicon.svg
   _redirects        # Cloudflare Pages URL redirects
   _headers          # Cloudflare Pages security headers
 ```
@@ -59,19 +61,22 @@ No test or lint scripts are configured.
 | File | Route | Notes |
 |------|-------|-------|
 | `src/pages/index.astro` | `/` | Homepage — hero, features, pricing teaser, reviews |
-| `src/pages/apartment.astro` | `/apartment` | Full property details |
-| `src/pages/gallery.astro` | `/gallery` | Photo gallery with JS filter |
+| `src/pages/apartment.astro` | `/apartment` | Full property details with image carousels |
+| `src/pages/gallery.astro` | `/gallery` | Photo gallery with Astro Image component, JS filter, lightbox |
 | `src/pages/pricelist.astro` | `/pricelist` | Rates, policies, check-in times |
-| `src/pages/contact.astro` | `/contact` | Inquiry form + map |
-| `src/pages/about-mandre.astro` | `/about-mandre` | Destination guide |
-| `src/pages/about-us.astro` | `/about-us` | Host profile |
+| `src/pages/contact.astro` | `/contact` | Inquiry form (Netlify Forms — see TODO above) |
+| `src/pages/about-mandre.astro` | `/about-mandre` | Destination guide with image carousels and Google Maps embed |
 | `src/pages/reviews.astro` | `/reviews` | Guest testimonials |
-| `src/pages/directions.astro` | `/directions` | Travel info |
+| `src/pages/directions.astro` | `/directions` | Travel info with Google Maps embed |
 | `src/pages/404.astro` | 404 | Custom error page |
 
-## Image Placeholders
+## Images
 
-Real photos are not yet added. All images are CSS placeholder `<div>` elements using `.img-ph` + category modifier classes (`.ph-terrace`, `.ph-sea`, etc.) defined in `src/styles/global.css:207`. When adding real images, replace these divs with `<img>` or Astro `<Image>` components.
+Two patterns coexist:
+
+**Real photos (Astro `<Image>` component)** — The gallery page and all carousels (apartment, about-mandre) use real photos from `src/assets/gallery/`. Astro processes these at build time for optimized output.
+
+**CSS placeholder divs** — Some page sections (hero backgrounds, static apartment detail shots) still use `.img-ph` + category modifier classes (`.ph-terrace`, `.ph-sea`, etc.) defined in `src/styles/global.css:207`. These are `<div>` elements with gradient placeholders. When replacing with real images, swap for `<img>` or Astro `<Image>` components, keeping any aspect-ratio wrapper class.
 
 ## Git Branching Workflow
 
@@ -87,6 +92,8 @@ Real photos are not yet added. All images are CSS placeholder `<div>` elements u
 2. Make changes on the feature/fix branch
 3. Open a PR targeting `development` (never `main`)
 4. Merge into `development` when ready
+
+**IMPORTANT**: Never commit or push until the user explicitly asks. Make edits freely, then stop and wait for the go-ahead.
 
 ### Deploying to production
 **IMPORTANT**: Never open a PR from `development` → `main` on your own initiative. Only open this PR when the user explicitly asks for it (e.g., "create a PR to main", "open the deployment PR"). Never merge `development` into `main` directly. 

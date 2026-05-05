@@ -1,40 +1,125 @@
 {
   "permissions": {
     "allow": [
+      // --- File inspection ---
       "Bash(ls*)",
-      "Bash(cat*)",
-      "Bash(head*)",
-      "Bash(tail*)",
+      "Bash(dir*)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(xargs grep *)",
+
+      // --- npm ---
       "Bash(npm run *)",
+      "Bash(npm list*)",
+
+      // --- git ---
       "Bash(git status*)",
       "Bash(git diff*)",
       "Bash(git log*)",
       "Bash(git show*)",
       "Bash(git branch*)",
-      "Edit (/src/**)"
+      "Bash(git fetch*)",
+      "Bash(git checkout*)",
+      "Bash(git add*)",
+      "Bash(git merge*)",
+      "Bash(git pull*)",
+      "Bash(git stash*)",
+      "Bash(git remote*)",
+      "Bash(git tag*)",
+
+      // --- gh CLI: explicit read-only subcommands ---
+      "Bash(gh pr view*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr checks*)",
+      "Bash(gh pr diff*)",
+      "Bash(gh pr status*)",
+      "Bash(gh issue view*)",
+      "Bash(gh issue list*)",
+      "Bash(gh repo view*)",
+      "Bash(gh run view*)",
+      "Bash(gh run list*)",
+      "Bash(gh workflow view*)",
+      "Bash(gh workflow list*)",
+      "Bash(gh auth status)",
+
+      // --- File reads ---
+      "Read(//c/Users/gfalk/Documents/WindowsPowerShell/**)",
+      "Read(//c/Users/gfalk/Documents/PowerShell/**)",
+
+      // --- Web ---
+      "WebFetch(domain:www.booking.com)",
+
+      // --- Project edits ---
+      "Edit(E:\\GitHub\\blue-moon-web-claude\\src\\**)"
     ],
-	"ask": [
+    "ask": [
       "Bash(git commit*)",
-      "Bash(git push*)"
+      "Bash(git push*)",
+      "Bash(gh pr create*)",
+      "Bash(gh issue create*)"
     ],
     "deny": [
+      // --- Package installs ---
       "Bash(npm install*)",
       "Bash(npm uninstall*)",
       "Bash(npm ci*)",
+      "Bash(npm publish*)",
       "Bash(yarn add*)",
       "Bash(yarn install*)",
-      "Bash(pip install*)",
       "Bash(pnpm add*)",
       "Bash(pnpm install*)",
+      "Bash(pip install*)",
+
+      // --- Deletion ---
       "Bash(rm*)",
       "Bash(rmdir*)",
       "Bash(del*)",
       "Bash(rd*)",
       "Bash(rimraf*)",
+      "Bash(shred*)",
+
+      // --- Network egress ---
       "Bash(curl*)",
       "Bash(wget*)",
       "Bash(ssh*)",
-      "Bash(scp*)"
+      "Bash(scp*)",
+
+      // --- Deploy ---
+      "Bash(npm run deploy*)",
+
+      // --- Force-push ---
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+
+      // --- Dangerous gh subcommands ---
+      "Bash(gh pr merge*)",
+      "Bash(gh release*)",
+      "Bash(gh repo delete*)",
+      "Bash(gh repo create*)",
+      "Bash(gh repo edit*)",
+      "Bash(gh secret*)",
+      "Bash(gh ssh-key*)",
+      "Bash(gh gpg-key*)",
+      "Bash(gh auth refresh*)",
+      "Bash(gh auth login*)",
+      "Bash(gh auth logout*)",
+      "Bash(gh api*)",
+      "Bash(gh workflow run*)",
+      "Bash(gh workflow disable*)",
+      "Bash(gh workflow enable*)",
+
+      // --- Sensitive file reads ---
+      "Bash(cat *id_rsa*)",
+      "Bash(cat *id_ed25519*)",
+      "Bash(cat *.env*)",
+      "Bash(cat *credentials*)",
+      "Bash(cat *.aws*)",
+      "Bash(cat *.npmrc*)",
+
+      // --- Environment leakage ---
+      "Bash(env)",
+      "Bash(printenv*)"
     ]
   }
 }
