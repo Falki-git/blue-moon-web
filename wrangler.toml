@@ -1,4 +1,4 @@
-name = "blue-moon-web-default-DO-NOT-DEPLOY"
+name = "blue-moon-web-do-not-deploy"
 main = "src/worker/index.ts"
 compatibility_date = "2025-10-08"
 compatibility_flags = ["nodejs_compat"]
