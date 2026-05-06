@@ -1,23 +1,76 @@
-# 🌙 Blue Moon Apartment — Website
+# 🌙 Blue Moon Apartment — Marketing Website
 
-A complete Astro website for the Blue Moon Apartment short-term rental in Mandre, island of Pag, Croatia.
+**🔗 Live site:** [bluemoonmandre.eu](https://bluemoonmandre.eu)
+**🧪 Dev environment:** [dev-blue-moon-web.workers.dev](https://dev-blue-moon-web.workers.dev)
+
+A production marketing website for **Blue Moon Apartment**, a luxury short-term rental in Mandre, Croatia (island of Pag). Built to drive direct bookings and reduce dependency on OTAs (Booking.com, Airbnb).
+
+> 🤖 This project was built entirely using **[Claude Code](https://claude.ai/code)** — Anthropic's AI coding assistant — as a practical exploration of AI-assisted solo development from zero to production.
 
 ---
 
-## 🚀 Quick Start
+## 🏗️ What I Built
+
+A fully static, zero-runtime-JS website covering the entire guest journey — from discovery and gallery browsing, through pricing and availability, to contact and directions:
+
+| Page | Purpose |
+|------|---------|
+| 🏠 Home | Hero, highlights, pricing teaser, guest reviews |
+| 🛏️ Apartment | Full property detail with filterable image carousels |
+| 🖼️ Gallery | Photo gallery with category filter and lightbox |
+| 💰 Price list | Seasonal rates, policies, check-in/check-out rules |
+| 🌊 About Mandre | Destination guide with carousels and Google Maps embed |
+| ⭐ Reviews | Guest testimonials |
+| 📬 Contact | Inquiry form with WhatsApp fallback |
+| 🗺️ Directions | Travel routes with embedded Google Maps |
+
+---
+
+## ⚙️ Tech Stack
+
+| Layer | Choice | Why |
+|-------|--------|-----|
+| Framework | [Astro](https://astro.build) v4 | Ships 0 KB of JavaScript by default — ideal for a content site |
+| Output | Static (`output: 'static'`) | Pre-rendered at build time; no server, no cold starts |
+| Styling | Vanilla CSS (scoped + global) | No framework overhead; full control over design tokens |
+| Images | Astro `<Image />` component | Automatic format conversion (WebP/AVIF), responsive `srcset`, lazy loading |
+| Hosting | Cloudflare Workers + Assets | Global CDN, custom domain, free tier |
+| Fonts | Google Fonts (Playfair Display + Nunito) | Serif headings for a luxury feel; humanist sans for body text |
+
+---
+
+## ✨ Key Features
+
+- 📱 **Responsive design** — mobile-first layout, works across all screen sizes
+- 🖼️ **Optimised images** — Astro processes all photos at build time; `srcset` for every image
+- 🎠 **Image carousels** — touch-friendly, keyboard-accessible, built in vanilla JS
+- 🔍 **Gallery lightbox** — full-screen photo viewer with category filtering, no dependencies
+- 🍪 **GDPR cookie banner** — consent management with localStorage persistence
+- 💬 **WhatsApp CTA** — floating button with pre-filled message for instant guest contact
+- 🗺️ **Google Maps embeds** — location and directions without external JS libraries
+- 🌍 **Multi-language ready** — i18n architecture in place (7 languages planned, English live)
+- 🔒 **Security headers** — CSP, HSTS, X-Frame-Options, and more via `_headers`
+- 🚫 **Custom 404** — branded error page with navigation back to site
+
+---
+
+## 🧠 Architecture Highlights
+
+**Static-first, no JS by default.** Every interactive feature (carousels, lightbox, filters, cookie banner) is implemented with minimal inline `<script>` blocks — no bundler, no npm runtime dependencies, no hydration overhead.
+
+**Design token system.** All colours, shadows, and spacing are defined as CSS custom properties in `src/styles/global.css`. Every component inherits from these tokens, making global rebranding a single-file change.
+
+**Astro Image pipeline.** Real photos live in `src/assets/gallery/` and are processed at build time. Astro generates optimised WebP output with responsive `srcset` attributes automatically — no manual image processing needed.
+
+---
+
+## 🚀 Running Locally
 
 ```bash
-# Install dependencies
 npm install
-
-# Start dev server at localhost:4321
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
+npm run dev       # dev server → localhost:4321
+npm run build     # production build → /dist
+npm run preview   # preview the production build
 ```
 
 ---
@@ -25,142 +78,46 @@ npm run preview
 ## 📁 Project Structure
 
 ```
-blue-moon-apartment/
-├── public/
-│   ├── images/
-│   │   ├── logo.svg               ← Blue Moon logo (footer, 404)
-│   │   └── nav-logo.svg           ← Navigation bar logo variant
-│   ├── _redirects                 ← Cloudflare Pages redirect rules
-│   ├── _headers                   ← Cloudflare Pages security headers
-│   └── favicon.svg
-│
-├── src/
-│   ├── layouts/
-│   │   ├── BaseLayout.astro       ← Wraps all pages (nav, footer, meta)
-│   │   └── PageLayout.astro       ← Inner pages with hero header
-│   │
-│   ├── components/
-│   │   ├── Nav.astro              ← Navigation + language switcher
-│   │   ├── Footer.astro           ← Site footer
-│   │   ├── WhatsAppButton.astro   ← Floating WhatsApp CTA
-│   │   └── CookieBanner.astro     ← GDPR cookie consent
-│   │
-│   ├── pages/
-│   │   ├── index.astro            ← Home page
-│   │   ├── apartment.astro        ← Apartment detail with image carousels
-│   │   ├── gallery.astro          ← Photo gallery with lightbox & filter
-│   │   ├── pricelist.astro        ← Pricing & policies
-│   │   ├── about-mandre.astro     ← Mandre destination guide with carousels
-│   │   ├── reviews.astro          ← Guest reviews
-│   │   ├── contact.astro          ← Inquiry form & contacts
-│   │   ├── directions.astro       ← How to get here (Google Maps embed)
-│   │   └── 404.astro              ← Custom 404 page
-│   │
-│   ├── assets/
-│   │   └── gallery/               ← Apartment & destination photos (Astro Image)
-│   │
-│   ├── styles/
-│   │   └── global.css             ← Brand variables, typography, utilities
-│   │
-│   └── i18n/
-│       └── en.json                ← English translations (add more languages here)
-│
-├── astro.config.mjs
-├── package.json
-└── wrangler.toml                  ← Cloudflare Pages build config
+src/
+  layouts/          # BaseLayout.astro, PageLayout.astro
+  components/       # Nav, Footer, WhatsAppButton, CookieBanner
+  pages/            # One .astro file per route
+  styles/           # global.css — design tokens & utilities
+  assets/gallery/   # Source photos (processed by Astro at build time)
+  i18n/             # en.json — translation strings
+public/
+  images/           # logo.svg, nav-logo.svg, og-image.jpg, favicon.svg
+  _redirects        # URL redirect rules
+  _headers          # Security headers
 ```
 
 ---
 
-## ✏️ Before You Launch — Checklist
+## 🤖 Built with Claude Code
 
-### Photos
+The entire project — architecture decisions, component design, CSS system, vanilla JS interactivity, Cloudflare Workers configuration, and deployment pipeline — was developed through an iterative conversation with **[Claude Code](https://claude.ai/code)**, Anthropic's AI-powered CLI coding assistant.
 
-Real photos are in `src/assets/gallery/` and already used in the gallery page and carousels. Some page sections still use CSS placeholder `div` elements with class `img-ph` — replace these with Astro's `<Image />` component:
+This was a deliberate experiment in AI-assisted solo development:
 
-```astro
-<!-- Before (placeholder) -->
-<div class="img-ph ph-terrace ar-4-3">
-  <span class="ph-icon">📷</span>
-</div>
+- **No boilerplate copying** — every component was reasoned through and written from scratch in context
+- **Decisions explained, not just made** — the AI walked through trade-offs (e.g. Astro vs other frameworks, static vs SSR, vanilla JS vs a library) before implementing
+- **Real production constraints** — branching strategy, deployment pipeline, security headers, GDPR compliance, and image optimisation were all handled within the same workflow
+- **Iterated like a real project** — features were added incrementally across multiple sessions, with the AI maintaining context about prior decisions
 
-<!-- After (real photo) -->
----
-import { Image } from 'astro:assets';
-import terracePhoto from '../assets/gallery/terrace-1.jpg';
----
-<Image src={terracePhoto} alt="Terrace with hot tub and sea view"
-  widths={[400, 700, 1100]}
-  sizes="(max-width: 900px) 100vw, 50vw" />
-```
-
-### Contact Form
-
-The form in `contact.astro` uses `data-netlify="true"`, but **Netlify Forms does not work on Cloudflare Pages** — this is an open TODO. Two replacement options:
-
-**Option A — Formspree (easiest):**
-1. Create a free account at [formspree.io](https://formspree.io)
-2. Replace the form `action` in `contact.astro` with your Formspree endpoint:
-   ```html
-   <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
-   ```
-3. Remove the `data-netlify` and `netlify-honeypot` attributes.
-
-**Option B — Cloudflare Pages Functions:**
-Create `/functions/form.js` to handle submissions server-side (requires Cloudflare account).
-
-### OG Image
-
-Create a 1200×630px social sharing image at `/public/images/og-image.jpg`.
+The goal was to evaluate how far a single developer can get with AI tooling on a real-world project with real constraints and a live production URL.
 
 ---
 
-## 🌍 Adding Languages (i18n)
+## 🌿 Branching Strategy
 
-Language routing is prepared. To add Croatian (HR):
+| Branch | Purpose |
+|--------|---------|
+| `main` | Production — always mirrors what is live on [bluemoonmandre.eu](https://bluemoonmandre.eu). Never committed to directly. |
+| `development` | Integration branch. All feature work merges here first and is previewed on the dev environment before going to production. |
+| `feature/*` / `fix/*` | Short-lived branches cut from `development`, merged back via pull request. |
 
-1. Create `/src/i18n/hr.json` with translated strings.
-2. Create `/src/pages/hr/index.astro` (and other pages under `/src/pages/hr/`).
-3. Use the translations from the JSON file in each page.
-
----
-
-## ☁️ Deploying to Cloudflare Pages
-
-1. Push this repository to GitHub.
-2. Log in to [Cloudflare Dashboard](https://dash.cloudflare.com) → Pages → Create a project.
-3. Connect your GitHub repository.
-4. Set the build settings:
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-   - **Node version (env variable):** `NODE_VERSION = 20`
-5. Click Deploy. Your site will be live at `your-project.pages.dev`.
-6. Add your custom domain in Pages → Custom Domains.
+**Workflow:** `feature branch` → PR → `development` → preview on dev environment → PR → `main` → auto-deploy to production.
 
 ---
 
-## 🎨 Customising the Design
-
-All brand colours are in `src/styles/global.css` as CSS custom properties:
-
-```css
-:root {
-  --white:       #FFFFFF;
-  --soft-sky:    #EAF6FC;
-  --sky-blue:    #4A9FD4;
-  --ocean-blue:  #1A5FAD;
-  --deep-navy:   #081628;
-  --warm-sand:   #F7EDD8;
-  --sunset-gold: #E8A82A;
-}
-```
-
-Change any value here and it updates across the entire site.
-
----
-
-## 📞 Support
-
-Built for Goran Falkoni — Blue Moon Apartment, Mandre, Island of Pag, Croatia.
-
--.-
+Built by [Goran Falkoni](https://github.com/Falki-git) — 🏝️ Blue Moon Apartment, Mandre, Island of Pag, Croatia.
