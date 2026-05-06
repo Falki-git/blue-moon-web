@@ -5,11 +5,9 @@
 
 A production marketing website for **Blue Moon Apartment**, a luxury short-term rental in Mandre, Croatia (island of Pag). Built to drive direct bookings and reduce dependency on OTAs (Booking.com, Airbnb).
 
-> 🤖 This project was built entirely using **[Claude Code](https://claude.ai/code)** — Anthropic's AI coding assistant — as a practical exploration of AI-assisted solo development from zero to production.
-
 ---
 
-## 🏗️ What I Built
+## 🏗️ Solution Structure
 
 A fully static, zero-runtime-JS website covering the entire guest journey — from discovery and gallery browsing, through pricing and availability, to contact and directions:
 
@@ -95,16 +93,12 @@ public/
 
 ## 🤖 Built with Claude Code
 
-The entire project — architecture decisions, component design, CSS system, vanilla JS interactivity, Cloudflare Workers configuration, and deployment pipeline — was developed through an iterative conversation with **[Claude Code](https://claude.ai/code)**, Anthropic's AI-powered CLI coding assistant.
-
-This was a deliberate experiment in AI-assisted solo development:
+Architecture decisions, component design, CSS system, vanilla JS interactivity, Cloudflare Workers configuration, and deployment pipeline — were developed through an iterative process with **[Claude Code](https://claude.ai/code)**, Anthropic's AI-powered CLI coding assistant.
 
 - **No boilerplate copying** — every component was reasoned through and written from scratch in context
 - **Decisions explained, not just made** — the AI walked through trade-offs (e.g. Astro vs other frameworks, static vs SSR, vanilla JS vs a library) before implementing
 - **Real production constraints** — branching strategy, deployment pipeline, security headers, GDPR compliance, and image optimisation were all handled within the same workflow
 - **Iterated like a real project** — features were added incrementally across multiple sessions, with the AI maintaining context about prior decisions
-
-The goal was to evaluate how far a single developer can get with AI tooling on a real-world project with real constraints and a live production URL.
 
 ---
 
