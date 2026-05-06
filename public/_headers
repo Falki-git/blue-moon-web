@@ -1,4 +1,4 @@
-# Security & caching headers for Cloudflare Pages
+# Security & caching headers for Cloudflare Workers static assets
 
 /*
   X-Frame-Options: DENY
