@@ -1,22 +1,32 @@
 name = "blue-moon-web"
+main = "src/worker/index.ts"
 compatibility_date = "2025-10-08"
 compatibility_flags = ["nodejs_compat"]
 
 [assets]
 directory = "./dist"
 not_found_handling = "404-page"
+binding = "ASSETS"
 
 [build]
 command = "npm run build"
 
+[vars]
+CONTACT_TO_EMAIL = "bluemoon.mandre@gmail.com"
+
 [env.development]
 name = "dev-blue-moon-web"
+main = "src/worker/index.ts"
 compatibility_date = "2025-10-08"
 compatibility_flags = ["nodejs_compat"]
 
 [env.development.assets]
 directory = "./dist"
 not_found_handling = "404-page"
+binding = "ASSETS"
 
 [env.development.build]
 command = "npm run build"
+
+[env.development.vars]
+CONTACT_TO_EMAIL = "bluemoon.mandre@gmail.com"
