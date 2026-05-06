@@ -1,7 +1,7 @@
 # 🌙 Blue Moon Apartment — Marketing Website
 
 **🔗 Live site:** [bluemoonmandre.eu](https://bluemoonmandre.eu)
-**🧪 Dev environment:** [dev-blue-moon-web.workers.dev](https://dev-blue-moon-web.workers.dev)
+**🧪 Dev environment:** [dev-blue-moon-web.gfalkoni.workers.dev](https://dev-blue-moon-web.gfalkoni.workers.dev)
 
 A production marketing website for **Blue Moon Apartment**, a luxury short-term rental in Mandre, Croatia (island of Pag). Built to drive direct bookings and reduce dependency on OTAs (Booking.com, Airbnb).
 
