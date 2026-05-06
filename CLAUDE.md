@@ -14,8 +14,8 @@ Operates seasonally (June–September). Multi-language support (7 languages) is 
 | Output | `static` (all pages pre-rendered at build time, 0KB JS shipped by default) |
 | Styling | Vanilla CSS — scoped component styles + global design system |
 | Fonts | Google Fonts: Playfair Display (serif headings), Nunito (sans-serif body) |
-| Hosting | Cloudflare Pages (configured via `wrangler.toml`) |
-| Forms | Netlify Forms (`data-netlify="true"`) — code is in place but **Netlify Forms does not function on Cloudflare Pages**; form handling is an open TODO |
+| Hosting | Cloudflare Workers — static assets via `[assets]` binding; `src/worker/index.ts` is the Worker entry point |
+| Forms | Worker-handled — `POST /api/contact` → `src/worker/contact.ts` → Resend email API; Cloudflare Turnstile for bot protection |
 | Interactivity | Vanilla JS inline `<script>` blocks only — no frontend framework |
 
 ## Key Directories
@@ -29,10 +29,13 @@ src/
   assets/
     gallery/        # Real apartment & destination photos — processed by Astro Image at build time
   i18n/             # en.json — translation strings (multi-lang framework, not yet active)
+  worker/
+    index.ts        # Worker entry point — routes /api/contact, serves assets
+    contact.ts      # Contact form handler (Resend + Turnstile)
 public/
   images/           # logo.svg, nav-logo.svg, og-image.jpg, favicon.svg
-  _redirects        # Cloudflare Pages URL redirects
-  _headers          # Cloudflare Pages security headers
+  _redirects        # Cloudflare Workers static-asset redirect rules
+  _headers          # Cloudflare Workers static-asset security/cache headers
 ```
 
 **All content is hardcoded in page files** — there is no CMS, database, or data-fetching layer.
@@ -52,7 +55,7 @@ No test or lint scripts are configured.
 | File | Purpose |
 |------|---------|
 | `astro.config.mjs` | Site URL, `output: 'static'` mode |
-| `wrangler.toml` | Cloudflare Pages build config, Node 20 |
+| `wrangler.toml` | Cloudflare Workers config — Worker entry, assets binding, env vars |
 | `src/styles/global.css` | CSS custom properties (colors, shadows, spacing), utility classes |
 | `src/env.d.ts` | Astro TypeScript ambient declarations |
 
@@ -83,7 +86,7 @@ Two patterns coexist:
 ### Branch purposes
 | Branch | Purpose |
 |--------|---------|
-| `main` | Production only — always 100% identical to what is live on Cloudflare Pages. Never commit or push here directly. |
+| `main` | Production only — always 100% identical to what is live on Cloudflare Workers. Never commit or push here directly. |
 | `development` | Integration branch for all ongoing work. The default base for new branches. |
 | Feature/fix branches | Short-lived branches cut from `development`, merged back via PR. |
 
