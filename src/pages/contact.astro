@@ -137,16 +137,11 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
             <p class="form-intro">Tell us your dates, number of guests, and any questions. We'll confirm availability and send you all the details.</p>
 
             <form
-              name="booking-inquiry"
-              method="POST"
-              data-netlify="true"
-              netlify-honeypot="bot-field"
               class="contact-form"
               id="contactForm"
               novalidate
             >
               <!-- Honeypot -->
-              <input type="hidden" name="form-name" value="booking-inquiry" />
               <p class="hidden" aria-hidden="true">
                 <label>Don't fill this out: <input name="bot-field" /></label>
               </p>
@@ -191,7 +186,7 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
                 </div>
                 <div class="form-group">
                   <label for="checkout">Check-out Date <span class="required">*</span></label>
-                  <input type="date" id="checkout" name="checkout" required min="2026-06-04" max="2026-09-30" />
+                  <input type="date" id="checkout" name="checkout" required min="2026-06-06" max="2026-09-30" />
                   <span class="form-error" aria-live="polite"></span>
                 </div>
               </div>
@@ -213,6 +208,8 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
                 <textarea id="message" name="message" rows="4" placeholder="Tell us anything — questions about the apartment, arrival time, special requests, or anything else you'd like to know about Mandre..."></textarea>
               </div>
 
+              <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div>
+
               <div class="form-group form-group--submit">
                 <button type="submit" class="btn btn-primary btn-submit" id="submitBtn">
                   <span class="btn-label">Send Message</span>
@@ -222,6 +219,7 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
                 <p class="form-privacy">
                   🔒 Your details are used only to respond to your message and will not be shared with third parties.
                 </p>
+                <p class="form-submit-error" id="formSubmitError" hidden></p>
               </div>
 
             </form>
@@ -440,6 +438,14 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
 
   .form-group--submit { gap: 0.85rem; }
 
+  .form-submit-error {
+    font-size: 0.82rem;
+    color: #e05c5c;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.5;
+  }
+
   .btn-submit {
     width: 100%;
     justify-content: center;
@@ -505,11 +511,11 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
     checkinInput.max = '2026-09-27';
   }
 
-  // Keep checkout min = checkin + 3 days
+  // Keep checkout min = checkin + 5 days
   checkinInput?.addEventListener('change', () => {
     if (!checkinInput.value || !checkoutInput) return;
     const checkinDate = new Date(checkinInput.value);
-    checkinDate.setDate(checkinDate.getDate() + 3);
+    checkinDate.setDate(checkinDate.getDate() + 5);
     const minCheckout = checkinDate.toISOString().split('T')[0];
     checkoutInput.min = minCheckout;
     if (checkoutInput.value && checkoutInput.value < minCheckout) {
@@ -535,6 +541,8 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
     return true;
   }
 
+  const formSubmitError = document.getElementById('formSubmitError') as HTMLElement | null;
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const inputs = form.querySelectorAll<HTMLInputElement>('input[required], select[required]');
@@ -544,29 +552,41 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
 
     const label   = submitBtn?.querySelector('.btn-label') as HTMLElement | null;
     const loading = submitBtn?.querySelector('.btn-loading') as HTMLElement | null;
-    if (label)   label.style.display   = 'none';
-    if (loading) loading.style.display = 'inline';
-    if (submitBtn) submitBtn.disabled = true;
+    if (label)            label.style.display   = 'none';
+    if (loading)          loading.style.display = 'inline';
+    if (submitBtn)        submitBtn.disabled     = true;
+    if (formSubmitError)  formSubmitError.hidden = true;
 
     try {
-      const data = new FormData(form);
-      const res  = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(data as any).toString(),
-      });
+      const fd = new FormData(form);
+      const payload: Record<string, string> = {};
+      fd.forEach((val, key) => { payload[key] = String(val); });
 
-      if (res.ok || res.status === 200 || res.redirected) {
+      const res  = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json() as { ok: boolean; error?: string };
+
+      if (data.ok) {
         form.style.display = 'none';
         if (formSuccess) formSuccess.hidden = false;
       } else {
-        throw new Error('Server error');
+        throw new Error(data.error ?? 'Something went wrong.');
       }
-    } catch {
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Something went wrong.';
       if (label)   label.style.display   = 'inline';
       if (loading) loading.style.display = 'none';
-      if (submitBtn) submitBtn.disabled = false;
-      alert('Something went wrong. Please email us directly at bluemoon.mandre@gmail.com');
+      if (submitBtn) submitBtn.disabled  = false;
+      (window as any).turnstile?.reset();
+      if (formSubmitError) {
+        formSubmitError.textContent = `${msg} If the problem persists, email us at bluemoon.mandre@gmail.com`;
+        formSubmitError.hidden = false;
+      }
     }
   });
 </script>
+
+<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
