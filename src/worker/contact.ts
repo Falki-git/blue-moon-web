@@ -65,8 +65,8 @@ export async function handleContact(request: Request, env: Env, ctx: ExecutionCo
   if (checkout < '2026-06-04' || checkout > SEASON_END) {
     return err(400, 'Check-out must be within the season (4 Jun – 30 Sep 2026)');
   }
-  if (checkout < addDays(checkin, 3)) {
-    return err(400, 'Minimum stay is 3 nights');
+  if (checkout < addDays(checkin, 5)) {
+    return err(400, 'Minimum stay is 5 nights');
   }
 
   // Turnstile verification
