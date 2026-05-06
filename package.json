@@ -6,7 +6,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "deploy": "npx wrangler deploy"
+    "deploy": "npx wrangler deploy --env production"
   },
   "dependencies": {
     "astro": "^4.16.0"
