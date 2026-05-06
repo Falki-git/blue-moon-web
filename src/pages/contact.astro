@@ -1,5 +1,6 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
+import heroImg from '../assets/gallery/hot-tub-2.jpg';
 ---
 
 <PageLayout
@@ -8,7 +9,9 @@ import PageLayout from '../layouts/PageLayout.astro';
   pageTitle="Get In Touch"
   pageSubtitle="We respond to all inquiries within 24 hours"
   label="Contact & Booking"
-  bgClass="ph-sea"
+  bgImage={heroImg}
+  heroObjectPosition="center 20%"
+  showHeroLogo={true}
 >
 
   <section class="section">
@@ -24,35 +27,55 @@ import PageLayout from '../layouts/PageLayout.astro';
 
             <ul class="contact-methods">
               <li class="contact-method">
-                <span class="contact-method__icon">📧</span>
+                <span class="contact-method__icon">
+                  <svg width="22" height="18" viewBox="0 0 24 20" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22 0H2C.9 0 0 .9 0 2v16c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2V2c0-1.1-.9-2-2-2zm0 4l-10 7L2 4V2l10 7 10-7v2z"/>
+                  </svg>
+                </span>
                 <div>
                   <strong>Email</strong>
-                  <a href="mailto:info@bluemoonapartment.com">info@bluemoonapartment.com</a>
+                  <a href="mailto:bluemoon.mandre@gmail.com">bluemoon.mandre@gmail.com</a>
                 </div>
               </li>
               <li class="contact-method">
-                <span class="contact-method__icon">💬</span>
+                <span class="contact-method__icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                </span>
                 <div>
                   <strong>WhatsApp</strong>
                   <a href="https://wa.me/385914691204" target="_blank" rel="noopener">+385 91 469 1204</a>
                 </div>
               </li>
               <li class="contact-method">
-                <span class="contact-method__icon">📍</span>
+                <span class="contact-method__icon">
+                  <svg width="14" height="21" viewBox="0 0 336 496" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M167.946 0C75.0262 0 0 75.2072 0 167.97C0 197.138 7.44304 224.582 20.4906 248.493L167.954 495.702L315.417 248.493C328.464 224.582 335.907 197.138 335.907 167.97C335.907 75.2035 260.879 0 167.961 0H167.946ZM166.078 97.6169C166.702 97.6011 167.319 97.6169 167.946 97.6169C208.086 97.6169 240.624 130.201 240.624 170.395C240.624 210.589 208.085 243.172 167.946 243.172C127.807 243.172 95.2683 210.589 95.2683 170.395C95.2683 130.829 126.806 98.6139 166.078 97.6169Z"/>
+                  </svg>
+                </span>
                 <div>
                   <strong>Location</strong>
-                  <span>Mandre, Island of Pag, Croatia</span>
+                  <a href="https://www.google.com/maps/dir/?api=1&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" target="_blank" rel="noopener">Riječka ulica 30, Mandre, Island of Pag, Croatia</a>
                 </div>
               </li>
               <li class="contact-method">
-                <span class="contact-method__icon">🕐</span>
+                <span class="contact-method__icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm.5-17H11v7l6.25 3.75.75-1.23-5.5-3.27V5z"/>
+                  </svg>
+                </span>
                 <div>
                   <strong>Response Time</strong>
                   <span>We respond within 24 hours, usually much faster.</span>
                 </div>
               </li>
               <li class="contact-method">
-                <span class="contact-method__icon">☀️</span>
+                <span class="contact-method__icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
+                  </svg>
+                </span>
                 <div>
                   <strong>Season</strong>
                   <span>Open 1 June – 30 September 2026</span>
@@ -60,17 +83,42 @@ import PageLayout from '../layouts/PageLayout.astro';
               </li>
             </ul>
 
-            <!-- Mini map placeholder -->
-            <div class="contact-map">
-              <img src="/images/gallery/location.jpg" alt="Mandre, Island of Pag" style="width:100%; height:200px; object-fit:cover; border-radius:var(--radius); display:block;" />
-              <a
-                href="https://maps.google.com/?q=Mandre,+Island+of+Pag,+Croatia"
-                target="_blank"
-                rel="noopener"
-                class="contact-map__link"
-              >
-                Open in Google Maps →
-              </a>
+            <!-- Host values -->
+            <div class="host-values-group">
+              <span class="host-values-group__label">Why book direct?</span>
+              <div class="host-value">
+                <span class="host-value__icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Always reachable</strong>
+                  <span>We respond within a few hours, usually much faster.</span>
+                </div>
+              </div>
+              <div class="host-value">
+                <span class="host-value__icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Local knowledge</strong>
+                  <span>Restaurants, beaches, boat trips, hidden spots — just ask.</span>
+                </div>
+              </div>
+              <div class="host-value">
+                <span class="host-value__icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Care for the details</strong>
+                  <span>Maintained to the standard we'd want for our own family.</span>
+                </div>
+              </div>
             </div>
 
             <div class="contact-also-find">
@@ -85,7 +133,7 @@ import PageLayout from '../layouts/PageLayout.astro';
         <!-- ─── RIGHT: Form ────────────────────────────────── -->
         <div class="contact-form-wrap">
           <div class="contact-form-card">
-            <h3>Send an Inquiry</h3>
+            <h3>Contact us</h3>
             <p class="form-intro">Tell us your dates, number of guests, and any questions. We'll confirm availability and send you all the details.</p>
 
             <form
@@ -167,12 +215,12 @@ import PageLayout from '../layouts/PageLayout.astro';
 
               <div class="form-group form-group--submit">
                 <button type="submit" class="btn btn-primary btn-submit" id="submitBtn">
-                  <span class="btn-label">Send Inquiry</span>
+                  <span class="btn-label">Send Message</span>
                   <span class="btn-loading" aria-hidden="true" style="display:none;">Sending…</span>
                   <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
                 <p class="form-privacy">
-                  🔒 Your details are used only to respond to your inquiry and will not be shared with third parties.
+                  🔒 Your details are used only to respond to your message and will not be shared with third parties.
                 </p>
               </div>
 
@@ -181,7 +229,7 @@ import PageLayout from '../layouts/PageLayout.astro';
             <!-- Success message -->
             <div class="form-success" id="formSuccess" hidden role="alert" aria-live="polite">
               <span class="form-success__icon">🎉</span>
-              <h3>Inquiry sent!</h3>
+              <h3>Message sent!</h3>
               <p>Thank you — we'll get back to you within 24 hours. In the meantime, feel free to explore <a href="/about-mandre">Mandre</a> or <a href="/gallery">our gallery</a>.</p>
             </div>
 
@@ -202,7 +250,7 @@ import PageLayout from '../layouts/PageLayout.astro';
       <div class="faq-grid">
         <div class="faq-item">
           <h4>How do I confirm a booking?</h4>
-          <p>Send an inquiry with your dates. We'll confirm availability and send you a booking confirmation. A 30% deposit secures your reservation.</p>
+          <p>Send a message with your dates. We'll confirm availability and send you a booking confirmation. A 30% deposit secures your reservation.</p>
         </div>
         <div class="faq-item">
           <h4>What payment methods do you accept?</h4>
@@ -210,7 +258,7 @@ import PageLayout from '../layouts/PageLayout.astro';
         </div>
         <div class="faq-item">
           <h4>Is there a minimum stay?</h4>
-          <p>Yes — a minimum of 3 nights applies in all seasons. Contact us for weekly rates.</p>
+          <p>Yes — a minimum of 5 nights applies in all seasons.</p>
         </div>
         <div class="faq-item">
           <h4>Do you allow pets?</h4>
@@ -222,7 +270,7 @@ import PageLayout from '../layouts/PageLayout.astro';
         </div>
         <div class="faq-item">
           <h4>Can you accommodate early check-in?</h4>
-          <p>We'll do our best! Early check-in and late check-out are subject to availability. Just let us know when you inquire.</p>
+          <p>We'll do our best! Early check-in and late check-out are subject to availability. Just let us know.</p>
         </div>
       </div>
     </div>
@@ -269,15 +317,34 @@ import PageLayout from '../layouts/PageLayout.astro';
   .contact-method a { text-decoration: none; transition: color 0.2s; }
   .contact-method a:hover { color: var(--sky-blue); }
 
-  .contact-map { margin-bottom: 1.25rem; }
-  .contact-map__link {
-    display: block;
-    text-align: center;
-    margin-top: 0.6rem;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--sky-blue);
+  .host-values-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+    background: var(--white);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--sky-blue);
+    padding: 1rem 1.1rem;
+    box-shadow: var(--shadow-xs);
   }
+  .host-values-group__label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sky-blue);
+    margin-bottom: 0.25rem;
+  }
+  .host-value {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+  }
+  .host-value__icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .host-value div   { display: flex; flex-direction: column; gap: 0.05rem; }
+  .host-value strong { font-size: 0.82rem; font-weight: 800; color: var(--ocean-blue); }
+  .host-value span   { font-size: 0.8rem; color: var(--text-muted); }
 
   .contact-also-find {
     display: flex;
@@ -499,7 +566,7 @@ import PageLayout from '../layouts/PageLayout.astro';
       if (label)   label.style.display   = 'inline';
       if (loading) loading.style.display = 'none';
       if (submitBtn) submitBtn.disabled = false;
-      alert('Something went wrong. Please email us directly at info@bluemoonapartment.com');
+      alert('Something went wrong. Please email us directly at bluemoon.mandre@gmail.com');
     }
   });
 </script>

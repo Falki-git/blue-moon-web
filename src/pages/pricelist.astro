@@ -1,15 +1,17 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
+import heroBg from '../assets/gallery/terrace-14.jpg';
 ---
 
 <PageLayout
   title="Pricelist | Blue Moon Apartment, Mandre"
-  description="Blue Moon Apartment pricing for 2026. €300/night peak season (July–August), €250/night shoulder season (June & September). Book direct for the best price."
+  description="Blue Moon Apartment pricing for 2026. €300/night peak season (July–August), €250/night early summer (June) and golden September. Book direct for the best price."
   pageTitle="Pricelist"
   pageSubtitle="Season 2026 · Transparent Pricing, No Hidden Fees"
   label="Book Direct"
   bgClass="ph-sea"
-  bgImage="/images/gallery/terrace-4.jpg"
+  bgImage={heroBg}
+  heroObjectPosition="center 36.3%"
 >
 
   <!-- ═══ SEASON CARDS ═══ -->
@@ -18,10 +20,26 @@ import PageLayout from '../layouts/PageLayout.astro';
       <div class="text-center header-block">
         <span class="section-label">Season 2026</span>
         <h2>Choose Your Season</h2>
-        <p class="subtext">All prices are per night for the entire apartment (up to 6 guests). No per-person charges.</p>
+        <p class="subtext">All prices are per night for the entire apartment (up to 6 guests). No per-person charges. Everything included.</p>
       </div>
 
       <div class="season-cards">
+
+        <!-- Early Summer -->
+        <div class="season-card season-card--early">
+          <div class="season-card__header">
+            <div class="season-card__icon">🌿</div>
+            <h3>Early Summer</h3>
+            <p class="season-card__dates">1–30 June 2026</p>
+          </div>
+          <div class="season-card__price">
+            <span class="season-card__currency">€</span>
+            <span class="season-card__amount">250</span>
+            <span class="season-card__per">/ night</span>
+          </div>
+          <a href="/contact" class="btn btn-sky" style="width:100%; justify-content:center;">Book Early Summer →</a>
+          <p class="shoulder-note">🌿 Peaceful beaches, warm evenings — June is perfect for families who love space and calm.</p>
+        </div>
 
         <!-- Peak -->
         <div class="season-card season-card--peak">
@@ -36,50 +54,44 @@ import PageLayout from '../layouts/PageLayout.astro';
             <span class="season-card__amount">300</span>
             <span class="season-card__per">/ night</span>
           </div>
-          <ul class="season-card__features">
-            <li>✓ Entire 92 m² apartment</li>
-            <li>✓ 2 Bedrooms · up to 6 guests</li>
-            <li>✓ Private Jacuzzi on terrace</li>
-            <li>✓ Sea &amp; sunset views</li>
-            <li>✓ Free Wi-Fi &amp; cable TV</li>
-            <li>✓ Air conditioning</li>
-            <li>✓ Private parking &amp; garage</li>
-            <li>✓ Fully equipped kitchen</li>
-          </ul>
-          <a href="/contact" class="btn btn-primary" style="width:100%; justify-content:center;">Book Peak Season →</a>
+          <a href="/contact" class="btn btn-gold" style="width:100%; justify-content:center;">Book Peak Season →</a>
+          <p class="shoulder-note">☀️ Long hot days, warm nights — this is the Croatian summer everyone dreams about.</p>
         </div>
 
-        <!-- Shoulder -->
-        <div class="season-card season-card--shoulder">
+        <!-- Golden September -->
+        <div class="season-card season-card--golden">
           <div class="season-card__header">
-            <div class="season-card__icon">🌤️</div>
-            <h3>Shoulder Season</h3>
-            <p class="season-card__dates">1–30 June &amp; 1–30 September 2026</p>
+            <div class="season-card__icon">🍂</div>
+            <h3>Golden September</h3>
+            <p class="season-card__dates">1–30 September 2026</p>
           </div>
           <div class="season-card__price">
             <span class="season-card__currency">€</span>
             <span class="season-card__amount">250</span>
             <span class="season-card__per">/ night</span>
           </div>
-          <ul class="season-card__features">
-            <li>✓ Entire 92 m² apartment</li>
-            <li>✓ 2 Bedrooms · up to 6 guests</li>
-            <li>✓ Private Jacuzzi on terrace</li>
-            <li>✓ Sea &amp; sunset views</li>
-            <li>✓ Free Wi-Fi &amp; cable TV</li>
-            <li>✓ Air conditioning</li>
-            <li>✓ Private parking &amp; garage</li>
-            <li>✓ Fully equipped kitchen</li>
-          </ul>
-          <a href="/contact" class="btn btn-sky" style="width:100%; justify-content:center;">Book Shoulder Season →</a>
-          <p class="shoulder-note">🌿 Quieter beaches, cooler evenings — ideal for exploring the island at your own pace.</p>
+          <a href="/contact" class="btn btn-primary" style="width:100%; justify-content:center;">Book Golden September →</a>
+          <p class="shoulder-note">🍃 Quieter beaches, cooler evenings — ideal for exploring the island at your own pace.</p>
         </div>
 
       </div>
 
-      <div class="price-note card" style="padding:1.5rem; background:var(--warm-sand); box-shadow:none; border-left:4px solid var(--sunset-gold); margin-top: 2rem;">
-        <strong>💡 Weekly stays welcome.</strong> Contact us to discuss rates for stays of 7 nights or more. A minimum stay of 3 nights applies in all seasons.
+      <!-- Shared amenities box -->
+      <div class="season-included">
+        <p class="season-included__label">Included in every season</p>
+        <ul class="season-included__list">
+          <li>61 m² interior · 31 m² private terrace</li>
+          <li>2 Bedrooms · up to 6 guests</li>
+          <li>Private hot tub on terrace</li>
+          <li>Sea &amp; sunset views</li>
+          <li>Free Wi-Fi &amp; cable TV</li>
+          <li>Air conditioning</li>
+          <li>Private parking &amp; garage</li>
+          <li>Fully equipped kitchen</li>
+        </ul>
       </div>
+
+      <p class="season-minnights">A minimum stay of 5 nights applies in all seasons.</p>
     </div>
   </section>
 
@@ -94,7 +106,7 @@ import PageLayout from '../layouts/PageLayout.astro';
         <div class="policy-item">
           <div class="policy-icon">🔑</div>
           <h4>Check-in</h4>
-          <p>From <strong>3:00 PM</strong>. Early check-in may be arranged on request, subject to availability.</p>
+          <p>From <strong>4:00 PM</strong>. Early check-in may be arranged on request, subject to availability.</p>
         </div>
         <div class="policy-item">
           <div class="policy-icon">🚪</div>
@@ -104,7 +116,7 @@ import PageLayout from '../layouts/PageLayout.astro';
         <div class="policy-item">
           <div class="policy-icon">📅</div>
           <h4>Minimum Stay</h4>
-          <p><strong>3 nights</strong> minimum across all seasons. Weekly rates available on request.</p>
+          <p><strong>5 nights</strong> minimum across all seasons. Weekly rates available on request.</p>
         </div>
         <div class="policy-item">
           <div class="policy-icon">💳</div>
@@ -143,10 +155,10 @@ import PageLayout from '../layouts/PageLayout.astro';
         <h2>Everything Included in the Price</h2>
       </div>
       <div class="included-grid">
-        <div class="included-item"><span>✓</span> All utilities (electricity, water, gas)</div>
+        <div class="included-item"><span>✓</span> All utilities (electricity, water)</div>
         <div class="included-item"><span>✓</span> Free Wi-Fi</div>
         <div class="included-item"><span>✓</span> Air conditioning</div>
-        <div class="included-item"><span>✓</span> Jacuzzi / hot tub usage</div>
+        <div class="included-item"><span>✓</span> Hot tub usage</div>
         <div class="included-item"><span>✓</span> Bed linen &amp; towels</div>
         <div class="included-item"><span>✓</span> Private parking &amp; garage</div>
         <div class="included-item"><span>✓</span> Final cleaning</div>
@@ -160,7 +172,7 @@ import PageLayout from '../layouts/PageLayout.astro';
     <div class="container">
       <h2 style="color:white; margin-bottom:0.75rem;">Interested? Let's talk dates.</h2>
       <p style="color:rgba(255,255,255,0.8); margin-bottom:2rem;">Send us your preferred dates and number of guests and we'll confirm availability within 24 hours.</p>
-      <a href="/contact" class="btn btn-white">Send an Inquiry →</a>
+      <a href="/contact" class="btn btn-white">Contact us →</a>
     </div>
   </section>
 
@@ -172,9 +184,9 @@ import PageLayout from '../layouts/PageLayout.astro';
 
   .season-cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    max-width: 860px;
+    max-width: 1100px;
     margin: 0 auto;
   }
 
@@ -191,8 +203,9 @@ import PageLayout from '../layouts/PageLayout.astro';
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
   }
-  .season-card--peak     { border-top: 5px solid var(--ocean-blue); }
-  .season-card--shoulder { border-top: 5px solid var(--sky-blue); }
+  .season-card--early  { border-top: 5px solid var(--sky-blue); }
+  .season-card--peak   { border-top: 5px solid var(--sunset-gold); }
+  .season-card--golden { border-top: 5px solid var(--ocean-blue); }
 
   .season-card__ribbon {
     position: absolute;
@@ -227,22 +240,55 @@ import PageLayout from '../layouts/PageLayout.astro';
   .season-card__amount   { font-size: 4rem; font-weight: 700; line-height: 1; font-family: 'Playfair Display', serif; }
   .season-card__per      { font-size: 0.9rem; font-weight: 700; color: var(--text-muted); }
 
-  .season-card--peak     .season-card__currency,
-  .season-card--peak     .season-card__amount   { color: var(--ocean-blue); }
-  .season-card--shoulder .season-card__currency,
-  .season-card--shoulder .season-card__amount   { color: var(--sky-blue); }
+  .season-card--early  .season-card__currency,
+  .season-card--early  .season-card__amount   { color: var(--sky-blue); }
+  .season-card--peak   .season-card__currency,
+  .season-card--peak   .season-card__amount   { color: var(--sunset-gold); }
+  .season-card--golden .season-card__currency,
+  .season-card--golden .season-card__amount   { color: var(--ocean-blue); }
 
-  .season-card__features {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
+  .season-included {
+    background: var(--soft-sky);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.75rem;
+    margin-top: 1.5rem;
   }
-  .season-card__features li {
-    font-size: 0.88rem;
+  .season-included__label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sky-blue);
+    margin-bottom: 0.75rem;
+  }
+  .season-included__list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem 1.5rem;
+  }
+  .season-included__list li {
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-dark);
+    padding-left: 1.1rem;
+    position: relative;
+  }
+  .season-included__list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--sky-blue);
+    font-weight: 800;
+    font-size: 0.75rem;
+    top: 1px;
+  }
+
+  .season-minnights {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
   }
 
   .shoulder-note {
@@ -307,12 +353,48 @@ import PageLayout from '../layouts/PageLayout.astro';
   }
 
   @media (max-width: 860px) {
-    .season-cards { grid-template-columns: 1fr; max-width: 440px; }
+    .season-cards { grid-template-columns: 1fr; max-width: none; }
+    .season-included__list { grid-template-columns: repeat(2, 1fr); }
     .policies-grid { grid-template-columns: 1fr 1fr; }
     .included-grid { grid-template-columns: 1fr 1fr; }
+
+    /* Compact vertical card layout on mobile */
+    .season-card { padding: 1.5rem 1.25rem; }
+    .season-card__header {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 0.75rem;
+      align-items: start;
+      justify-items: start;
+      text-align: left;
+      margin-bottom: 1rem;
+    }
+    .season-card__icon {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      font-size: 1.75rem;
+      margin-bottom: 0;
+      align-self: center;
+    }
+    .season-card__header h3 {
+      grid-column: 2;
+      grid-row: 1;
+      font-size: 1.1rem;
+      margin-bottom: 0;
+    }
+    .season-card__dates {
+      grid-column: 2;
+      grid-row: 2;
+    }
+    .season-card__price { margin-bottom: 1.25rem; padding-bottom: 1.25rem; }
+    .season-card__amount { font-size: 3rem; }
+    .season-card__currency { font-size: 1.4rem; }
+    .season-card__per { font-size: 0.85rem; }
   }
   @media (max-width: 540px) {
     .policies-grid { grid-template-columns: 1fr; }
     .included-grid { grid-template-columns: 1fr; }
+    .season-included__list { grid-template-columns: 1fr; }
   }
 </style>

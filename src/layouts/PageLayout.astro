@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 
 interface Props {
@@ -8,7 +9,11 @@ interface Props {
   pageSubtitle?: string;
   label?: string;
   bgClass?: string;
-  bgImage?: string;
+  bgImage?: ImageMetadata;
+  heroObjectPosition?: string;
+  heroScaleMobile?: number;
+  heroScaleTablet?: number;
+  showHeroLogo?: boolean;
 }
 
 const {
@@ -19,18 +24,34 @@ const {
   label,
   bgClass = 'ph-sea',
   bgImage,
+  heroObjectPosition = 'center',
+  heroScaleMobile = 1,
+  heroScaleTablet = 1,
+  showHeroLogo = false,
 } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description}>
   <header class="page-header">
-    <div class={`page-header__bg ${bgImage ? '' : `img-ph ${bgClass}`} ar-hero`} aria-hidden="true">
+    <div class={`page-header__bg ${bgImage ? '' : `img-ph ${bgClass}`} ar-hero`} aria-hidden="true" style={`--hero-scale-mobile:${heroScaleMobile};--hero-scale-tablet:${heroScaleTablet};--hero-obj-pos:${heroObjectPosition};`}>
       {bgImage
-        ? <img src={bgImage} alt="" style="width:100%; height:100%; object-fit:cover;" />
+        ? <Image
+            src={bgImage}
+            alt=""
+            widths={[800, 1280, 1920]}
+            sizes="100vw"
+            style={`width:100%; height:100%; object-fit:cover; object-position:${heroObjectPosition};`}
+            loading="eager"
+          />
         : <span class="ph-icon">📷</span>
       }
     </div>
     <div class="page-header__overlay"></div>
+    {showHeroLogo && (
+      <div class="page-header__logo-badge" aria-hidden="true">
+        <img src="/images/logo.svg" alt="" />
+      </div>
+    )}
     <div class="page-header__content container">
       {label && <span class="section-label">{label}</span>}
       <h1>{pageTitle}</h1>
@@ -75,12 +96,52 @@ const {
   .page-header__content .section-label {
     color: var(--sunset-gold);
     margin-bottom: 0.5rem;
+    text-shadow: 0 1px 6px rgba(8,22,40,1), 0 0 16px rgba(8,22,40,1), 0 0 40px rgba(8,22,40,0.9);
   }
 
   .page-header__content h1 {
     color: var(--white);
     text-shadow: 0 2px 12px rgba(8,22,40,0.4);
     margin-bottom: 0.5rem;
+  }
+
+  .page-header__logo-badge {
+    position: absolute;
+    right: clamp(1rem, 4vw, 3rem);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: clamp(80px, 14vw, 280px);
+    pointer-events: none;
+  }
+  @media (max-width: 1024px) {
+    .page-header__logo-badge { width: clamp(140px, 22vw, 220px); }
+  }
+  @media (max-width: 580px) {
+    .page-header__logo-badge {
+      width: clamp(90px, 22vw, 130px);
+      top: 1rem;
+      transform: none;
+    }
+  }
+  .page-header__logo-badge img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 2px 16px rgba(0,0,0,0.5));
+  }
+
+  @media (max-width: 960px) {
+    .page-header__bg {
+      transform: scale(var(--hero-scale-tablet, 1));
+      transform-origin: var(--hero-obj-pos, center center);
+    }
+  }
+  @media (max-width: 580px) {
+    .page-header__bg {
+      transform: scale(var(--hero-scale-mobile, 1));
+      transform-origin: var(--hero-obj-pos, center center);
+    }
   }
 
   .page-header__sub {

@@ -1,15 +1,41 @@
 ---
+import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
+import heroBg from '../assets/gallery/livingroom-8.jpg';
+import hotTub from '../assets/gallery/hot-tub.png';
+import bedroom1 from '../assets/gallery/bedroom1-1.jpg';
+import bedroom1b from '../assets/gallery/bedroom1-2.jpg';
+import bedroom1c from '../assets/gallery/bedroom1-4.jpg';
+import bedroom2b from '../assets/gallery/bedroom2-2.jpg';
+import bedroom2c from '../assets/gallery/bedroom2-4.jpg';
+import bedroom2d from '../assets/gallery/bedroom2-5.jpg';
+import kitchen from '../assets/gallery/kitchen1-1.jpg';
+import kitchen2 from '../assets/gallery/kitchen1-2.jpg';
+import kitchen3 from '../assets/gallery/kitchen1-3.jpg';
+import livingroom1 from '../assets/gallery/livingroom-1.jpg';
+import bathroom from '../assets/gallery/bathroom1-1.jpg';
+import bathroom1b from '../assets/gallery/bathroom1-2.jpg';
+import bathroom2 from '../assets/gallery/Bathroom2.jpg';
+import carouselImg1 from '../assets/gallery/livingroom-5.jpg';
+import carouselImg2 from '../assets/gallery/livingroom-3.jpg';
+import carouselImg3 from '../assets/gallery/terrace-13.jpg';
+import carouselImg4 from '../assets/gallery/bedroom1-5.jpg';
+import carouselImg5 from '../assets/gallery/reviews-1.jpg';
+import terrace12 from '../assets/gallery/terrace-12.jpg';
+import terrace11 from '../assets/gallery/terrace-11.jpg';
+import terrace6 from '../assets/gallery/terrace-6.jpg';
+import hotTub2 from '../assets/gallery/hot-tub-2.jpg';
+import livingroom7 from '../assets/gallery/livingroom-7.jpg';
 ---
 
 <PageLayout
   title="The Apartment | Blue Moon Apartment, Mandre"
-  description="92m² semi-penthouse apartment in Mandre, island of Pag. 2 bedrooms, 2 bathrooms, fully equipped kitchen, private Jacuzzi terrace with sea & sunset views."
+  description="92m² semi-penthouse apartment in Mandre, island of Pag. 2 bedrooms, 2 bathrooms, fully equipped kitchen, private hot tub terrace with sea & sunset views."
   pageTitle="The Apartment"
   pageSubtitle="92 m² · 2 Bedrooms · Up to 6 Guests · 2nd Floor · Sea &amp; Sunset Views"
   label="Blue Moon Apartment"
   bgClass="ph-terrace"
-  bgImage="/images/gallery/terrace-1.jpg"
+  bgImage={heroBg}
 >
 
   <!-- ═══ OVERVIEW ═══ -->
@@ -19,7 +45,7 @@ import PageLayout from '../layouts/PageLayout.astro';
         <div>
           <span class="section-label">Overview</span>
           <h2>A Semi-Penthouse Above the Adriatic</h2>
-          <p>This modern, recently renovated semi-penthouse apartment sits on the 2nd floor of a quiet residential building in Mandre, offering stunning seaside and sunset views from its spacious terrace. With 92 m² of thoughtfully designed living space, it comfortably accommodates families and is ideal for up to 6 guests.</p>
+          <p>This modern, recently renovated semi-penthouse apartment sits on the 2nd floor of a quiet residential building in Mandre, offering stunning seaside and sunset views from its spacious terrace. With 92 m² of thoughtfully designed interior and terrace space, it comfortably accommodates families and is ideal for up to 6 guests.</p>
           <p style="margin-top:1rem;">The open-concept kitchen and living room area creates a warm, sociable atmosphere — perfect for relaxing in between beach days, or for sharing long Adriatic evenings with the people you love most.</p>
           <div class="overview-stats">
             <div class="stat"><span class="stat__num">92</span><span class="stat__label">m²</span></div>
@@ -29,7 +55,28 @@ import PageLayout from '../layouts/PageLayout.astro';
           </div>
         </div>
         <div>
-          <img src="/images/gallery/terrace-2.jpg" alt="Terrace sea view" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <div class="carousel" id="overview-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={carouselImg1} alt="Living room" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={carouselImg2} alt="Living room" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={carouselImg3} alt="Terrace view" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="object-position: 30% center;" /></div>
+              <div class="carousel__slide"><Image src={carouselImg4} alt="Bedroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="object-position: 10% center;" /></div>
+              <div class="carousel__slide"><Image src={carouselImg5} alt="Guest review" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -40,15 +87,38 @@ import PageLayout from '../layouts/PageLayout.astro';
     <div class="container">
       <div class="apt-grid apt-grid--reverse">
         <div>
-          <img src="/images/gallery/jacuzzi.png" alt="Terrace with Jacuzzi" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <div class="carousel" id="terrace-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={terrace11} alt="Terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={hotTub} alt="Hot tub on terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={hotTub2} alt="Hot tub on terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={terrace6} alt="Terrace view" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={terrace12} alt="Terrace" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={livingroom7} alt="Living room" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+              <button class="carousel__dot" aria-label="Slide 6"></button>
+            </div>
+          </div>
         </div>
         <div>
           <span class="section-label">Outdoor Living</span>
-          <h2>The Terrace &amp; Jacuzzi</h2>
+          <h2>The Terrace &amp; Hot Tub</h2>
           <p>Step outside onto the spacious private terrace and you're greeted by a panoramic view of the shimmering Adriatic Sea and the breathtaking colours of a Croatian sunset. Whether it's morning coffee with the sea breeze or a candlelit dinner as the sun dips below the horizon — this is where memories are made.</p>
-          <p style="margin-top:1rem;">The private Jacuzzi/hot tub on the terrace is the apartment's crown jewel. Unwind after a day at the beach while watching the sky turn gold, with nothing but the gentle sounds of the sea.</p>
+          <p style="margin-top:1rem;">The private hot tub on the terrace is the apartment's crown jewel. Unwind after a day at the beach while watching the sky turn gold, with nothing but the gentle sounds of the sea.</p>
           <div class="highlight-box" style="margin-top:1.5rem;">
-            <strong>♨️ Private Jacuzzi</strong> — ideal for adults to relax while kids are in bed, or for a romantic evening under the stars.
+            <strong>♨️ Private hot tub</strong> — ideal for relaxing evenings under the stars in complete privacy.
           </div>
         </div>
       </div>
@@ -58,16 +128,38 @@ import PageLayout from '../layouts/PageLayout.astro';
   <!-- ═══ BEDROOMS ═══ -->
   <section class="section">
     <div class="container">
-      <div class="apt-grid">
+      <div class="apt-grid apt-grid--reverse">
+        <div>
+          <div class="carousel" id="bedroom-carousel" style="aspect-ratio: 16/9;">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={bedroom1} alt="Bedroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={bedroom1b} alt="Bedroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={bedroom1c} alt="Bedroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={bedroom2b} alt="Bedroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={bedroom2c} alt="Bedroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={bedroom2d} alt="Bedroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+              <button class="carousel__dot" aria-label="Slide 5"></button>
+              <button class="carousel__dot" aria-label="Slide 6"></button>
+            </div>
+          </div>
+        </div>
         <div>
           <span class="section-label">Rest &amp; Comfort</span>
           <h2>Two Bedrooms</h2>
-          <p>Both bedrooms are furnished with large, comfortable beds and quality linens to ensure a restful night's sleep. There's ample wardrobe space, and the rooms are kept cool by the air conditioning system.</p>
+          <p>Both bedrooms are furnished with large, comfortable, king-size beds and quality linens to ensure a restful night's sleep. There's ample wardrobe space, and the rooms are kept cool by the air conditioning system.</p>
           <p style="margin-top:1rem;">The layout works perfectly for two couples travelling together, or a family of four to six — each couple or set of parents gets their own private bedroom.</p>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:1rem;">
-          <img src="/images/gallery/bedroom1-1.jpg" alt="Bedroom 1" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:var(--radius); display:block;" />
-          <img src="/images/gallery/bedroom2-1.jpg" alt="Bedroom 2" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:var(--radius); display:block;" />
         </div>
       </div>
     </div>
@@ -78,12 +170,31 @@ import PageLayout from '../layouts/PageLayout.astro';
     <div class="container">
       <div class="apt-grid apt-grid--reverse">
         <div>
-          <img src="/images/gallery/kitchen1-1.jpg" alt="Kitchen" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
+          <div class="carousel" id="kitchen-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={kitchen3} alt="Kitchen" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={kitchen2} alt="Kitchen" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={kitchen} alt="Kitchen" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={livingroom1} alt="Living room" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+              <button class="carousel__dot" aria-label="Slide 4"></button>
+            </div>
+          </div>
         </div>
         <div>
           <span class="section-label">Cook &amp; Entertain</span>
           <h2>Fully Equipped Modern Kitchen</h2>
-          <p>The open kitchen is equipped with everything you need for cooking — whether it's a quick breakfast or a full family dinner with fresh Pag lamb and local produce from the market.</p>
+          <p>The open kitchen is equipped with everything you need for cooking — whether it's a quick breakfast or a full family dinner with fresh Pag lamb and local produce from the nearby market.</p>
           <ul class="feat-list">
             <li>🍳 Stove &amp; oven</li>
             <li>❄️ Refrigerator</li>
@@ -101,20 +212,37 @@ import PageLayout from '../layouts/PageLayout.astro';
   <!-- ═══ BATHROOMS ═══ -->
   <section class="section">
     <div class="container">
-      <div class="apt-grid">
+      <div class="apt-grid apt-grid--reverse">
+        <div>
+          <div class="carousel" id="bathroom-carousel">
+            <div class="carousel__track">
+              <div class="carousel__slide"><Image src={bathroom} alt="Bathroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={bathroom1b} alt="Bathroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+              <div class="carousel__slide"><Image src={bathroom2} alt="Bathroom" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L1 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">
+              <svg width="9" height="16" viewBox="0 0 9 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L8 8L1 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="carousel__dots">
+              <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+              <button class="carousel__dot" aria-label="Slide 2"></button>
+              <button class="carousel__dot" aria-label="Slide 3"></button>
+            </div>
+          </div>
+        </div>
         <div>
           <span class="section-label">Two Full Bathrooms</span>
           <h2>Comfort for the Whole Family</h2>
-          <p>Two full bathrooms mean no queuing in the morning. Each bathroom is modern and equipped with a shower. The apartment also provides a hairdryer and iron for your convenience.</p>
+          <p>Two full bathrooms mean no queuing in the morning. Each bathroom is modern and equipped with a shower and a toilet. The apartment also provides a hairdryer and iron for your convenience.</p>
           <ul class="feat-list" style="margin-top:1rem;">
             <li>🚿 Two full bathrooms with showers</li>
             <li>💇 Hairdryer provided</li>
             <li>👔 Iron &amp; ironing board</li>
-            <li>🫧 Washing machine for your convenience</li>
+            <li>🫧 Washing machine</li>
           </ul>
-        </div>
-        <div>
-          <img src="/images/gallery/bathroom1-1.jpg" alt="Bathroom" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:var(--radius); display:block;" />
         </div>
       </div>
     </div>
@@ -131,8 +259,8 @@ import PageLayout from '../layouts/PageLayout.astro';
         <div class="amenity-group">
           <h4>🛏️ Bedroom &amp; Bathroom</h4>
           <ul>
-            <li>2 bedrooms with large beds</li>
-            <li>2 full bathrooms with shower</li>
+            <li>2 bedrooms with king-size beds</li>
+            <li>2 full bathrooms with showers and toilets</li>
             <li>Hairdryer</li>
             <li>Iron &amp; ironing board</li>
             <li>Washing machine</li>
@@ -163,7 +291,7 @@ import PageLayout from '../layouts/PageLayout.astro';
           <h4>🌿 Outdoor &amp; Extras</h4>
           <ul>
             <li>Spacious private terrace</li>
-            <li>Private Jacuzzi / hot tub</li>
+            <li>Private hot tub</li>
             <li>Sea &amp; sunset views</li>
             <li>Barbecue (on request)</li>
             <li>Outdoor seating &amp; dining</li>
@@ -208,7 +336,7 @@ import PageLayout from '../layouts/PageLayout.astro';
       <h2 style="color:white; margin-bottom:0.75rem;">Ready to book your stay?</h2>
       <p style="color:rgba(255,255,255,0.8); margin-bottom:2rem;">Send us your dates and we'll confirm availability within 24 hours.</p>
       <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
-        <a href="/contact" class="btn btn-white">Send an Inquiry</a>
+        <a href="/contact" class="btn btn-white">Contact us</a>
         <a href="/gallery" class="btn" style="color:white; border:2px solid rgba(255,255,255,0.5);">View Gallery →</a>
       </div>
     </div>
@@ -227,10 +355,12 @@ import PageLayout from '../layouts/PageLayout.astro';
   .apt-grid--reverse > *:last-child  { order: 1; }
 
   .overview-stats {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    justify-content: center;
+    align-items: end;
     gap: 2rem;
     margin-top: 2rem;
-    flex-wrap: wrap;
   }
   .stat { display: flex; flex-direction: column; align-items: center; }
   .stat__num {
@@ -246,6 +376,8 @@ import PageLayout from '../layouts/PageLayout.astro';
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--text-muted);
+    white-space: nowrap;
+    text-align: center;
   }
 
   .feat-list {
@@ -315,6 +447,69 @@ import PageLayout from '../layouts/PageLayout.astro';
   .family-callout p { color: var(--text-muted); }
   .family-callout strong { color: var(--ocean-blue); }
 
+  .carousel {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    width: 100%;
+  }
+  .carousel__track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.4s ease;
+  }
+  .carousel__slide {
+    min-width: 100%;
+    height: 100%;
+  }
+  .carousel__slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .carousel__btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: background var(--transition);
+    color: var(--ocean-blue);
+  }
+  .carousel__btn:hover { background: white; }
+  .carousel__btn--prev { left: 0.75rem; }
+  .carousel__btn--next { right: 0.75rem; }
+  .carousel__dots {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 2;
+  }
+  .carousel__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background var(--transition);
+  }
+  .carousel__dot--active { background: white; }
+
   @media (max-width: 860px) {
     .apt-grid { grid-template-columns: 1fr; gap: 2rem; }
     .apt-grid--reverse > * { order: unset !important; }
@@ -323,7 +518,38 @@ import PageLayout from '../layouts/PageLayout.astro';
   }
   @media (max-width: 560px) {
     .amenity-grid { grid-template-columns: 1fr; }
-    .overview-stats { gap: 1.5rem; }
+    .overview-stats {
+      grid-template-columns: repeat(2, auto);
+      gap: 1.5rem;
+    }
     .family-callout { flex-direction: column; }
   }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.carousel').forEach(carousel => {
+    const track = carousel.querySelector('.carousel__track') as HTMLElement;
+    const dots = carousel.querySelectorAll('.carousel__dot');
+    const prevBtn = carousel.querySelector('.carousel__btn--prev');
+    const nextBtn = carousel.querySelector('.carousel__btn--next');
+    const total = dots.length;
+    let current = 0;
+
+    function goTo(index: number) {
+      current = ((index % total) + total) % total;
+      track.style.transform = `translateX(-${current * 100}%)`;
+      dots.forEach((dot, i) => dot.classList.toggle('carousel__dot--active', i === current));
+    }
+
+    prevBtn?.addEventListener('click', () => goTo(current - 1));
+    nextBtn?.addEventListener('click', () => goTo(current + 1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+
+    let touchStartX = 0;
+    carousel.addEventListener('touchstart', (e: TouchEvent) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    carousel.addEventListener('touchend', (e: TouchEvent) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) goTo(dx < 0 ? current + 1 : current - 1);
+    });
+  });
+</script>

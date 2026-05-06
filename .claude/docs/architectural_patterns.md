@@ -74,14 +74,43 @@ Property details pages use a grid that reverses column order on alternating sect
 
 ---
 
+## Astro `<Image>` Component Pattern
+
+Gallery and carousels use Astro's built-in `<Image>` component for build-time optimization. Images live in `src/assets/gallery/` — Astro processes them and emits optimized output.
+
+**Import and use:**
+```astro
+---
+import { Image } from 'astro:assets';
+import heroBg from '../assets/gallery/terrace-12.jpg';
+---
+<Image src={heroBg} alt="Terrace with sea view"
+  widths={[400, 700, 1100]}
+  sizes="(max-width: 900px) 100vw, 50vw" />
+```
+
+**Glob import** (used in gallery to load a folder dynamically):
+```astro
+const galleryImages = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/gallery/*.{jpg,jpeg,png}',
+  { eager: true }
+);
+const img = (filename: string) =>
+  galleryImages[`../assets/gallery/${filename}`]?.default;
+```
+
+Used in: `src/pages/gallery.astro`, `src/pages/apartment.astro`, `src/pages/about-mandre.astro`
+
+---
+
 ## Image Placeholder Pattern
 
-All images are placeholder `<div>` elements; real photos are not yet loaded:
+Some page sections not yet replaced with real photos use CSS placeholder `<div>` elements:
 
 ```astro
 <div class="img-ph ph-terrace ar-4-3" aria-hidden="true">
   <span class="ph-icon">📷</span>
-  <span class="ph-label">Terrace with Jacuzzi</span>
+  <span class="ph-label">Terrace with Hot Tub</span>
 </div>
 ```
 
@@ -89,7 +118,56 @@ Modifier classes: `.ph-terrace`, `.ph-sea`, `.ph-interior`, `.ph-bedroom`, `.ph-
 Aspect ratio classes: `.ar-4-3`, `.ar-16-9`, `.ar-hero`  
 Defined at: `src/styles/global.css:207`
 
-When replacing with real images, swap the `<div>` for `<img>` or `<Image>` keeping the aspect-ratio wrapper.
+When replacing with real images, swap the `<div>` for an `<Image>` component (see pattern above) keeping the aspect-ratio wrapper class.
+
+---
+
+## Carousel Pattern
+
+Multi-image carousels with prev/next buttons, dot indicators, keyboard arrows, and touch swipe. The carousel logic is an inline `<script>` block per page — there is no shared carousel component.
+
+```astro
+<div class="carousel" id="overview-carousel">
+  <div class="carousel__track">
+    <div class="carousel__slide">
+      <Image src={photo1} alt="…" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" />
+    </div>
+    <!-- more slides -->
+  </div>
+  <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">&#8249;</button>
+  <button class="carousel__btn carousel__btn--next" aria-label="Next image">&#8250;</button>
+  <div class="carousel__dots">
+    <button class="carousel__dot carousel__dot--active" aria-label="Slide 1"></button>
+    <!-- more dots -->
+  </div>
+</div>
+```
+
+When a page has multiple carousels, each gets a unique `id` so the JS can scope to that container. The inline script initialises all carousels on the page by iterating over `.carousel` elements.
+
+Used in: `src/pages/apartment.astro` (5 carousels), `src/pages/about-mandre.astro` (4 carousels)
+
+---
+
+## Gallery Lightbox (Modal) Pattern
+
+Full-screen image viewer on the gallery page. The modal is rendered once in the HTML; JS populates it dynamically on item click.
+
+```astro
+<div id="galleryModal" class="gallery-modal"
+     role="dialog" aria-modal="true" aria-hidden="true" aria-label="Image viewer">
+  <div class="gallery-modal__backdrop" id="modalBackdrop"></div>
+  <button class="gallery-modal__close" id="modalClose" aria-label="Close">…</button>
+  <button class="gallery-modal__nav gallery-modal__nav--prev" id="modalPrev" aria-label="Previous image">…</button>
+  <div class="gallery-modal__stage" id="modalStage"></div>
+  <button class="gallery-modal__nav gallery-modal__nav--next" id="modalNext" aria-label="Next image">…</button>
+  <div class="gallery-modal__caption" id="modalCaption"></div>
+</div>
+```
+
+JS handles: open/close, prev/next navigation, Escape and arrow key support, touch swipe, dynamic stage sizing. `.is-open` class is toggled to show/hide the modal.
+
+Used in: `src/pages/gallery.astro`
 
 ---
 
