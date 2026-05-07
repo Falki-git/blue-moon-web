@@ -1,0 +1,492 @@
+---
+import '../../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+  <title>Admin · Reservations | Blue Moon Apartment</title>
+</head>
+<body class="adm-body">
+  <header class="adm-header">
+    <div class="adm-header__inner">
+      <a href="/" class="adm-header__brand">
+        <img src="/images/nav-logo.svg" alt="Blue Moon Apartment" width="100" height="50" />
+      </a>
+      <span class="adm-header__title">Reservations admin</span>
+      <button class="btn btn-secondary adm-header__logout" id="logoutBtn" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <main class="adm-main">
+    <div id="loading" class="adm-loading">Loading…</div>
+    <div id="content" hidden>
+
+      <section class="adm-section">
+        <div class="adm-section__head">
+          <h2>Pending requests</h2>
+          <span class="adm-count" id="pendingCount">0</span>
+        </div>
+        <div id="pendingList"></div>
+      </section>
+
+      <section class="adm-section">
+        <div class="adm-section__head">
+          <h2>Confirmed reservations</h2>
+          <span class="adm-count" id="confirmedCount">0</span>
+        </div>
+        <div id="confirmedList"></div>
+      </section>
+
+      <section class="adm-section">
+        <div class="adm-section__head">
+          <h2>Other reservations</h2>
+          <span class="adm-count" id="otherCount">0</span>
+        </div>
+        <p class="adm-section__hint">Declined and cancelled reservations are kept for audit but no longer hold any dates.</p>
+        <div id="otherList"></div>
+      </section>
+
+      <section class="adm-section">
+        <div class="adm-section__head">
+          <h2>Manual blocks</h2>
+        </div>
+        <p class="adm-section__hint">Use this for off-platform bookings (Booking.com, owner stays, maintenance). Both dates are inclusive.</p>
+
+        <form id="blockForm" class="adm-block-form">
+          <div class="adm-form-row">
+            <div class="form-group">
+              <label for="blockFrom">From</label>
+              <input type="date" id="blockFrom" name="from" required min="2026-06-01" max="2026-09-30" />
+            </div>
+            <div class="form-group">
+              <label for="blockTo">To</label>
+              <input type="date" id="blockTo" name="to" required min="2026-06-01" max="2026-09-30" />
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label for="blockNote">Note (optional)</label>
+              <input type="text" id="blockNote" name="note" placeholder="e.g. Booking.com reservation" />
+            </div>
+            <button type="submit" class="btn btn-primary">Add block</button>
+          </div>
+          <p class="adm-form-error" id="blockError" hidden></p>
+        </form>
+
+        <div id="blocksList"></div>
+      </section>
+
+      <section class="adm-section">
+        <div class="adm-section__head">
+          <h2>Pricing (per night, EUR)</h2>
+        </div>
+        <p class="adm-section__hint">Changes apply to new reservation requests immediately. Already-confirmed reservations keep their original price.</p>
+        <div id="pricingList"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <style>
+    .adm-body {
+      background: var(--soft-sky);
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .adm-header {
+      background: var(--white);
+      border-bottom: 1px solid rgba(74,159,212,0.15);
+      box-shadow: var(--shadow-xs);
+    }
+    .adm-header__inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .adm-header__brand img { display: block; height: 44px; width: auto; }
+    .adm-header__title {
+      flex: 1;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: var(--ocean-blue);
+      font-size: 1.1rem;
+    }
+    .adm-header__logout { padding: 0.5rem 1rem; font-size: 0.82rem; }
+
+    .adm-main { max-width: 1180px; margin: 0 auto; padding: 2rem; }
+
+    .adm-loading {
+      text-align: center;
+      padding: 4rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .adm-section {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xs);
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .adm-section__head {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .adm-section__head h2 { font-size: 1.25rem; margin: 0; }
+    .adm-section__hint { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem; }
+
+    .adm-count {
+      background: var(--soft-sky);
+      color: var(--ocean-blue);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .adm-empty {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-style: italic;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .adm-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+    .adm-table th {
+      text-align: left;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 800;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid rgba(74,159,212,0.15);
+    }
+    .adm-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(74,159,212,0.08);
+      vertical-align: top;
+    }
+    .adm-table tr:last-child td { border-bottom: none; }
+    .adm-table strong { color: var(--text-dark); font-weight: 700; }
+
+    .adm-status {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+    }
+    .adm-status--pending   { background: #f7e8c4; color: #8a6d2a; }
+    .adm-status--confirmed { background: #c6e8f7; color: var(--ocean-blue); }
+    .adm-status--declined  { background: #f1dada; color: #a64141; }
+    .adm-status--cancelled { background: #d4d9de; color: #6a7989; }
+
+    .adm-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .adm-btn {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .adm-btn--approve { background: var(--ocean-blue); color: var(--white); }
+    .adm-btn--approve:hover { background: #1452a0; }
+    .adm-btn--decline { background: var(--white); color: #a64141; border-color: #f1dada; }
+    .adm-btn--decline:hover { background: #f1dada; }
+    .adm-btn--cancel  { background: var(--white); color: #6a7989; border-color: #d4d9de; }
+    .adm-btn--cancel:hover  { background: #d4d9de; }
+    .adm-btn--remove  { background: var(--white); color: #a64141; border-color: #f1dada; }
+    .adm-btn--remove:hover  { background: #f1dada; }
+
+    .adm-block-form { margin-bottom: 1rem; }
+    .adm-form-row {
+      display: flex;
+      align-items: end;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .adm-form-row .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .adm-form-row label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .adm-form-row input {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      background: var(--soft-sky);
+      border: 2px solid transparent;
+      border-radius: var(--radius);
+      padding: 0.55rem 0.85rem;
+      outline: none;
+    }
+    .adm-form-row input:focus { border-color: var(--sky-blue); background: var(--white); }
+    .adm-form-row .btn { padding: 0.6rem 1.5rem; font-size: 0.85rem; }
+    .adm-form-error { color: #a64141; font-size: 0.82rem; font-weight: 700; margin-top: 0.5rem; }
+
+    .adm-pricing-row {
+      display: grid;
+      grid-template-columns: 120px 1fr auto auto;
+      gap: 1rem;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(74,159,212,0.1);
+    }
+    .adm-pricing-row:last-child { border-bottom: none; }
+    .adm-pricing-row__month { font-weight: 800; color: var(--ocean-blue); }
+    .adm-pricing-row__updated { color: var(--text-muted); font-size: 0.78rem; }
+    .adm-pricing-row__input {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      background: var(--soft-sky);
+      border: 2px solid transparent;
+      border-radius: var(--radius);
+      padding: 0.5rem 0.85rem;
+      outline: none;
+      width: 110px;
+      text-align: right;
+    }
+    .adm-pricing-row__input:focus { border-color: var(--sky-blue); background: var(--white); }
+    .adm-pricing-row__btn {
+      background: var(--ocean-blue);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .adm-pricing-row__btn:hover { background: #1452a0; }
+    .adm-pricing-row__btn--saved { background: #4caf50; }
+
+    @media (max-width: 720px) {
+      .adm-main { padding: 1rem; }
+      .adm-section { padding: 1rem; }
+      .adm-form-row { flex-direction: column; align-items: stretch; }
+      .adm-pricing-row { grid-template-columns: 1fr 1fr; }
+      .adm-pricing-row__updated { display: none; }
+      .adm-table { font-size: 0.78rem; }
+      .adm-table th, .adm-table td { padding: 0.4rem 0.45rem; }
+    }
+  </style>
+
+  <script>
+    type Reservation = {
+      id: string;
+      created_at: number;
+      status: 'pending' | 'confirmed' | 'declined' | 'cancelled';
+      full_name: string; email: string; phone: string | null; language: string | null;
+      address: string | null; source: string | null;
+      guests: number; children_ages: string | null;
+      check_in: string; check_out: string; nights: number; total_eur: number;
+      message: string | null; decided_at: number | null;
+    };
+    type ManualBlock = { id: string; created_at: number; from_date: string; to_date: string; note: string | null };
+    type PricingRule = { month: number; rate_eur: number; updated_at: number };
+
+    const loading = document.getElementById('loading')!;
+    const content = document.getElementById('content')!;
+    const logoutBtn = document.getElementById('logoutBtn') as HTMLButtonElement;
+
+    const monthName = (m: number) => ({6: 'June', 7: 'July', 8: 'August', 9: 'September'} as const)[m as 6|7|8|9];
+    const fmtDate = (iso: string) => {
+      const [y, mo, d] = iso.split('-').map(Number);
+      return new Date(y, mo - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
+    const fmtTs = (sec: number) => new Date(sec * 1000).toLocaleString('en-GB');
+    const fmtEur = (n: number) => `€${n.toLocaleString('en-GB')}`;
+    const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    async function api<T>(path: string, init?: RequestInit): Promise<T> {
+      const res = await fetch(path, {
+        ...init,
+        headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
+        credentials: 'same-origin',
+      });
+      if (res.status === 401) {
+        window.location.href = '/admin/login';
+        throw new Error('not authenticated');
+      }
+      const data = await res.json() as T & { ok?: boolean; error?: string };
+      if ((data as any).ok === false) throw new Error((data as any).error ?? 'Request failed');
+      return data;
+    }
+
+    function tableRows(reservations: Reservation[], actions: (r: Reservation) => string): string {
+      if (reservations.length === 0) return '<p class="adm-empty">None.</p>';
+      const rows = reservations.map(r => `
+        <tr>
+          <td><strong>${esc(r.full_name)}</strong><br><a href="mailto:${esc(r.email)}">${esc(r.email)}</a>${r.phone ? `<br>${esc(r.phone)}` : ''}</td>
+          <td>${fmtDate(r.check_in)} → ${fmtDate(r.check_out)}<br><span style="color:var(--text-muted);font-size:0.78rem;">${r.nights} night${r.nights !== 1 ? 's' : ''}, ${r.guests} guest${r.guests !== 1 ? 's' : ''}</span></td>
+          <td><strong>${fmtEur(r.total_eur)}</strong></td>
+          <td><span class="adm-status adm-status--${r.status}">${r.status}</span><br><span style="color:var(--text-muted);font-size:0.72rem;">${fmtTs(r.created_at)}</span></td>
+          <td><div class="adm-actions">${actions(r)}</div></td>
+        </tr>
+      `).join('');
+      return `<table class="adm-table"><thead><tr><th>Guest</th><th>Stay</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    async function decide(id: string, action: 'approve' | 'decline' | 'cancel') {
+      if (action === 'cancel' && !confirm('Cancel this reservation? Dates will be released.')) return;
+      try {
+        await api(`/api/admin/reservations/${id}/decision`, {
+          method: 'POST',
+          body: JSON.stringify({ action }),
+        });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Action failed');
+      }
+    }
+    (window as any).__decide = decide;
+
+    async function removeBlock(id: string) {
+      if (!confirm('Remove this manual block?')) return;
+      try {
+        await api(`/api/admin/blocks/${id}`, { method: 'DELETE' });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Action failed');
+      }
+    }
+    (window as any).__removeBlock = removeBlock;
+
+    async function savePricing(month: number) {
+      const input = document.getElementById(`pr-rate-${month}`) as HTMLInputElement;
+      const btn   = document.getElementById(`pr-btn-${month}`) as HTMLButtonElement;
+      const rate  = Number(input.value);
+      if (!Number.isFinite(rate) || rate < 0) { alert('Enter a valid rate'); return; }
+      try {
+        await api('/api/admin/pricing', {
+          method: 'POST',
+          body: JSON.stringify({ month, rate_eur: rate }),
+        });
+        btn.classList.add('adm-pricing-row__btn--saved');
+        btn.textContent = 'Saved ✓';
+        setTimeout(() => {
+          btn.classList.remove('adm-pricing-row__btn--saved');
+          btn.textContent = 'Save';
+        }, 1800);
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Save failed');
+      }
+    }
+    (window as any).__savePricing = savePricing;
+
+    async function refresh() {
+      const [resData, blockData, priceData] = await Promise.all([
+        api<{ reservations: Reservation[] }>('/api/admin/reservations'),
+        api<{ blocks: ManualBlock[] }>('/api/admin/blocks'),
+        api<{ pricing: PricingRule[] }>('/api/admin/pricing'),
+      ]);
+
+      const reservations = resData.reservations;
+      const pending   = reservations.filter(r => r.status === 'pending');
+      const confirmed = reservations.filter(r => r.status === 'confirmed');
+      const other     = reservations.filter(r => r.status === 'declined' || r.status === 'cancelled');
+
+      document.getElementById('pendingCount')!.textContent   = String(pending.length);
+      document.getElementById('confirmedCount')!.textContent = String(confirmed.length);
+      document.getElementById('otherCount')!.textContent     = String(other.length);
+
+      document.getElementById('pendingList')!.innerHTML = tableRows(pending, r => `
+        <button class="adm-btn adm-btn--approve" onclick="__decide('${r.id}','approve')">Approve</button>
+        <button class="adm-btn adm-btn--decline" onclick="__decide('${r.id}','decline')">Decline</button>
+      `);
+      document.getElementById('confirmedList')!.innerHTML = tableRows(confirmed, r => `
+        <button class="adm-btn adm-btn--cancel" onclick="__decide('${r.id}','cancel')">Cancel</button>
+      `);
+      document.getElementById('otherList')!.innerHTML = tableRows(other, () => '');
+
+      const blocks = blockData.blocks;
+      const blocksHtml = blocks.length === 0
+        ? '<p class="adm-empty">No manual blocks.</p>'
+        : `<table class="adm-table"><thead><tr><th>From</th><th>To</th><th>Note</th><th></th></tr></thead><tbody>${
+            blocks.map(b => `
+              <tr>
+                <td>${fmtDate(b.from_date)}</td>
+                <td>${fmtDate(b.to_date)}</td>
+                <td>${b.note ? esc(b.note) : '<span style="color:var(--text-light);">—</span>'}</td>
+                <td><button class="adm-btn adm-btn--remove" onclick="__removeBlock('${b.id}')">Remove</button></td>
+              </tr>
+            `).join('')
+          }</tbody></table>`;
+      document.getElementById('blocksList')!.innerHTML = blocksHtml;
+
+      const pricingByMonth = new Map<number, PricingRule>();
+      for (const p of priceData.pricing) pricingByMonth.set(p.month, p);
+      const pricingHtml = [6, 7, 8, 9].map(m => {
+        const p = pricingByMonth.get(m);
+        const rate = p?.rate_eur ?? 0;
+        const updated = p ? fmtTs(p.updated_at) : '—';
+        return `
+          <div class="adm-pricing-row">
+            <div class="adm-pricing-row__month">${monthName(m)}</div>
+            <div class="adm-pricing-row__updated">Last updated: ${updated}</div>
+            <div style="display:flex;align-items:center;gap:0.4rem;">€<input type="number" id="pr-rate-${m}" class="adm-pricing-row__input" value="${rate}" min="0" max="10000" /></div>
+            <button class="adm-pricing-row__btn" id="pr-btn-${m}" onclick="__savePricing(${m})">Save</button>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('pricingList')!.innerHTML = pricingHtml;
+    }
+
+    logoutBtn.addEventListener('click', async () => {
+      try { await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' }); }
+      finally { window.location.href = '/admin/login'; }
+    });
+
+    const blockForm = document.getElementById('blockForm') as HTMLFormElement;
+    const blockError = document.getElementById('blockError') as HTMLElement;
+    blockForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      blockError.hidden = true;
+      const fd = new FormData(blockForm);
+      try {
+        await api('/api/admin/blocks', {
+          method: 'POST',
+          body: JSON.stringify({
+            from: String(fd.get('from')),
+            to:   String(fd.get('to')),
+            note: String(fd.get('note') ?? ''),
+          }),
+        });
+        blockForm.reset();
+        await refresh();
+      } catch (e) {
+        blockError.textContent = e instanceof Error ? e.message : 'Failed to add block';
+        blockError.hidden = false;
+      }
+    });
+
+    refresh()
+      .then(() => { loading.style.display = 'none'; content.hidden = false; })
+      .catch(() => { /* api() already redirected */ });
+  </script>
+</body>
+</html>
