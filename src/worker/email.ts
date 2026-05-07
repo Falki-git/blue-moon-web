@@ -7,7 +7,7 @@ const SITE = 'https://bluemoonmandre.eu';
 
 // Owner fills these in once and the confirmation email picks them up.
 // Until filled, the confirmation email shows a TODO line so the owner notices.
-export const BANK_DETAILS_PLACEHOLDER = '__FILL_IN_BANK_DETAILS__';
+export const BANK_DETAILS_PLACEHOLDER = 'LT71 3250 0786 7157 4572 (Goran Falkoni, Revolut, BIC/SWIFT REVOLT21)';
 
 export function esc(s: string): string {
   return s

@@ -119,8 +119,8 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
   const approveToken = await signDecisionToken(id, 'approve', env);
   const declineToken = await signDecisionToken(id, 'decline', env);
   const links = {
-    approve: `${origin}/api/booking/decide?token=${approveToken}`,
-    decline: `${origin}/api/booking/decide?token=${declineToken}`,
+    approve: `${origin}/booking/confirm?token=${approveToken}`,
+    decline: `${origin}/booking/confirm?token=${declineToken}`,
   };
 
   const ownerMsg = buildOwnerBookingNotification(row, links);

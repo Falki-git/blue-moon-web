@@ -19,7 +19,8 @@ export default {
     if (url.pathname === '/api/contact'        && request.method === 'POST') return handleContact(request, env, ctx);
     if (url.pathname === '/api/availability'   && request.method === 'GET')  return handleAvailability(request, env);
     if (url.pathname === '/api/booking'        && request.method === 'POST') return handleBooking(request, env, ctx);
-    if (url.pathname === '/api/booking/decide' && request.method === 'GET')  return handleDecision(request, env, ctx);
+    if (url.pathname === '/api/booking/decide'  && request.method === 'GET') return handleDecision(request, env, ctx);
+    if (url.pathname === '/api/booking/resolve' && request.method === 'GET') return handleDecision(request, env, ctx);
     if (url.pathname.startsWith('/api/admin/')) return handleAdmin(request, env, ctx);
 
     return env.ASSETS.fetch(request);

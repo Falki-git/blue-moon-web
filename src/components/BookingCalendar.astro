@@ -249,6 +249,14 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
     if (blocked.has(iso) || pending.has(iso) || iso < todayIso) return;
     if (iso < seasonStart || iso > seasonEnd) return;
 
+    if (checkIn && !checkOut && iso === checkIn) {
+      checkIn = null;
+      hintEl.textContent = 'Select a check-in date.';
+      paint();
+      emit();
+      return;
+    }
+
     if (!checkIn || (checkIn && checkOut)) {
       checkIn = iso;
       checkOut = null;
