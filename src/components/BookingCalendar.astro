@@ -112,6 +112,11 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
   // currentLeft = index in monthNames (0..3). In two-up mode, max is 2 (so we always show pair).
   let currentLeft = 0;
   function defaultLeft(): number {
+    const urlMonth = Number(new URLSearchParams(location.search).get('month'));
+    if (urlMonth >= 6 && urlMonth <= 9) {
+      const idx = urlMonth - 6;
+      return twoUp ? Math.min(idx, 2) : idx;
+    }
     const m = today.getMonth(); // 0=Jan
     if (m >= 5 && m <= 8) {
       const idx = m - 5;
