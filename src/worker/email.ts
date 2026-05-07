@@ -148,7 +148,7 @@ export function buildGuestBookingApproved(r: ReservationRow): { subject: string;
 <h3>Stay details</h3>
 <table cellpadding="6">${summaryRowsHtml(r)}</table>
 <h3>Payment</h3>
-<p>To secure your booking, please transfer the <strong>30% deposit of €${deposit.toLocaleString('en-GB')}</strong> within 7 days. The remaining <strong>€${remainder.toLocaleString('en-GB')}</strong> is due in cash on arrival.</p>
+<p>To secure your booking, please transfer the <strong>30% deposit of €${deposit.toLocaleString('en-GB')}</strong> within 7 days. The remaining <strong>€${remainder.toLocaleString('en-GB')}</strong> is due by bank transfer on arrival.</p>
 <p><strong>Bank details:</strong> ${esc(BANK_DETAILS_PLACEHOLDER)}</p>
 <p>Once we receive the deposit we'll send you the keys/check-in details closer to your arrival date.</p>
 <h3>Check-in</h3>
@@ -164,7 +164,7 @@ export function buildGuestBookingApproved(r: ReservationRow): { subject: string;
     `Guests:    ${r.guests}`,
     `Total:     €${r.total_eur}`,
     '',
-    `30% deposit (€${deposit}) due within 7 days. Remaining €${remainder} due in cash on arrival.`,
+    `30% deposit (€${deposit}) due within 7 days. Remaining €${remainder} due by bank transfer on arrival.`,
     `Bank details: ${BANK_DETAILS_PLACEHOLDER}`,
     '',
     'Check-in from 4:00 PM. Check-out by 10:00 AM.',
