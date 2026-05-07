@@ -1,0 +1,69 @@
+---
+// Local-dev shim for the email approve/decline links.
+//
+// Email links point to /booking/confirm?token=... — a static page that exists
+// in both local dev and production. In local dev, wrangler 4.x serves static
+// assets before the Worker, so we can't use /api/booking/decide directly from
+// a browser navigation; this page instead re-issues the request as a JS
+// fetch() to /api/booking/resolve, which has no static file and therefore
+// reaches the Worker correctly.
+//
+// In production the static page is served from the CDN; the inner fetch() to
+// /api/booking/resolve goes to the Worker. Both environments work identically.
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Processing — Blue Moon Apartment</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #EAF6FC;
+      color: #1a2a3a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 24px rgba(8,22,40,0.13);
+      padding: 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 { color: #1A5FAD; margin: 0 0 0.75rem; font-size: 1.5rem; }
+    p  { color: #5a7080; margin: 0.4rem 0; }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <h1>Processing…</h1>
+    <p>Please wait while we update the reservation.</p>
+  </div>
+  <script>
+    const token = new URLSearchParams(location.search).get('token');
+    if (!token) {
+      document.getElementById('card').innerHTML =
+        '<h1>Invalid link</h1><p>No token found in the URL.</p>';
+    } else {
+      // Fetch /api/booking/resolve — this path has no static file, so wrangler
+      // routes it to the Worker correctly even in local dev.
+      fetch('/api/booking/resolve?token=' + encodeURIComponent(token))
+        .then(r => r.text())
+        .then(html => { document.open(); document.write(html); document.close(); })
+        .catch(() => {
+          document.getElementById('card').innerHTML =
+            '<h1>Error</h1><p>Could not process the decision.</p>' +
+            '<p><a href="/admin" style="color:#1A5FAD">Open admin panel →</a></p>';
+        });
+    }
+  </script>
+</body>
+</html>

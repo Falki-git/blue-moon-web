@@ -31,6 +31,14 @@ command = "npm run build"
 [env.production.vars]
 CONTACT_TO_EMAIL = "bluemoon.mandre@gmail.com"
 
+# Reservations + availability + per-month pricing.
+# Create with:  wrangler d1 create blue-moon-prod
+# Then paste the returned database_id below.
+[[env.production.d1_databases]]
+binding       = "DB"
+database_name = "blue-moon-prod"
+database_id   = "REPLACE_WITH_PROD_DB_ID"
+
 [env.development]
 name = "dev-blue-moon-web"
 main = "src/worker/index.ts"
@@ -47,3 +55,10 @@ command = "npm run build"
 
 [env.development.vars]
 CONTACT_TO_EMAIL = "bluemoon.mandre@gmail.com"
+
+# Create with:  wrangler d1 create blue-moon-dev
+# Then paste the returned database_id below.
+[[env.development.d1_databases]]
+binding       = "DB"
+database_name = "blue-moon-dev"
+database_id   = "b46207a8-3c3b-41d4-b2b0-ec1f11fbbf14"
