@@ -141,10 +141,29 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
               </div>
             </div>
 
-            <div class="form-group" style="margin-top: -1rem;">
-              <label for="bk-phone">Phone Number <span class="optional">(optional)</span></label>
-              <input type="tel" id="bk-phone" name="phone" placeholder="+49 123 456 789" autocomplete="tel" />
+            <div class="form-row" style="margin-top: -1rem;">
+              <div class="form-group">
+                <label for="bk-phone">Phone Number <span class="required">*</span></label>
+                <input type="tel" id="bk-phone" name="phone" placeholder="+49 123 456 789" required autocomplete="tel" />
+                <span class="form-error" aria-live="polite"></span>
+              </div>
+              <div class="form-group">
+                <label for="bk-country-trigger">Country <span class="required">*</span></label>
+                <input type="hidden" name="country" id="bk-country" />
+                <div class="cs-wrap" id="bk-country-wrap">
+                  <button type="button" class="cs-trigger" id="bk-country-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="bk-country-panel">
+                    <span class="cs-trigger__text" id="bk-country-display">Select your country</span>
+                    <svg class="cs-trigger__arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <div class="cs-panel" id="bk-country-panel" hidden>
+                    <input type="text" class="cs-search" id="bk-country-search" placeholder="Search…" autocomplete="off" spellcheck="false" />
+                    <ul class="cs-list" id="bk-country-list" role="listbox" aria-label="Countries"></ul>
+                  </div>
+                </div>
+                <span class="form-error" id="bk-country-error" aria-live="polite"></span>
+              </div>
             </div>
+
 
             <div class="form-row">
               <div class="form-group">
@@ -160,7 +179,7 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
 
             <div class="form-group">
               <label for="bk-address">Address <span class="optional">(optional, used for invoice & guest registration)</span></label>
-              <input type="text" id="bk-address" name="address" placeholder="Street, City, Postal Code, Country" autocomplete="street-address" />
+              <input type="text" id="bk-address" name="address" placeholder="Street, City, Postal Code" autocomplete="street-address" />
             </div>
 
             <div class="form-group">
@@ -547,6 +566,49 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
   /* Prevent the Turnstile iframe (fixed ~300px) from overflowing its container */
   .cf-turnstile-wrap { overflow: hidden; border-radius: var(--radius); }
 
+  /* Country combobox */
+  .cs-wrap { position: relative; }
+  .cs-trigger {
+    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+    font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 600; text-align: left;
+    color: var(--text-dark); background: var(--soft-sky);
+    border: 2px solid transparent; border-radius: var(--radius);
+    padding: 0.75rem 1rem; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .cs-trigger:hover { border-color: var(--sky-blue); }
+  .cs-trigger[aria-expanded="true"] { border-color: var(--sky-blue); background: var(--white); }
+  .cs-trigger.is-error { border-color: #e05c5c; }
+  .cs-trigger__text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cs-trigger__text.placeholder { color: var(--text-light); font-weight: 500; }
+  .cs-trigger__arrow { flex-shrink: 0; color: var(--text-muted); transition: transform 0.2s; }
+  .cs-trigger[aria-expanded="true"] .cs-trigger__arrow { transform: rotate(180deg); }
+  .cs-panel {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 100;
+    background: var(--white); border: 2px solid var(--sky-blue);
+    border-radius: var(--radius); box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+  .cs-search {
+    width: 100%; box-sizing: border-box;
+    font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 600;
+    color: var(--text-dark); background: var(--soft-sky);
+    border: none; border-bottom: 2px solid var(--sky-blue);
+    padding: 0.6rem 0.9rem; outline: none;
+  }
+  .cs-list {
+    list-style: none; margin: 0; padding: 0.25rem 0;
+    max-height: 220px; overflow-y: auto;
+  }
+  .cs-list li {
+    padding: 0.55rem 0.9rem; font-size: 0.9rem; font-weight: 600;
+    color: var(--text-dark); cursor: pointer;
+  }
+  .cs-list li:hover, .cs-list li.cs-highlighted { background: var(--soft-sky); cursor: pointer; }
+  .cs-list li.cs-selected { background: var(--ocean-blue); color: var(--white); }
+  .cs-list li.cs-selected:hover { background: var(--sky-blue); }
+  .cs-no-results { padding: 0.6rem 0.9rem; font-size: 0.88rem; color: var(--text-muted); font-style: italic; }
+
   @media (max-width: 980px) {
     .bk-pick { grid-template-columns: 1fr; }
     /* min-width: 0 prevents grid children from forcing the grid wider than its container */
@@ -652,6 +714,164 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
   const formError = document.getElementById('bkFormError') as HTMLElement;
   const formSuccess = document.getElementById('bkSuccess') as HTMLElement;
 
+  // ── Country combobox ────────────────────────────────────────────────────
+  const COUNTRIES = [
+    'Afghanistan','Albania','Algeria','Andorra','Angola','Antigua and Barbuda',
+    'Argentina','Armenia','Australia','Austria','Azerbaijan','Bahamas','Bahrain',
+    'Bangladesh','Barbados','Belarus','Belgium','Belize','Benin','Bhutan',
+    'Bolivia','Bosnia and Herzegovina','Botswana','Brazil','Brunei','Bulgaria',
+    'Burkina Faso','Burundi','Cabo Verde','Cambodia','Cameroon','Canada',
+    'Central African Republic','Chad','Chile','China','Colombia','Comoros',
+    'Congo','Costa Rica','Croatia','Cuba','Cyprus','Czech Republic','Denmark',
+    'Djibouti','Dominica','Dominican Republic','DR Congo','Ecuador','Egypt',
+    'El Salvador','Equatorial Guinea','Eritrea','Estonia','Eswatini','Ethiopia',
+    'Fiji','Finland','France','Gabon','Gambia','Georgia','Germany','Ghana',
+    'Greece','Grenada','Guatemala','Guinea','Guinea-Bissau','Guyana','Haiti',
+    'Honduras','Hungary','Iceland','India','Indonesia','Iran','Iraq','Ireland',
+    'Israel','Italy','Ivory Coast','Jamaica','Japan','Jordan','Kazakhstan',
+    'Kenya','Kiribati','Kosovo','Kuwait','Kyrgyzstan','Laos','Latvia','Lebanon',
+    'Lesotho','Liberia','Libya','Liechtenstein','Lithuania','Luxembourg',
+    'Madagascar','Malawi','Malaysia','Maldives','Mali','Malta','Marshall Islands',
+    'Mauritania','Mauritius','Mexico','Micronesia','Moldova','Monaco','Mongolia',
+    'Montenegro','Morocco','Mozambique','Myanmar','Namibia','Nauru','Nepal',
+    'Netherlands','New Zealand','Nicaragua','Niger','Nigeria','North Korea',
+    'North Macedonia','Norway','Oman','Pakistan','Palau','Palestine','Panama',
+    'Papua New Guinea','Paraguay','Peru','Philippines','Poland','Portugal',
+    'Qatar','Romania','Russia','Rwanda','Saint Kitts and Nevis','Saint Lucia',
+    'Saint Vincent and the Grenadines','Samoa','San Marino','Sao Tome and Principe',
+    'Saudi Arabia','Senegal','Serbia','Seychelles','Sierra Leone','Singapore',
+    'Slovakia','Slovenia','Solomon Islands','Somalia','South Africa','South Korea',
+    'South Sudan','Spain','Sri Lanka','Sudan','Suriname','Sweden','Switzerland',
+    'Syria','Taiwan','Tajikistan','Tanzania','Thailand','Timor-Leste','Togo',
+    'Tonga','Trinidad and Tobago','Tunisia','Turkey','Turkmenistan','Tuvalu',
+    'Uganda','Ukraine','United Arab Emirates','United Kingdom','United States',
+    'Uruguay','Uzbekistan','Vanuatu','Vatican City','Venezuela','Vietnam',
+    'Yemen','Zambia','Zimbabwe',
+  ];
+
+  const csHidden   = document.getElementById('bk-country') as HTMLInputElement;
+  const csTrigger  = document.getElementById('bk-country-trigger') as HTMLButtonElement;
+  const csDisplay  = document.getElementById('bk-country-display') as HTMLSpanElement;
+  const csPanel    = document.getElementById('bk-country-panel') as HTMLDivElement;
+  const csSearch   = document.getElementById('bk-country-search') as HTMLInputElement;
+  const csList     = document.getElementById('bk-country-list') as HTMLUListElement;
+  const csError    = document.getElementById('bk-country-error') as HTMLSpanElement;
+  let csHighlighted = -1;
+
+  function csRender(filter = '') {
+    const q = filter.toLowerCase();
+    const matches = COUNTRIES.filter(c => c.toLowerCase().includes(q));
+    csList.innerHTML = '';
+    csHighlighted = -1;
+    if (matches.length === 0) {
+      csList.innerHTML = '<li class="cs-no-results" aria-disabled="true">No countries found</li>';
+      return;
+    }
+    matches.forEach((c) => {
+      const li = document.createElement('li');
+      li.textContent = c;
+      li.setAttribute('role', 'option');
+      li.dataset.value = c;
+      const isSelected = c === csHidden.value;
+      li.style.cssText = `padding: 0.55rem 0.9rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: ${isSelected ? 'var(--white)' : 'var(--text-dark)'}; background: ${isSelected ? 'var(--ocean-blue)' : ''};`;
+      if (isSelected) li.classList.add('cs-selected');
+      li.addEventListener('mouseover', () => {
+        if (!li.classList.contains('cs-selected')) li.style.background = 'var(--soft-sky)';
+      });
+      li.addEventListener('mouseout', () => {
+        if (!li.classList.contains('cs-selected')) li.style.background = '';
+      });
+      li.addEventListener('mousedown', (e) => { e.preventDefault(); csSelect(c); });
+      csList.appendChild(li);
+    });
+  }
+
+  function csOpen() {
+    csPanel.hidden = false;
+    csTrigger.setAttribute('aria-expanded', 'true');
+    csSearch.value = '';
+    csRender();
+    csSearch.focus();
+    const sel = csList.querySelector('.cs-selected') as HTMLElement | null;
+    if (sel) sel.scrollIntoView({ block: 'nearest' });
+  }
+
+  function csClose() {
+    csPanel.hidden = true;
+    csTrigger.setAttribute('aria-expanded', 'false');
+    csHighlighted = -1;
+  }
+
+  function csSelect(value: string) {
+    csHidden.value = value;
+    csDisplay.textContent = value;
+    csDisplay.classList.remove('placeholder');
+    csTrigger.classList.remove('is-error');
+    csError.textContent = '';
+    csClose();
+    csTrigger.focus();
+  }
+
+  function csHighlight(idx: number) {
+    const items = csList.querySelectorAll<HTMLElement>('li[data-value]');
+    items.forEach(li => {
+      li.classList.remove('cs-highlighted');
+      if (!li.classList.contains('cs-selected')) li.style.background = '';
+    });
+    csHighlighted = Math.max(0, Math.min(idx, items.length - 1));
+    if (items[csHighlighted]) {
+      items[csHighlighted].classList.add('cs-highlighted');
+      items[csHighlighted].style.background = 'var(--soft-sky)';
+      items[csHighlighted].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function validateCountry(): boolean {
+    if (!csHidden.value) {
+      csTrigger.classList.add('is-error');
+      csError.textContent = 'Please select a country.';
+      return false;
+    }
+    csTrigger.classList.remove('is-error');
+    csError.textContent = '';
+    return true;
+  }
+
+  csDisplay.classList.add('placeholder');
+  csTrigger.addEventListener('click', () => csPanel.hidden ? csOpen() : csClose());
+
+  csTrigger.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (csPanel.hidden) csOpen(); else csClose();
+    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault();
+      csOpen();
+      csSearch.value = e.key;
+      csRender(e.key);
+    } else if (e.key === 'Escape') {
+      csClose();
+    }
+  });
+
+  csSearch.addEventListener('input', () => csRender(csSearch.value));
+
+  csSearch.addEventListener('keydown', (e) => {
+    const items = csList.querySelectorAll<HTMLElement>('li[data-value]');
+    if (e.key === 'ArrowDown') { e.preventDefault(); csHighlight(csHighlighted + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); csHighlight(csHighlighted - 1); }
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (csHighlighted >= 0 && items[csHighlighted]) csSelect(items[csHighlighted].dataset.value!);
+    }
+    else if (e.key === 'Escape') { csClose(); csTrigger.focus(); }
+  });
+
+  document.addEventListener('mousedown', (e) => {
+    if (!csTrigger.closest('.cs-wrap')?.contains(e.target as Node)) csClose();
+  });
+  // ── End country combobox ─────────────────────────────────────────────────
+
   function validateField(input: HTMLInputElement) {
     const errorEl = input.parentElement?.querySelector('.form-error');
     if (input.required && !input.value.trim()) {
@@ -681,6 +901,7 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
     const inputs = form.querySelectorAll<HTMLInputElement>('input[required], select[required]');
     let valid = true;
     inputs.forEach(input => { if (!validateField(input)) valid = false; });
+    if (!validateCountry()) valid = false;
     if (!valid) return;
 
     const label = submitBtn.querySelector('.btn-label') as HTMLElement;
