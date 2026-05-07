@@ -487,8 +487,9 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
   .bcal__cell--today { outline: 2px solid var(--sky-blue); outline-offset: -2px; }
 
   .bcal__cell--in-range {
-    background: rgba(26,95,173,0.18);
+    background: rgba(26,95,173,0.55);
     color: var(--ocean-blue);
+    font-weight: 600;
   }
 
   .bcal__cell--selected {

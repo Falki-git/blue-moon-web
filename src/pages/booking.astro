@@ -27,19 +27,19 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
         <div class="bk-price-card bk-price-card--early">
           <div class="bk-price-card__season">Early Summer</div>
           <div class="bk-price-card__dates">1–30 June</div>
-          <div class="bk-price-card__amount" data-rate-month="6">€250</div>
+          <div class="bk-price-card__amount" data-rate-month="6"><span class="bk-price-card__currency">€</span>250</div>
           <div class="bk-price-card__per">/ night</div>
         </div>
         <div class="bk-price-card bk-price-card--peak">
           <div class="bk-price-card__season">Peak Season</div>
           <div class="bk-price-card__dates">1 July – 31 August</div>
-          <div class="bk-price-card__amount" data-rate-month="7">€300</div>
+          <div class="bk-price-card__amount" data-rate-month="7"><span class="bk-price-card__currency">€</span>300</div>
           <div class="bk-price-card__per">/ night</div>
         </div>
         <div class="bk-price-card bk-price-card--golden">
           <div class="bk-price-card__season">Golden September</div>
           <div class="bk-price-card__dates">1–30 September</div>
-          <div class="bk-price-card__amount" data-rate-month="9">€250</div>
+          <div class="bk-price-card__amount" data-rate-month="9"><span class="bk-price-card__currency">€</span>250</div>
           <div class="bk-price-card__per">/ night</div>
         </div>
       </div>
@@ -341,6 +341,7 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
   }
   .bk-price-card--peak .bk-price-card__amount   { color: var(--sunset-gold); }
   .bk-price-card--golden .bk-price-card__amount { color: var(--ocean-blue); }
+  :global(.bk-price-card__currency) { font-size: 0.6em; }
   .bk-price-card__per { font-size: 0.78rem; color: var(--text-muted); }
 
   /* Calendar + summary layout */
@@ -418,14 +419,15 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
     max-height: 220px;
     overflow-y: auto;
   }
-  .bk-sum__breakdown li {
+  :global(#bkSumBreakdown li) {
     display: flex;
     justify-content: space-between;
     padding: 0.2rem 0;
     color: var(--text-muted);
     font-size: 0.78rem;
+    width: 100%;
   }
-  .bk-sum__breakdown li strong { color: var(--text-dark); }
+  :global(#bkSumBreakdown li strong) { color: var(--text-dark); margin-left: auto; }
 
   .bk-sum__totals {
     border-top: 1px solid rgba(74,159,212,0.15);
@@ -621,7 +623,7 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
     outEl.textContent = fmtDate(d.checkOut);
     nightsEl.textContent = `${d.nights} night${d.nights !== 1 ? 's' : ''}`;
     breakdownEl.innerHTML = d.breakdown
-      .map(b => `<li>${fmtDate(b.date)}<strong>${fmtEur(b.eur)}</strong></li>`).join('');
+      .map(b => `<li><span>${fmtDate(b.date)}</span><strong>${fmtEur(b.eur)}</strong></li>`).join('');
     totalEl.textContent = fmtEur(d.totalEur);
     const deposit = Math.round(d.totalEur * 0.3);
     depositEl.textContent = fmtEur(deposit);
@@ -640,7 +642,7 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
       document.querySelectorAll<HTMLElement>('[data-rate-month]').forEach(el => {
         const m = el.getAttribute('data-rate-month')!;
         const rate = data.pricing[m];
-        if (typeof rate === 'number') el.textContent = `€${rate}`;
+        if (typeof rate === 'number') el.innerHTML = `<span class="bk-price-card__currency">€</span>${rate}`;
       });
     })
     .catch(() => { /* keep static fallback */ });
