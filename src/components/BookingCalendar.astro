@@ -1,0 +1,527 @@
+---
+const SEASON_MONTHS = [
+  { year: 2026, month: 5, name: 'June' },
+  { year: 2026, month: 6, name: 'July' },
+  { year: 2026, month: 7, name: 'August' },
+  { year: 2026, month: 8, name: 'September' },
+];
+
+const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+type Cell =
+  | { type: 'empty' }
+  | { type: 'day'; day: number; iso: string };
+
+function buildMonthGrid(year: number, month: number): Cell[] {
+  const firstDay = new Date(year, month, 1);
+  const startPad = (firstDay.getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells: Cell[] = [];
+  for (let i = 0; i < startPad; i++) cells.push({ type: 'empty' });
+  for (let d = 1; d <= daysInMonth; d++) {
+    const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    cells.push({ type: 'day', day: d, iso });
+  }
+  return cells;
+}
+
+const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.month) }));
+---
+
+<div class="bcal" id="bookingCalendar" data-loading="1">
+  <div class="bcal__header">
+    <button class="bcal__nav" id="bcalPrev" aria-label="Previous month" type="button">
+      <svg width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden="true">
+        <path d="M7 1L1 7l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div class="bcal__titles">
+      <span class="bcal__title" id="bcalTitleLeft">June 2026</span>
+      <span class="bcal__title bcal__title--right" id="bcalTitleRight">July 2026</span>
+    </div>
+    <button class="bcal__nav" id="bcalNext" aria-label="Next month" type="button">
+      <svg width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden="true">
+        <path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="bcal__panes" id="bcalPanes">
+    {grids.map((grid, index) => (
+      <div class="bcal__pane" data-month-index={index}>
+        <div class="bcal__grid">
+          {DOW.map(d => <div class="bcal__dow">{d}</div>)}
+          {grid.cells.map(cell =>
+            cell.type === 'empty'
+              ? <div class="bcal__cell bcal__cell--empty" aria-hidden="true"></div>
+              : <button
+                  type="button"
+                  class="bcal__cell bcal__cell--available"
+                  data-iso={cell.iso}
+                  aria-label={cell.iso}
+                >{cell.day}</button>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="bcal__legend">
+    <span><span class="bcal__dot bcal__dot--available"></span>Available</span>
+    <span><span class="bcal__dot bcal__dot--pending"></span>On hold</span>
+    <span><span class="bcal__dot bcal__dot--blocked"></span>Booked</span>
+    <span><span class="bcal__dot bcal__dot--selected"></span>Your selection</span>
+  </div>
+
+  <p class="bcal__hint" id="bcalHint">Loading availability…</p>
+</div>
+
+<script>
+  type AvailabilityResp = {
+    ok: boolean;
+    blocked: string[];
+    pending: string[];
+    pricing: Record<string, number>;
+    season: { start: string; end: string };
+    minNights: number;
+    depositPct: number;
+  };
+
+  const root      = document.getElementById('bookingCalendar')!;
+  const panes     = document.getElementById('bcalPanes')!;
+  const titleL    = document.getElementById('bcalTitleLeft')!;
+  const titleR    = document.getElementById('bcalTitleRight')!;
+  const prevBtn   = document.getElementById('bcalPrev') as HTMLButtonElement;
+  const nextBtn   = document.getElementById('bcalNext') as HTMLButtonElement;
+  const hintEl    = document.getElementById('bcalHint')!;
+
+  const monthNames = ['June', 'July', 'August', 'September'];
+  const monthYearTitles = monthNames.map(n => `${n} 2026`);
+
+  const today = new Date();
+  const todayIso = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+  let blocked = new Set<string>();
+  let pending = new Set<string>();
+  let pricing: Record<number, number> = {};
+  let minNights = 5;
+  let seasonStart = '2026-06-01';
+  let seasonEnd   = '2026-09-30';
+
+  let twoUp = window.matchMedia('(min-width: 720px)').matches;
+  // currentLeft = index in monthNames (0..3). In two-up mode, max is 2 (so we always show pair).
+  let currentLeft = 0;
+  function defaultLeft(): number {
+    const m = today.getMonth(); // 0=Jan
+    if (m >= 5 && m <= 8) {
+      const idx = m - 5;
+      return Math.min(idx, twoUp ? 2 : 3);
+    }
+    return 0;
+  }
+
+  let checkIn: string | null = null;
+  let checkOut: string | null = null;
+  let hoverIso: string | null = null;
+
+  function isoToDate(iso: string): Date {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  function diffNights(a: string, b: string): number {
+    return Math.round((isoToDate(b).getTime() - isoToDate(a).getTime()) / 86400000);
+  }
+
+  function* eachDay(fromIso: string, toExclusiveIso: string): Generator<string> {
+    const cur = isoToDate(fromIso);
+    const end = isoToDate(toExclusiveIso);
+    while (cur < end) {
+      yield `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
+      cur.setDate(cur.getDate() + 1);
+    }
+  }
+
+  function rangeHasOccupied(fromIso: string, toExclusiveIso: string): boolean {
+    for (const d of eachDay(fromIso, toExclusiveIso)) {
+      if (blocked.has(d) || pending.has(d)) return true;
+    }
+    return false;
+  }
+
+  function showPanes() {
+    const paneEls = panes.querySelectorAll<HTMLElement>('.bcal__pane');
+    paneEls.forEach((el, i) => {
+      const visible = twoUp
+        ? (i === currentLeft || i === currentLeft + 1)
+        : (i === currentLeft);
+      el.style.display = visible ? '' : 'none';
+    });
+    titleL.textContent = monthYearTitles[currentLeft];
+    if (twoUp) {
+      titleR.textContent = monthYearTitles[Math.min(currentLeft + 1, 3)];
+      titleR.style.display = '';
+    } else {
+      titleR.style.display = 'none';
+    }
+    const maxLeft = twoUp ? 2 : 3;
+    prevBtn.disabled = currentLeft === 0;
+    nextBtn.disabled = currentLeft >= maxLeft;
+  }
+
+  function paint() {
+    const allCells = panes.querySelectorAll<HTMLElement>('.bcal__cell[data-iso]');
+    const inHoverRange = checkIn && !checkOut && hoverIso && hoverIso > checkIn
+      && !rangeHasOccupied(checkIn, hoverIso) && diffNights(checkIn, hoverIso) >= minNights
+      ? { from: checkIn, to: hoverIso }
+      : null;
+
+    const inLockedRange = checkIn && checkOut ? { from: checkIn, to: checkOut } : null;
+
+    allCells.forEach(el => {
+      const iso = el.getAttribute('data-iso')!;
+      el.classList.remove(
+        'bcal__cell--available', 'bcal__cell--blocked', 'bcal__cell--pending',
+        'bcal__cell--today', 'bcal__cell--selected', 'bcal__cell--in-range',
+        'bcal__cell--checkin', 'bcal__cell--checkout', 'bcal__cell--past',
+      );
+      el.removeAttribute('disabled');
+
+      const isPast = iso < todayIso;
+      const isOutOfSeason = iso < seasonStart || iso > seasonEnd;
+
+      if (isPast || isOutOfSeason) {
+        el.classList.add('bcal__cell--past');
+        el.setAttribute('disabled', '');
+        return;
+      }
+
+      if (blocked.has(iso)) {
+        el.classList.add('bcal__cell--blocked');
+        el.setAttribute('disabled', '');
+        return;
+      }
+      if (pending.has(iso)) {
+        el.classList.add('bcal__cell--pending');
+        el.setAttribute('disabled', '');
+        return;
+      }
+
+      el.classList.add('bcal__cell--available');
+      if (iso === todayIso) el.classList.add('bcal__cell--today');
+
+      if (inLockedRange) {
+        if (iso === inLockedRange.from) el.classList.add('bcal__cell--selected', 'bcal__cell--checkin');
+        else if (iso === inLockedRange.to) el.classList.add('bcal__cell--selected', 'bcal__cell--checkout');
+        else if (iso > inLockedRange.from && iso < inLockedRange.to) el.classList.add('bcal__cell--in-range');
+      } else if (checkIn) {
+        if (iso === checkIn) el.classList.add('bcal__cell--selected', 'bcal__cell--checkin');
+        if (inHoverRange && iso > inHoverRange.from && iso < inHoverRange.to) el.classList.add('bcal__cell--in-range');
+        if (inHoverRange && iso === inHoverRange.to) el.classList.add('bcal__cell--selected', 'bcal__cell--checkout');
+      }
+    });
+  }
+
+  function emit() {
+    if (!checkIn || !checkOut) {
+      document.dispatchEvent(new CustomEvent('booking-range-change', { detail: null }));
+      return;
+    }
+    const breakdown: { date: string; eur: number }[] = [];
+    let total = 0;
+    for (const d of eachDay(checkIn, checkOut)) {
+      const month = Number(d.split('-')[1]);
+      const eur = pricing[month] ?? 0;
+      breakdown.push({ date: d, eur });
+      total += eur;
+    }
+    document.dispatchEvent(new CustomEvent('booking-range-change', {
+      detail: {
+        checkIn, checkOut,
+        nights: breakdown.length,
+        totalEur: total,
+        breakdown,
+      },
+    }));
+  }
+
+  function handleClick(iso: string) {
+    if (blocked.has(iso) || pending.has(iso) || iso < todayIso) return;
+    if (iso < seasonStart || iso > seasonEnd) return;
+
+    if (!checkIn || (checkIn && checkOut)) {
+      checkIn = iso;
+      checkOut = null;
+      hintEl.textContent = `Check-in: ${iso}. Now choose a check-out date (minimum ${minNights} nights).`;
+      paint();
+      emit();
+      return;
+    }
+
+    if (iso <= checkIn) {
+      checkIn = iso;
+      hintEl.textContent = `Check-in: ${iso}. Now choose a check-out date (minimum ${minNights} nights).`;
+      paint();
+      emit();
+      return;
+    }
+
+    if (rangeHasOccupied(checkIn, iso)) {
+      hintEl.textContent = 'There are unavailable dates in that range — pick a check-out before them.';
+      return;
+    }
+
+    if (diffNights(checkIn, iso) < minNights) {
+      hintEl.textContent = `Minimum stay is ${minNights} nights — pick a later check-out.`;
+      return;
+    }
+
+    checkOut = iso;
+    const nights = diffNights(checkIn, checkOut);
+    hintEl.textContent = `${nights} night${nights !== 1 ? 's' : ''} selected. Click any date again to change.`;
+    paint();
+    emit();
+  }
+
+  panes.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    const cell = t.closest<HTMLElement>('.bcal__cell[data-iso]');
+    if (!cell || cell.hasAttribute('disabled')) return;
+    handleClick(cell.getAttribute('data-iso')!);
+  });
+
+  panes.addEventListener('mouseover', (e) => {
+    const t = e.target as HTMLElement;
+    const cell = t.closest<HTMLElement>('.bcal__cell[data-iso]');
+    if (!cell) return;
+    hoverIso = cell.getAttribute('data-iso');
+    paint();
+  });
+  panes.addEventListener('mouseleave', () => { hoverIso = null; paint(); });
+
+  prevBtn.addEventListener('click', () => {
+    if (currentLeft > 0) { currentLeft -= 1; showPanes(); }
+  });
+  nextBtn.addEventListener('click', () => {
+    const maxLeft = twoUp ? 2 : 3;
+    if (currentLeft < maxLeft) { currentLeft += 1; showPanes(); }
+  });
+
+  const mq = window.matchMedia('(min-width: 720px)');
+  mq.addEventListener('change', (ev) => {
+    twoUp = ev.matches;
+    const maxLeft = twoUp ? 2 : 3;
+    if (currentLeft > maxLeft) currentLeft = maxLeft;
+    showPanes();
+  });
+
+  showPanes();
+
+  fetch('/api/availability', { headers: { 'Accept': 'application/json' } })
+    .then(r => r.json() as Promise<AvailabilityResp>)
+    .then(data => {
+      if (!data || !data.ok) throw new Error('bad response');
+      blocked = new Set(data.blocked);
+      pending = new Set(data.pending);
+      pricing = data.pricing as unknown as Record<number, number>;
+      minNights = data.minNights;
+      seasonStart = data.season.start;
+      seasonEnd   = data.season.end;
+      currentLeft = defaultLeft();
+      root.removeAttribute('data-loading');
+      hintEl.textContent = `Click an available date to set your check-in (minimum ${minNights} nights).`;
+      showPanes();
+      paint();
+    })
+    .catch(() => {
+      showPanes();
+      hintEl.textContent = 'Could not load availability. Please refresh the page.';
+    });
+
+  (window as unknown as { bookingCalendar: { setRange: (a: string, b: string) => void } }).bookingCalendar = {
+    setRange(a: string, b: string) {
+      checkIn = a; checkOut = b; paint(); emit();
+    },
+  };
+</script>
+
+<style>
+  .bcal {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .bcal[data-loading="1"] .bcal__panes,
+  .bcal[data-loading="1"] .bcal__header { opacity: 0.55; pointer-events: none; }
+
+  .bcal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .bcal__titles {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 1rem;
+  }
+
+  .bcal__title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ocean-blue);
+  }
+
+  .bcal__nav {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--soft-sky);
+    border: none;
+    border-radius: var(--radius);
+    color: var(--ocean-blue);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+  .bcal__nav:hover:not(:disabled) {
+    background: var(--sky-blue);
+    color: var(--white);
+  }
+  .bcal__nav:disabled { opacity: 0.3; cursor: default; }
+
+  .bcal__panes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .bcal__pane {
+    min-width: 0;
+  }
+
+  .bcal__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .bcal__dow {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    text-align: center;
+    padding-bottom: 0.4rem;
+  }
+
+  .bcal__cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-dark);
+    padding: 0;
+    transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .bcal__cell--empty { cursor: default; }
+
+  .bcal__cell--available {
+    background: #c6e8f7;
+    color: var(--ocean-blue);
+  }
+  .bcal__cell--available:hover { background: #a3d6ed; }
+
+  .bcal__cell--blocked {
+    background: #d4d9de;
+    color: #8a9db0;
+    text-decoration: line-through;
+    cursor: not-allowed;
+  }
+
+  .bcal__cell--pending {
+    background: repeating-linear-gradient(45deg, #f4dca0, #f4dca0 4px, #f7e8c4 4px, #f7e8c4 8px);
+    color: #8a6d2a;
+    cursor: not-allowed;
+  }
+
+  .bcal__cell--past {
+    background: transparent;
+    color: var(--text-light);
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  .bcal__cell--today { outline: 2px solid var(--sky-blue); outline-offset: -2px; }
+
+  .bcal__cell--in-range {
+    background: rgba(26,95,173,0.18);
+    color: var(--ocean-blue);
+  }
+
+  .bcal__cell--selected {
+    background: var(--ocean-blue) !important;
+    color: var(--white) !important;
+    text-decoration: none !important;
+  }
+  .bcal__cell--checkin  { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+  .bcal__cell--checkout { border-top-left-radius: 4px;  border-bottom-left-radius: 4px;  }
+
+  .bcal__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-top: 1.25rem;
+  }
+  .bcal__legend span { display: flex; align-items: center; gap: 0.4rem; }
+
+  .bcal__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .bcal__dot--available { background: #c6e8f7; }
+  .bcal__dot--blocked   { background: #d4d9de; }
+  .bcal__dot--pending   { background: repeating-linear-gradient(45deg, #f4dca0, #f4dca0 3px, #f7e8c4 3px, #f7e8c4 6px); }
+  .bcal__dot--selected  { background: var(--ocean-blue); }
+
+  .bcal__hint {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  @media (max-width: 720px) {
+    .bcal__panes { grid-template-columns: 1fr; gap: 0; }
+    .bcal__title--right { display: none; }
+    .bcal__titles { justify-content: center; }
+  }
+</style>

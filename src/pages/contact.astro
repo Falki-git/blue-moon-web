@@ -4,15 +4,27 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
 ---
 
 <PageLayout
-  title="Contact & Booking Inquiry | Blue Moon Apartment, Mandre"
-  description="Send a booking inquiry or contact Goran at Blue Moon Apartment, Mandre, island of Pag. Email, WhatsApp, or fill in the form — we respond within 24 hours."
+  title="Contact | Blue Moon Apartment, Mandre"
+  description="Get in touch with Goran at Blue Moon Apartment, Mandre, island of Pag. Email, WhatsApp, or fill in the form — we respond within 24 hours."
   pageTitle="Get In Touch"
-  pageSubtitle="We respond to all inquiries within 24 hours"
-  label="Contact & Booking"
+  pageSubtitle="Questions about the apartment, the area, or your stay — we're happy to help"
+  label="Contact"
   bgImage={heroImg}
   heroObjectPosition="center 20%"
   showHeroLogo={true}
 >
+
+  <section class="section-sm" style="background: var(--warm-sand);">
+    <div class="container">
+      <div class="contact-cta">
+        <div class="contact-cta__msg">
+          <strong>Already know your dates?</strong>
+          <span> See live availability and request a reservation directly.</span>
+        </div>
+        <a href="/booking" class="btn btn-primary">Book directly →</a>
+      </div>
+    </div>
+  </section>
 
   <section class="section">
     <div class="container">
@@ -277,6 +289,24 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
 </PageLayout>
 
 <style>
+  .contact-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.75rem;
+    box-shadow: var(--shadow-xs);
+    border-left: 4px solid var(--ocean-blue);
+  }
+  .contact-cta__msg strong { color: var(--ocean-blue); font-size: 1rem; }
+  .contact-cta__msg span   { color: var(--text-muted); font-size: 0.9rem; }
+  .contact-cta .btn { white-space: nowrap; flex-shrink: 0; }
+  @media (max-width: 640px) {
+    .contact-cta { flex-direction: column; align-items: stretch; text-align: center; }
+  }
+
   .contact-layout {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
