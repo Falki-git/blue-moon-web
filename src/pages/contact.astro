@@ -220,7 +220,9 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
                 <textarea id="message" name="message" rows="4" placeholder="Tell us anything — questions about the apartment, arrival time, special requests, or anything else you'd like to know about Mandre..."></textarea>
               </div>
 
-              <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div>
+              <div class="cf-turnstile-wrap">
+                <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div>
+              </div>
 
               <div class="form-group form-group--submit">
                 <button type="submit" class="btn btn-primary btn-submit" id="submitBtn">
@@ -339,9 +341,9 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
     box-shadow: var(--shadow-xs);
   }
   .contact-method__icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
-  .contact-method div   { display: flex; flex-direction: column; gap: 0.15rem; }
+  .contact-method div   { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
   .contact-method strong { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
-  .contact-method a, .contact-method span { font-size: 0.9rem; font-weight: 600; color: var(--ocean-blue); }
+  .contact-method a, .contact-method span { font-size: 0.9rem; font-weight: 600; color: var(--ocean-blue); overflow-wrap: break-word; min-width: 0; }
   .contact-method a { text-decoration: none; transition: color 0.2s; }
   .contact-method a:hover { color: var(--sky-blue); }
 
@@ -520,7 +522,12 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
 
   @media (max-width: 960px) {
     .contact-layout { grid-template-columns: 1fr; }
+    /* Prevent grid children from forcing the grid wider than its container */
+    .contact-layout > * { min-width: 0; }
   }
+  /* Prevent the Turnstile iframe (fixed ~300px) from overflowing its container */
+  .cf-turnstile-wrap { overflow: hidden; border-radius: var(--radius); }
+
   @media (max-width: 640px) {
     .form-row { grid-template-columns: 1fr; }
     .contact-form-card { padding: 1.5rem; }

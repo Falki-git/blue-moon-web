@@ -195,7 +195,9 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
               <textarea id="bk-message" name="message" rows="4" placeholder="Arrival time, dietary needs, anniversary, anything we should know…"></textarea>
             </div>
 
-            <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div>
+            <div class="cf-turnstile-wrap">
+              <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div>
+            </div>
 
             <div class="form-group form-group--submit">
               <button type="submit" class="btn btn-primary btn-submit" id="bkSubmit" disabled>
@@ -556,8 +558,13 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
   .faq-item p { font-size:0.88rem; color:var(--text-muted); }
   .faq-item a { color: var(--sky-blue); font-weight: 700; }
 
+  /* Prevent the Turnstile iframe (fixed ~300px) from overflowing its container */
+  .cf-turnstile-wrap { overflow: hidden; border-radius: var(--radius); }
+
   @media (max-width: 980px) {
     .bk-pick { grid-template-columns: 1fr; }
+    /* min-width: 0 prevents grid children from forcing the grid wider than its container */
+    .bk-pick > * { min-width: 0; }
     .bk-pick__sum { position: static; }
   }
   @media (max-width: 720px) {
@@ -569,6 +576,13 @@ import heroImg from '../assets/gallery/terrace-14.jpg';
     .form-row { grid-template-columns: 1fr; }
     .bk-form-card { padding: 1.5rem; }
     .policies-grid { grid-template-columns: 1fr; }
+  }
+  /* Stack check-in/check-out dates vertically on very narrow screens so they don't overflow */
+  @media (max-width: 420px) {
+    .bk-sum-card { padding: 1.25rem; }
+    .bk-sum__dates { grid-template-columns: 1fr; gap: 0.75rem; }
+    .bk-sum__arrow { display: none; }
+    .bk-sum__value { font-size: 0.9rem; }
   }
 </style>
 
