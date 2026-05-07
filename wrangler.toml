@@ -61,4 +61,4 @@ CONTACT_TO_EMAIL = "bluemoon.mandre@gmail.com"
 [[env.development.d1_databases]]
 binding       = "DB"
 database_name = "blue-moon-dev"
-database_id   = "REPLACE_WITH_DEV_DB_ID"
+database_id   = "b46207a8-3c3b-41d4-b2b0-ec1f11fbbf14"
