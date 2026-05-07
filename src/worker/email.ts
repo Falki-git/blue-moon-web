@@ -76,6 +76,7 @@ export function buildOwnerBookingNotification(
   <tr><td><strong>Email:</strong></td><td>${esc(r.email)}</td></tr>
   ${r.phone    ? `<tr><td><strong>Phone:</strong></td><td>${esc(r.phone)}</td></tr>`    : ''}
   ${r.language ? `<tr><td><strong>Language:</strong></td><td>${esc(r.language)}</td></tr>` : ''}
+  ${r.country  ? `<tr><td><strong>Country:</strong></td><td>${esc(r.country)}</td></tr>`  : ''}
   ${r.address  ? `<tr><td><strong>Address:</strong></td><td>${esc(r.address)}</td></tr>` : ''}
   ${r.source   ? `<tr><td><strong>Heard via:</strong></td><td>${esc(r.source)}</td></tr>`  : ''}
   ${summaryRowsHtml(r)}
@@ -94,7 +95,8 @@ export function buildOwnerBookingNotification(
     `Email: ${r.email}`,
     r.phone    ? `Phone: ${r.phone}`       : null,
     r.language ? `Language: ${r.language}` : null,
-    r.address  ? `Address: ${r.address}`   : null,
+    r.country  ? `Country:  ${r.country}`  : null,
+    r.address  ? `Address:  ${r.address}`  : null,
     r.source   ? `Heard via: ${r.source}`  : null,
     `Check-in:  ${r.check_in}`,
     `Check-out: ${r.check_out}`,

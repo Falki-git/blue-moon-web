@@ -146,7 +146,7 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
         <div class="contact-form-wrap">
           <div class="contact-form-card">
             <h3>Contact us</h3>
-            <p class="form-intro">Tell us your dates, number of guests, and any questions. We'll confirm availability and send you all the details.</p>
+            <p class="form-intro">Have a question about the apartment, the area, or your stay? Send us a message and we'll get back to you within 24 hours.</p>
 
             <form
               class="contact-form"
@@ -171,53 +171,15 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
                 </div>
               </div>
 
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="phone">Phone Number <span class="optional">(optional)</span></label>
-                  <input type="tel" id="phone" name="phone" placeholder="+49 123 456 789" autocomplete="tel" />
-                </div>
-                <div class="form-group">
-                  <label for="language">Preferred Language</label>
-                  <select id="language" name="language">
-                    <option value="en">🇬🇧 English</option>
-                    <option value="hr">🇭🇷 Croatian</option>
-                    <option value="de">🇩🇪 German</option>
-                    <option value="si">🇸🇮 Slovenian</option>
-                    <option value="it">🇮🇹 Italian</option>
-                    <option value="pl">🇵🇱 Polish</option>
-                    <option value="cz">🇨🇿 Czech</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="checkin">Check-in Date <span class="required">*</span></label>
-                  <input type="date" id="checkin" name="checkin" required min="2026-06-01" max="2026-09-27" />
-                  <span class="form-error" aria-live="polite"></span>
-                </div>
-                <div class="form-group">
-                  <label for="checkout">Check-out Date <span class="required">*</span></label>
-                  <input type="date" id="checkout" name="checkout" required min="2026-06-06" max="2026-09-30" />
-                  <span class="form-error" aria-live="polite"></span>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="guests">Number of Guests <span class="required">*</span></label>
-                  <input type="number" id="guests" name="guests" min="1" max="6" value="2" required />
-                  <span class="form-hint">Maximum 6 guests (including children)</span>
-                </div>
-                <div class="form-group">
-                  <label for="children">Children (ages)</label>
-                  <input type="text" id="children" name="children" placeholder="e.g. 4 and 7 years old" />
-                </div>
+              <div class="form-group" style="margin-top: -1rem;">
+                <label for="phone">Phone Number <span class="optional">(optional)</span></label>
+                <input type="tel" id="phone" name="phone" placeholder="+49 123 456 789" autocomplete="tel" />
               </div>
 
               <div class="form-group">
-                <label for="message">Message / Special Requests</label>
-                <textarea id="message" name="message" rows="4" placeholder="Tell us anything — questions about the apartment, arrival time, special requests, or anything else you'd like to know about Mandre..."></textarea>
+                <label for="message">Your Message <span class="required">*</span></label>
+                <textarea id="message" name="message" rows="5" required placeholder="Tell us what's on your mind — questions about the apartment, the area, local tips, or anything else you'd like to know..."></textarea>
+                <span class="form-error" aria-live="polite"></span>
               </div>
 
               <div class="cf-turnstile-wrap">
@@ -261,8 +223,8 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
       </div>
       <div class="faq-grid">
         <div class="faq-item">
-          <h4>How do I confirm a booking?</h4>
-          <p>Send a message with your dates. We'll confirm availability and send you a booking confirmation. A 30% deposit secures your reservation.</p>
+          <h4>How do I make a reservation?</h4>
+          <p>Use the <a href="/booking">booking page</a> to check live availability and request a reservation. A 30% deposit secures your dates once we confirm.</p>
         </div>
         <div class="faq-item">
           <h4>What payment methods do you accept?</h4>
@@ -281,8 +243,16 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
           <p>The garage accommodates vehicles up to 2.60m wide and 2.40m high. A standard outdoor parking space is also available.</p>
         </div>
         <div class="faq-item">
+          <h4>We're arriving with two cars — is there space for both?</h4>
+          <p>Yes — the property has both a private garage and a dedicated outdoor parking space, so two cars are no problem.</p>
+        </div>
+        <div class="faq-item">
           <h4>Can you accommodate early check-in?</h4>
           <p>We'll do our best! Early check-in and late check-out are subject to availability. Just let us know.</p>
+        </div>
+        <div class="faq-item">
+          <h4>What kind of coffee machine do you have?</h4>
+          <p>We have a Dolce Gusto machine. Additional capsules are available at the local Konzum market if you'd like to stock up.</p>
         </div>
       </div>
     </div>
@@ -539,36 +509,16 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
   const form        = document.getElementById('contactForm') as HTMLFormElement | null;
   const submitBtn   = document.getElementById('submitBtn') as HTMLButtonElement | null;
   const formSuccess = document.getElementById('formSuccess') as HTMLElement | null;
-  const checkinInput  = document.getElementById('checkin')  as HTMLInputElement | null;
-  const checkoutInput = document.getElementById('checkout') as HTMLInputElement | null;
-
-  // Set min dates
-  if (checkinInput) {
-    checkinInput.min = '2026-06-01';
-    checkinInput.max = '2026-09-27';
-  }
-
-  // Keep checkout min = checkin + 5 days
-  checkinInput?.addEventListener('change', () => {
-    if (!checkinInput.value || !checkoutInput) return;
-    const checkinDate = new Date(checkinInput.value);
-    checkinDate.setDate(checkinDate.getDate() + 5);
-    const minCheckout = checkinDate.toISOString().split('T')[0];
-    checkoutInput.min = minCheckout;
-    if (checkoutInput.value && checkoutInput.value < minCheckout) {
-      checkoutInput.value = minCheckout;
-    }
-  });
 
   // Simple client-side validation
-  function validateField(input: HTMLInputElement) {
+  function validateField(input: HTMLInputElement | HTMLTextAreaElement) {
     const errorEl = input.parentElement?.querySelector('.form-error');
     if (input.required && !input.value.trim()) {
       input.classList.add('is-error');
       if (errorEl) errorEl.textContent = 'This field is required.';
       return false;
     }
-    if (input.type === 'email' && input.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
+    if (input instanceof HTMLInputElement && input.type === 'email' && input.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
       input.classList.add('is-error');
       if (errorEl) errorEl.textContent = 'Please enter a valid email address.';
       return false;
@@ -582,7 +532,7 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const inputs = form.querySelectorAll<HTMLInputElement>('input[required], select[required]');
+    const inputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[required], textarea[required]');
     let valid = true;
     inputs.forEach(input => { if (!validateField(input)) valid = false; });
     if (!valid) return;

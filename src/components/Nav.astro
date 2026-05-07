@@ -4,9 +4,9 @@ const navLinks = [
   { href: '/apartment',    label: 'Apartment' },
   { href: '/gallery',      label: 'Gallery' },
   { href: '/pricelist',    label: 'Pricelist' },
-  { href: '/about-mandre', label: 'About Mandre' },
-  { href: '/reviews',      label: 'Reviews' },
   { href: '/booking',      label: 'Booking' },
+  { href: '/reviews',      label: 'Reviews' },
+  { href: '/about-mandre', label: 'About Mandre' },
   { href: '/contact',      label: 'Contact' },
 ];
 
@@ -62,7 +62,7 @@ const currentPath = Astro.url.pathname;
       </ul>
 
       <div class="nav__lang" role="navigation" aria-label="Language switcher">
-        <button class="nav__lang-trigger" aria-haspopup="true" aria-expanded="false" id="langBtn">
+        <button class="nav__lang-trigger" aria-haspopup="true" aria-expanded="false" id="langBtn" disabled title="Language selection coming soon">
           🇬🇧 <span>EN</span> <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </button>
         <ul class="nav__lang-menu" role="listbox" aria-label="Select language" id="langMenu">
@@ -166,7 +166,8 @@ const currentPath = Astro.url.pathname;
     transition: background 0.2s;
     white-space: nowrap;
   }
-  .nav__lang-trigger:hover { background: rgba(74,159,212,0.18); }
+  .nav__lang-trigger:hover:not(:disabled) { background: rgba(74,159,212,0.18); }
+  .nav__lang-trigger:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .nav__lang-menu {
     position: absolute;
