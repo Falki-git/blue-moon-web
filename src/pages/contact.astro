@@ -26,7 +26,7 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="contactSection">
     <div class="container">
       <div class="contact-layout">
 
@@ -602,6 +602,7 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
       if (data.ok) {
         form.style.display = 'none';
         if (formSuccess) formSuccess.hidden = false;
+        document.getElementById('contactSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
         throw new Error(data.error ?? 'Something went wrong.');
       }
