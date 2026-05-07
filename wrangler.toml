@@ -37,7 +37,7 @@ CONTACT_TO_EMAIL = "bluemoon.mandre@gmail.com"
 [[env.production.d1_databases]]
 binding       = "DB"
 database_name = "blue-moon-prod"
-database_id   = "REPLACE_WITH_PROD_DB_ID"
+database_id   = "fbc557df-f86e-445e-a710-002cc732d4f4"
 
 [env.development]
 name = "dev-blue-moon-web"
