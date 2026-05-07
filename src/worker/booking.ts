@@ -59,7 +59,8 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
   const fullName = String(body.fullName ?? '').trim();
   const email    = String(body.email    ?? '').trim();
   const phone    = String(body.phone    ?? '').trim();
-  const language = String(body.language ?? 'en').trim();
+  const acceptLang = request.headers.get('Accept-Language') ?? '';
+  const language = acceptLang.split(',')[0].split('-')[0].trim() || 'en';
   const address  = String(body.address  ?? '').trim();
   const source   = String(body.source   ?? '').trim();
   const children = String(body.children ?? '').trim();

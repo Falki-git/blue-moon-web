@@ -46,27 +46,29 @@ export async function handleContact(request: Request, env: Env, ctx: ExecutionCo
   const email    = String(body.email    ?? '').trim();
   const checkin  = String(body.checkin  ?? '').trim();
   const checkout = String(body.checkout ?? '').trim();
-  const guests   = Number(body.guests);
+  const guests   = body.guests ? Number(body.guests) : null;
   const phone    = String(body.phone    ?? '').trim();
-  const language = String(body.language ?? 'en').trim();
+  const acceptLang = request.headers.get('Accept-Language') ?? '';
+  const language = acceptLang.split(',')[0].split('-')[0].trim() || 'en';
   const children = String(body.children ?? '').trim();
   const message  = String(body.message  ?? '').trim();
   const tsToken  = String(body['cf-turnstile-response'] ?? '');
 
-  if (!fullName)                           return err(400, 'Full name is required');
-  if (!email || !EMAIL_RE.test(email))     return err(400, 'Valid email is required');
-  if (!checkin)                            return err(400, 'Check-in date is required');
-  if (!checkout)                           return err(400, 'Check-out date is required');
-  if (!guests || guests < 1 || guests > 6) return err(400, 'Guests must be between 1 and 6');
+  if (!fullName)                       return err(400, 'Full name is required');
+  if (!email || !EMAIL_RE.test(email)) return err(400, 'Valid email is required');
+  if (!message)                        return err(400, 'Message is required');
 
-  if (checkin < SEASON_START || checkin > '2026-09-27') {
+  if (checkin && (checkin < SEASON_START || checkin > '2026-09-27')) {
     return err(400, 'Check-in must be within the season (1 Jun – 27 Sep 2026)');
   }
-  if (checkout < '2026-06-04' || checkout > SEASON_END) {
+  if (checkout && (checkout < '2026-06-04' || checkout > SEASON_END)) {
     return err(400, 'Check-out must be within the season (4 Jun – 30 Sep 2026)');
   }
-  if (checkout < addDays(checkin, 5)) {
+  if (checkin && checkout && checkout < addDays(checkin, 5)) {
     return err(400, 'Minimum stay is 5 nights');
+  }
+  if (guests !== null && (guests < 1 || guests > 6)) {
+    return err(400, 'Guests must be between 1 and 6');
   }
 
   // Turnstile verification
@@ -80,36 +82,38 @@ export async function handleContact(request: Request, env: Env, ctx: ExecutionCo
   if (!tsData.success) return err(400, 'Security check failed. Please try again.');
 
   const lang   = LANG_MAP[language] ?? language;
-  const nights = Math.round((new Date(checkout).getTime() - new Date(checkin).getTime()) / 86_400_000);
+  const nights = (checkin && checkout)
+    ? Math.round((new Date(checkout).getTime() - new Date(checkin).getTime()) / 86_400_000)
+    : null;
 
   // Owner notification email
   const ownerHtml = `
-<h2>New Booking Inquiry</h2>
+<h2>New Message</h2>
 <table cellpadding="6">
   <tr><td><strong>Name:</strong></td><td>${esc(fullName)}</td></tr>
   <tr><td><strong>Email:</strong></td><td>${esc(email)}</td></tr>
   ${phone    ? `<tr><td><strong>Phone:</strong></td><td>${esc(phone)}</td></tr>`    : ''}
   <tr><td><strong>Language:</strong></td><td>${esc(lang)}</td></tr>
-  <tr><td><strong>Check-in:</strong></td><td>${esc(checkin)}</td></tr>
-  <tr><td><strong>Check-out:</strong></td><td>${esc(checkout)}</td></tr>
-  <tr><td><strong>Nights:</strong></td><td>${nights}</td></tr>
-  <tr><td><strong>Guests:</strong></td><td>${guests}</td></tr>
+  ${checkin  ? `<tr><td><strong>Check-in:</strong></td><td>${esc(checkin)}</td></tr>`   : ''}
+  ${checkout ? `<tr><td><strong>Check-out:</strong></td><td>${esc(checkout)}</td></tr>` : ''}
+  ${nights !== null ? `<tr><td><strong>Nights:</strong></td><td>${nights}</td></tr>`    : ''}
+  ${guests !== null ? `<tr><td><strong>Guests:</strong></td><td>${guests}</td></tr>`    : ''}
   ${children ? `<tr><td><strong>Children:</strong></td><td>${esc(children)}</td></tr>` : ''}
   ${message  ? `<tr><td><strong>Message:</strong></td><td>${esc(message)}</td></tr>`   : ''}
 </table>`.trim();
 
   const ownerText = [
-    'New Booking Inquiry',
+    'New Message',
     `Name: ${fullName}`,
     `Email: ${email}`,
-    phone    ? `Phone: ${phone}`       : null,
+    phone         ? `Phone: ${phone}`         : null,
     `Language: ${lang}`,
-    `Check-in: ${checkin}`,
-    `Check-out: ${checkout}`,
-    `Nights: ${nights}`,
-    `Guests: ${guests}`,
-    children ? `Children: ${children}` : null,
-    message  ? `Message: ${message}`   : null,
+    checkin       ? `Check-in: ${checkin}`    : null,
+    checkout      ? `Check-out: ${checkout}`  : null,
+    nights !== null ? `Nights: ${nights}`     : null,
+    guests !== null ? `Guests: ${guests}`     : null,
+    children      ? `Children: ${children}`   : null,
+    message       ? `Message: ${message}`     : null,
   ].filter(Boolean).join('\n');
 
   const ownerRes = await fetch('https://api.resend.com/emails', {
@@ -119,7 +123,9 @@ export async function handleContact(request: Request, env: Env, ctx: ExecutionCo
       from: FROM,
       to: env.CONTACT_TO_EMAIL,
       reply_to: email,
-      subject: `New booking inquiry — ${fullName} (${checkin} → ${checkout})`,
+      subject: checkin && checkout
+        ? `New message — ${fullName} (${checkin} → ${checkout})`
+        : `New message — ${fullName}`,
       html: ownerHtml,
       text: ownerText,
     }),
@@ -132,33 +138,32 @@ export async function handleContact(request: Request, env: Env, ctx: ExecutionCo
 
   // Guest acknowledgment — fire-and-forget, never blocks the response
   const firstName = fullName.split(' ')[0];
+  const summaryRows = [
+    checkin       ? `<tr><td><strong>Check-in:</strong></td><td>${esc(checkin)}</td></tr>`    : '',
+    checkout      ? `<tr><td><strong>Check-out:</strong></td><td>${esc(checkout)}</td></tr>`  : '',
+    nights !== null ? `<tr><td><strong>Duration:</strong></td><td>${nights} night${nights !== 1 ? 's' : ''}</td></tr>` : '',
+    guests !== null ? `<tr><td><strong>Guests:</strong></td><td>${guests}</td></tr>`           : '',
+  ].filter(Boolean).join('\n');
+
   const guestHtml = `
 <h2>Thank you, ${esc(firstName)}!</h2>
-<p>We received your inquiry and will get back to you within 24 hours.</p>
-<h3>Your inquiry summary</h3>
-<table cellpadding="6">
-  <tr><td><strong>Check-in:</strong></td><td>${esc(checkin)}</td></tr>
-  <tr><td><strong>Check-out:</strong></td><td>${esc(checkout)}</td></tr>
-  <tr><td><strong>Duration:</strong></td><td>${nights} night${nights !== 1 ? 's' : ''}</td></tr>
-  <tr><td><strong>Guests:</strong></td><td>${guests}</td></tr>
-</table>
+<p>We received your message and will get back to you within 24 hours.</p>
+${summaryRows ? `<h3>Your inquiry summary</h3><table cellpadding="6">${summaryRows}</table>` : ''}
 <p>In the meantime, feel free to explore our <a href="https://bluemoonmandre.eu/gallery">gallery</a> or learn more about <a href="https://bluemoonmandre.eu/about-mandre">Mandre</a>.</p>
 <p>— Goran, Blue Moon Apartment<br><a href="https://bluemoonmandre.eu">bluemoonmandre.eu</a></p>`.trim();
 
   const guestText = [
     `Thank you, ${firstName}!`,
     '',
-    'We received your inquiry and will get back to you within 24 hours.',
-    '',
-    'Your inquiry summary:',
-    `Check-in:  ${checkin}`,
-    `Check-out: ${checkout}`,
-    `Duration:  ${nights} night${nights !== 1 ? 's' : ''}`,
-    `Guests:    ${guests}`,
+    'We received your message and will get back to you within 24 hours.',
+    checkin       ? `\nCheck-in:  ${checkin}`                                              : null,
+    checkout      ? `Check-out: ${checkout}`                                               : null,
+    nights !== null ? `Duration:  ${nights} night${nights !== 1 ? 's' : ''}`              : null,
+    guests !== null ? `Guests:    ${guests}`                                               : null,
     '',
     '— Goran, Blue Moon Apartment',
     'https://bluemoonmandre.eu',
-  ].join('\n');
+  ].filter(s => s !== null).join('\n');
 
   ctx.waitUntil(
     fetch('https://api.resend.com/emails', {
