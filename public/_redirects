@@ -1,4 +1,4 @@
-# Cloudflare Pages redirect rules
+# Cloudflare Workers static-asset redirect rules
 # Language prefix fallback — future i18n routes
 /hr/*  /hr/:splat  200
 /de/*  /de/:splat  200
