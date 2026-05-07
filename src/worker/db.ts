@@ -8,6 +8,7 @@ export interface ReservationRow {
   email: string;
   phone: string | null;
   language: string | null;
+  country: string | null;
   address: string | null;
   source: string | null;
   guests: number;
@@ -124,6 +125,7 @@ export interface InsertReservationInput {
   email: string;
   phone: string | null;
   language: string | null;
+  country: string | null;
   address: string | null;
   source: string | null;
   guests: number;
@@ -139,12 +141,12 @@ export interface InsertReservationInput {
 export async function insertReservation(db: D1Database, row: InsertReservationInput): Promise<void> {
   await db.prepare(
     `INSERT INTO reservations
-      (id, created_at, status, full_name, email, phone, language, address, source,
+      (id, created_at, status, full_name, email, phone, language, country, address, source,
        guests, children_ages, check_in, check_out, nights, total_eur, message, decision_token)
      VALUES
-      (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16)`
+      (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)`
   ).bind(
-    row.id, row.status, row.full_name, row.email, row.phone, row.language, row.address, row.source,
+    row.id, row.status, row.full_name, row.email, row.phone, row.language, row.country, row.address, row.source,
     row.guests, row.children_ages, row.check_in, row.check_out, row.nights, row.total_eur,
     row.message, row.decision_token,
   ).run();

@@ -61,6 +61,7 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
   const phone    = String(body.phone    ?? '').trim();
   const acceptLang = request.headers.get('Accept-Language') ?? '';
   const language = acceptLang.split(',')[0].split('-')[0].trim() || 'en';
+  const country  = String(body.country  ?? '').trim();
   const address  = String(body.address  ?? '').trim();
   const source   = String(body.source   ?? '').trim();
   const children = String(body.children ?? '').trim();
@@ -72,6 +73,8 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
 
   if (!fullName)                           return err(400, 'Full name is required');
   if (!email || !EMAIL_RE.test(email))     return err(400, 'Valid email is required');
+  if (!phone)                              return err(400, 'Phone number is required');
+  if (!country)                            return err(400, 'Country is required');
   if (!checkin)                            return err(400, 'Check-in date is required');
   if (!checkout)                           return err(400, 'Check-out date is required');
   if (!guests || guests < 1 || guests > 6) return err(400, 'Guests must be between 1 and 6');
@@ -106,7 +109,7 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
   await insertReservation(env.DB, {
     id, status: 'pending',
     full_name: fullName, email, phone: phone || null, language: language || null,
-    address: address || null, source: source || null,
+    country: country || null, address: address || null, source: source || null,
     guests, children_ages: children || null,
     check_in: checkin, check_out: checkout, nights,
     total_eur: total.totalEur, message: message || null,
