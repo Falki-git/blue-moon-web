@@ -7,8 +7,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "deploy": "npx wrangler deploy --env production",
-    "db:migrate:dev":  "npx wrangler d1 execute blue-moon-dev  --env development --local  --file=migrations/0001_init.sql",
-    "db:migrate:prod": "npx wrangler d1 execute blue-moon-prod --env production  --remote --file=migrations/0001_init.sql"
+    "db:migrate:dev":        "npx wrangler d1 execute blue-moon-dev  --env development --local  --file=migrations/0001_init.sql",
+    "db:migrate:dev:remote": "npx wrangler d1 execute blue-moon-dev  --env development --remote --file=migrations/0001_init.sql",
+    "db:migrate:prod":       "npx wrangler d1 execute blue-moon-prod --env production  --remote --file=migrations/0001_init.sql"
   },
   "dependencies": {
     "astro": "^4.16.0"
