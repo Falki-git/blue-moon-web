@@ -1,4 +1,5 @@
 import type { Env } from './index';
+import { esc, emailShell, detailRow, detailTable, sectionHeading } from './email';
 
 const EMAIL_RE     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SEASON_START = '2026-06-01';
@@ -12,14 +13,6 @@ const LANG_MAP: Record<string, string> = {
 
 function err(status: number, error: string): Response {
   return Response.json({ ok: false, error }, { status });
-}
-
-function esc(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
 
 function addDays(dateStr: string, days: number): string {
@@ -87,20 +80,24 @@ export async function handleContact(request: Request, env: Env, ctx: ExecutionCo
     : null;
 
   // Owner notification email
-  const ownerHtml = `
-<h2>New Message</h2>
-<table cellpadding="6">
-  <tr><td><strong>Name:</strong></td><td>${esc(fullName)}</td></tr>
-  <tr><td><strong>Email:</strong></td><td>${esc(email)}</td></tr>
-  ${phone    ? `<tr><td><strong>Phone:</strong></td><td>${esc(phone)}</td></tr>`    : ''}
-  <tr><td><strong>Language:</strong></td><td>${esc(lang)}</td></tr>
-  ${checkin  ? `<tr><td><strong>Check-in:</strong></td><td>${esc(checkin)}</td></tr>`   : ''}
-  ${checkout ? `<tr><td><strong>Check-out:</strong></td><td>${esc(checkout)}</td></tr>` : ''}
-  ${nights !== null ? `<tr><td><strong>Nights:</strong></td><td>${nights}</td></tr>`    : ''}
-  ${guests !== null ? `<tr><td><strong>Guests:</strong></td><td>${guests}</td></tr>`    : ''}
-  ${children ? `<tr><td><strong>Children:</strong></td><td>${esc(children)}</td></tr>` : ''}
-  ${message  ? `<tr><td><strong>Message:</strong></td><td>${esc(message)}</td></tr>`   : ''}
-</table>`.trim();
+  const ownerRows = [
+    detailRow('Name',     `<strong>${esc(fullName)}</strong>`),
+    detailRow('Email',    `<a href="mailto:${esc(email)}" style="color:#1A5FAD;text-decoration:none;">${esc(email)}</a>`),
+    phone         ? detailRow('Phone',    esc(phone))       : null,
+    detailRow('Language', esc(lang)),
+    checkin       ? detailRow('Check-in', esc(checkin))     : null,
+    checkout      ? detailRow('Check-out', esc(checkout))   : null,
+    nights !== null ? detailRow('Nights', String(nights))   : null,
+    guests !== null ? detailRow('Guests', String(guests))   : null,
+    children      ? detailRow('Children', esc(children))    : null,
+    message       ? detailRow('Message', `<em>${esc(message)}</em>`) : null,
+  ].filter((s): s is string => s !== null).join('\n');
+
+  const ownerHtml = emailShell(`
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 8px;">New Inquiry</div>
+<p style="margin:0 0 20px;font-size:15px;color:#5a7080;">A guest sent a message via the contact form.</p>
+${sectionHeading('Message Details')}
+${detailTable(ownerRows)}`);
 
   const ownerText = [
     'New Message',
@@ -138,32 +135,35 @@ export async function handleContact(request: Request, env: Env, ctx: ExecutionCo
 
   // Guest acknowledgment — fire-and-forget, never blocks the response
   const firstName = fullName.split(' ')[0];
-  const summaryRows = [
-    checkin       ? `<tr><td><strong>Check-in:</strong></td><td>${esc(checkin)}</td></tr>`    : '',
-    checkout      ? `<tr><td><strong>Check-out:</strong></td><td>${esc(checkout)}</td></tr>`  : '',
-    nights !== null ? `<tr><td><strong>Duration:</strong></td><td>${nights} night${nights !== 1 ? 's' : ''}</td></tr>` : '',
-    guests !== null ? `<tr><td><strong>Guests:</strong></td><td>${guests}</td></tr>`           : '',
-  ].filter(Boolean).join('\n');
 
-  const guestHtml = `
-<h2>Thank you, ${esc(firstName)}!</h2>
-<p>We received your message and will get back to you within 24 hours.</p>
-${summaryRows ? `<h3>Your inquiry summary</h3><table cellpadding="6">${summaryRows}</table>` : ''}
-<p>In the meantime, feel free to explore our <a href="https://bluemoonmandre.eu/gallery">gallery</a> or learn more about <a href="https://bluemoonmandre.eu/about-mandre">Mandre</a>.</p>
-<p>— Goran, Blue Moon Apartment<br><a href="https://bluemoonmandre.eu">bluemoonmandre.eu</a></p>`.trim();
+  const guestSummaryRows = [
+    checkin       ? detailRow('Check-in',  esc(checkin))  : null,
+    checkout      ? detailRow('Check-out', esc(checkout)) : null,
+    nights !== null ? detailRow('Duration', `${nights} night${nights !== 1 ? 's' : ''}`) : null,
+    guests !== null ? detailRow('Guests',   String(guests)) : null,
+  ].filter((s): s is string => s !== null).join('\n');
+
+  const guestHtml = emailShell(`
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">Thank you, ${esc(firstName)}!</div>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">We received your message and will get back to you <strong>within 24 hours</strong>.</p>
+${guestSummaryRows ? `${sectionHeading('Your Inquiry')}${detailTable(guestSummaryRows)}` : ''}
+<p style="margin:0;font-size:14px;color:#5a7080;">In the meantime, feel free to explore our <a href="https://bluemoonmandre.eu/gallery" style="color:#1A5FAD;text-decoration:none;">gallery</a> or learn more about <a href="https://bluemoonmandre.eu/about-mandre" style="color:#1A5FAD;text-decoration:none;">Mandre</a>.</p>`);
 
   const guestText = [
     `Thank you, ${firstName}!`,
     '',
     'We received your message and will get back to you within 24 hours.',
-    checkin       ? `\nCheck-in:  ${checkin}`                                              : null,
-    checkout      ? `Check-out: ${checkout}`                                               : null,
-    nights !== null ? `Duration:  ${nights} night${nights !== 1 ? 's' : ''}`              : null,
-    guests !== null ? `Guests:    ${guests}`                                               : null,
+    checkin       ? `\nCheck-in:  ${checkin}`                                 : null,
+    checkout      ? `Check-out: ${checkout}`                                  : null,
+    nights !== null ? `Duration:  ${nights} night${nights !== 1 ? 's' : ''}` : null,
+    guests !== null ? `Guests:    ${guests}`                                  : null,
     '',
-    '— Goran, Blue Moon Apartment',
-    'https://bluemoonmandre.eu',
-  ].filter(s => s !== null).join('\n');
+    '--',
+    'Goran Falkoni',
+    'Apartment Blue Moon',
+    'E: bluemoon.mandre@gmail.com',
+    'T: +385 91 469 1204',
+  ].filter((s): s is string => s !== null).join('\n');
 
   ctx.waitUntil(
     fetch('https://api.resend.com/emails', {
@@ -173,7 +173,7 @@ ${summaryRows ? `<h3>Your inquiry summary</h3><table cellpadding="6">${summaryRo
         from: FROM,
         to: email,
         reply_to: env.CONTACT_TO_EMAIL,
-        subject: 'We received your inquiry — Blue Moon Apartment',
+        subject: 'We received your message — Blue Moon Apartment',
         html: guestHtml,
         text: guestText,
       }),
