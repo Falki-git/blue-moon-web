@@ -43,6 +43,7 @@ src/
     pricing.ts      # Per-month pricing logic, season config, deposit calculation
 public/
   images/           # logo.svg, nav-logo.svg, og-image.jpg, favicon.svg
+  robots.txt        # Crawler directives; references sitemap-index.xml
   _redirects        # Cloudflare Workers static-asset redirect rules
   _headers          # Cloudflare Workers static-asset security/cache headers
 ```
@@ -63,7 +64,7 @@ No test or lint scripts are configured.
 
 | File | Purpose |
 |------|---------|
-| `astro.config.mjs` | Site URL, `output: 'static'` mode |
+| `astro.config.mjs` | Site URL (`https://bluemoonmandre.eu`), `output: 'static'` mode, `@astrojs/sitemap` integration |
 | `wrangler.toml` | Cloudflare Workers config — Worker entry, assets binding, env vars, D1 bindings (dev + production) |
 | `src/styles/global.css` | CSS custom properties (colors, shadows, spacing), utility classes |
 | `src/env.d.ts` | Astro TypeScript ambient declarations |
@@ -77,7 +78,7 @@ No test or lint scripts are configured.
 | `src/pages/gallery.astro` | `/gallery` | Photo gallery with Astro Image component, JS filter, lightbox |
 | `src/pages/pricelist.astro` | `/pricelist` | Rates, policies, check-in times |
 | `src/pages/booking.astro` | `/booking` | Direct booking page — calendar, availability fetch, pricing calc, guest form + Turnstile |
-| `src/pages/booking/confirm.astro` | `/booking/confirm` | Post-submission confirmation screen |
+| `src/pages/booking/confirm.astro` | `/booking/confirm` | Post-submission confirmation screen (noindex) |
 | `src/pages/contact.astro` | `/contact` | Short inquiry form → `/api/contact` |
 | `src/pages/about-mandre.astro` | `/about-mandre` | Destination guide with image carousels and Google Maps embed |
 | `src/pages/reviews.astro` | `/reviews` | Guest testimonials |

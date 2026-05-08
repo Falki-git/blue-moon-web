@@ -123,6 +123,41 @@ const reviews = [
 ];
 
 const avgRating = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+
+const monthMap: Record<string, string> = {
+  January: '01', February: '02', March: '03', April: '04',
+  May: '05', June: '06', July: '07', August: '08',
+  September: '09', October: '10', November: '11', December: '12',
+};
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LodgingBusiness',
+  'name': 'Blue Moon Apartment',
+  'url': 'https://bluemoonmandre.eu',
+  'aggregateRating': {
+    '@type': 'AggregateRating',
+    'ratingValue': '10',
+    'bestRating': '10',
+    'worstRating': '1',
+    'reviewCount': '12',
+  },
+  'review': reviews.map(r => {
+    const [month, year] = r.date.split(' ');
+    return {
+      '@type': 'Review',
+      'name': r.title,
+      'reviewBody': r.text,
+      'datePublished': `${year}-${monthMap[month] ?? '01'}`,
+      'author': { '@type': 'Person', 'name': r.name },
+      'reviewRating': {
+        '@type': 'Rating',
+        'ratingValue': String(r.rating),
+        'bestRating': '10',
+        'worstRating': '1',
+      },
+    };
+  }),
+};
 ---
 
 <PageLayout
@@ -221,6 +256,8 @@ const avgRating = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).t
   </section>
 
 </PageLayout>
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
 <style>
   /* Rating summary */
