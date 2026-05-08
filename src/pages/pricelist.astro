@@ -34,7 +34,7 @@ import heroBg from '../assets/gallery/hallway-2.jpg';
           </div>
           <div class="season-card__price">
             <span class="season-card__currency">€</span>
-            <span class="season-card__amount">250</span>
+            <span class="season-card__amount" data-rate-month="6">199</span>
             <span class="season-card__per">/ night</span>
           </div>
           <a href="/booking?month=6" class="btn btn-sky" style="width:100%; justify-content:center;">Book Early Summer →</a>
@@ -51,7 +51,7 @@ import heroBg from '../assets/gallery/hallway-2.jpg';
           </div>
           <div class="season-card__price">
             <span class="season-card__currency">€</span>
-            <span class="season-card__amount">300</span>
+            <span class="season-card__amount" data-rate-month="7">279</span>
             <span class="season-card__per">/ night</span>
           </div>
           <a href="/booking?month=7" class="btn btn-gold" style="width:100%; justify-content:center;">Book Peak Season →</a>
@@ -67,7 +67,7 @@ import heroBg from '../assets/gallery/hallway-2.jpg';
           </div>
           <div class="season-card__price">
             <span class="season-card__currency">€</span>
-            <span class="season-card__amount">250</span>
+            <span class="season-card__amount" data-rate-month="9">199</span>
             <span class="season-card__per">/ night</span>
           </div>
           <a href="/booking?month=8" class="btn btn-primary" style="width:100%; justify-content:center;">Book Golden September →</a>
@@ -177,6 +177,19 @@ import heroBg from '../assets/gallery/hallway-2.jpg';
   </section>
 
 </PageLayout>
+
+<script>
+  fetch('/api/availability')
+    .then(r => r.json() as Promise<{ ok: boolean; pricing: Record<string, number> }>)
+    .then(data => {
+      if (!data.ok) return;
+      document.querySelectorAll<HTMLElement>('[data-rate-month]').forEach(el => {
+        const rate = data.pricing[el.getAttribute('data-rate-month')!];
+        if (typeof rate === 'number') el.textContent = String(rate);
+      });
+    })
+    .catch(() => { /* keep static fallback */ });
+</script>
 
 <style>
   .header-block { margin-bottom: 3rem; }
