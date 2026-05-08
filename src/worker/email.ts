@@ -163,6 +163,7 @@ export function buildOwnerBookingNotification(
   r: ReservationRow, links: OwnerNotificationLinks,
 ): { subject: string; html: string; text: string } {
   const subject = `New reservation request — ${r.full_name} (${r.check_in} → ${r.check_out})`;
+  const deposit = depositEur(r.total_eur);
 
   const guestRows = [
     detailRow('Name',      `<strong>${esc(r.full_name)}</strong>`),
@@ -179,7 +180,9 @@ export function buildOwnerBookingNotification(
     detailRow('Check-out', `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_out)}</strong>`),
     detailRow('Nights',    String(r.nights)),
     detailRow('Guests',    r.guests + (r.children_ages ? ` (children: ${esc(r.children_ages)})` : '')),
-    detailRow('Total',     `<strong style="font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong>`),
+    detailRow('Total',          `<strong style="font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong>`),
+    detailRow('Deposit (30%)',  `<strong style="color:#1A5FAD;">€${deposit.toLocaleString('en-GB')}</strong>`),
+    detailRow('Pay within',     '<strong>3 days</strong> of approval'),
     r.message  ? detailRow('Message', `<em>${esc(r.message)}</em>`) : null,
   ].filter((s): s is string => s !== null).join('\n');
 
@@ -222,6 +225,7 @@ ${detailTable(bookingRows)}
     `Nights:    ${r.nights}`,
     `Guests:    ${r.guests}${r.children_ages ? ` (children: ${r.children_ages})` : ''}`,
     `Total:     €${r.total_eur}`,
+    `Deposit:   €${deposit} (due within 3 days of approval)`,
     r.message  ? `Message: ${r.message}`   : null,
     '',
     `Approve: ${links.approve}`,
@@ -282,7 +286,7 @@ ${sectionHeading('Payment')}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px;background-color:#EAF6FC;border-radius:8px;border-left:4px solid #E8A82A;">
   <tr><td style="padding:16px 20px;">
     <div style="font-size:11px;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#5a7080;margin-bottom:4px;">IBAN</div>
-    <div style="font-size:19px;font-family:Georgia,'Times New Roman',serif;font-weight:bold;color:#081628;letter-spacing:1.5px;margin-bottom:16px;">${BANK_IBAN}</div>
+    <div style="font-size:19px;font-family:'Courier New',Courier,monospace;font-weight:bold;color:#081628;letter-spacing:2px;margin-bottom:16px;">${BANK_IBAN}</div>
     <table role="presentation" cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td style="padding-right:28px;vertical-align:top;">
@@ -335,34 +339,3 @@ ${sectionHeading('Check-in Information')}
   return { subject, html, text };
 }
 
-export function buildGuestBookingDeclined(r: ReservationRow): { subject: string; html: string; text: string } {
-  const firstName = r.full_name.split(' ')[0];
-  const subject   = 'Regarding your reservation request — Blue Moon Apartment';
-
-  const content = `
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">Hello ${esc(firstName)},</div>
-<p style="margin:0 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">Thank you for your interest in Blue Moon Apartment. Unfortunately we are not able to accommodate your reservation for <strong>${fmtDateLong(r.check_in)} – ${fmtDateLong(r.check_out)}</strong>.</p>
-<p style="margin:0 0 28px;font-size:15px;color:#1a2a3a;line-height:1.6;">We hope to welcome you another time — there may still be other dates available this season.</p>
-
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;">
-  <tr>
-    <td align="center">
-      <a href="${SITE}/booking" style="display:inline-block;background-color:#1A5FAD;color:#ffffff;padding:13px 28px;border-radius:8px;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;">Check Available Dates</a>
-    </td>
-  </tr>
-</table>
-<p style="margin:0;font-size:14px;color:#5a7080;text-align:center;">Or simply reply to this email and we'll do our best to find something that works.</p>`;
-
-  const html = emailShell(content);
-
-  const text = [
-    `Hello ${firstName},`,
-    '',
-    `Thank you for your interest in Blue Moon Apartment. Unfortunately we are not able to accommodate your reservation for ${r.check_in} – ${r.check_out}.`,
-    '',
-    `If you'd like to consider alternative dates, browse live availability at ${SITE}/booking, or reply to this email.`,
-    TEXT_SIG,
-  ].join('\n');
-
-  return { subject, html, text };
-}

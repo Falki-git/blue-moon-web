@@ -10,7 +10,7 @@ import {
 import { signDecisionToken, verifyDecisionToken } from './auth';
 import {
   sendEmail, buildOwnerBookingNotification, buildGuestBookingPending,
-  buildGuestBookingApproved, buildGuestBookingDeclined,
+  buildGuestBookingApproved,
 } from './email';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -185,21 +185,21 @@ export async function handleDecision(request: Request, env: Env, ctx: ExecutionC
   await updateReservationStatus(env.DB, v.reservationId, newStatus);
 
   const updated = { ...row, status: newStatus } as typeof row;
-  const guestMsg = newStatus === 'confirmed'
-    ? buildGuestBookingApproved(updated)
-    : buildGuestBookingDeclined(updated);
 
-  ctx.waitUntil(
-    sendEmail(env, {
-      to: row.email, replyTo: env.CONTACT_TO_EMAIL,
-      subject: guestMsg.subject, html: guestMsg.html, text: guestMsg.text,
-    }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend guest decision failed:', r.status, t)); })
-      .catch(e => console.error('Resend guest decision failed:', e))
-  );
+  if (newStatus === 'confirmed') {
+    const guestMsg = buildGuestBookingApproved(updated);
+    ctx.waitUntil(
+      sendEmail(env, {
+        to: row.email, replyTo: env.CONTACT_TO_EMAIL,
+        subject: guestMsg.subject, html: guestMsg.html, text: guestMsg.text,
+      }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend guest decision failed:', r.status, t)); })
+        .catch(e => console.error('Resend guest decision failed:', e))
+    );
+  }
 
   return decisionPage(
     newStatus === 'confirmed' ? 'Reservation approved' : 'Reservation declined',
-    `<p>Confirmation email sent to <strong>${row.email}</strong>.</p>
+    `<p>${newStatus === 'confirmed' ? `Confirmation email sent to <strong>${row.email}</strong>.` : 'No automated email sent — send a personalised reply directly.'}</p>
      <p>Dates ${row.check_in} → ${row.check_out} are now <strong>${newStatus === 'confirmed' ? 'blocked' : 'released'}</strong>.</p>`,
   );
 }
