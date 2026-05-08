@@ -4,6 +4,8 @@
 
 Marketing website for **Blue Moon Apartment**, a luxury 2-bedroom short-term rental in Mandre, Croatia (island of Pag). The site drives direct bookings, showcases the property, and serves as an alternative to OTAs (Booking.com, Airbnb).
 
+**Status: Live (v1.0) — launched 2026-05-08.** Treat all changes as production-affecting.
+
 Operates seasonally (June–September). Multi-language support (7 languages) is framework-ready but not yet implemented — only English content exists.
 
 ## Tech Stack
@@ -15,7 +17,8 @@ Operates seasonally (June–September). Multi-language support (7 languages) is 
 | Styling | Vanilla CSS — scoped component styles + global design system |
 | Fonts | Google Fonts: Playfair Display (serif headings), Nunito (sans-serif body) |
 | Hosting | Cloudflare Workers — static assets via `[assets]` binding; `src/worker/index.ts` is the Worker entry point |
-| Forms | Worker-handled — `POST /api/contact` → `src/worker/contact.ts` → Resend email API; Cloudflare Turnstile for bot protection |
+| Database | Cloudflare D1 (SQLite at the edge) — reservations, manual date blocks, per-month pricing rules |
+| Forms | Worker-handled — `POST /api/contact` → `src/worker/contact.ts`; `POST /api/booking` → `src/worker/booking.ts` — both use Resend email API + Cloudflare Turnstile |
 | Interactivity | Vanilla JS inline `<script>` blocks only — no frontend framework |
 
 ## Key Directories
@@ -30,15 +33,22 @@ src/
     gallery/        # Real apartment & destination photos — processed by Astro Image at build time
   i18n/             # en.json — translation strings (multi-lang framework, not yet active)
   worker/
-    index.ts        # Worker entry point — routes /api/contact, serves assets
+    index.ts        # Worker entry point — routes all /api/* paths, serves assets
     contact.ts      # Contact form handler (Resend + Turnstile)
+    booking.ts      # Booking form + availability API (creates reservations in D1, fires emails)
+    admin.ts        # Admin dashboard API (list/approve/decline reservations, manage blocks, set pricing)
+    auth.ts         # Session cookie auth for admin; signed decision tokens for owner emails
+    db.ts           # D1 query layer — reservations, manual_blocks, pricing_rules tables
+    email.ts        # Email builders (owner notification, guest pending/approved)
+    pricing.ts      # Per-month pricing logic, season config, deposit calculation
 public/
   images/           # logo.svg, nav-logo.svg, og-image.jpg, favicon.svg
+  robots.txt        # Crawler directives; references sitemap-index.xml
   _redirects        # Cloudflare Workers static-asset redirect rules
   _headers          # Cloudflare Workers static-asset security/cache headers
 ```
 
-**All content is hardcoded in page files** — there is no CMS, database, or data-fetching layer.
+Most content is hardcoded in page files. The exception is the booking system: availability, occupied dates, and per-month pricing are stored in Cloudflare D1 and fetched client-side from `/api/availability` on the booking page.
 
 ## Build & Dev Commands
 
@@ -54,8 +64,8 @@ No test or lint scripts are configured.
 
 | File | Purpose |
 |------|---------|
-| `astro.config.mjs` | Site URL, `output: 'static'` mode |
-| `wrangler.toml` | Cloudflare Workers config — Worker entry, assets binding, env vars |
+| `astro.config.mjs` | Site URL (`https://bluemoonmandre.eu`), `output: 'static'` mode, `@astrojs/sitemap` integration |
+| `wrangler.toml` | Cloudflare Workers config — Worker entry, assets binding, env vars, D1 bindings (dev + production) |
 | `src/styles/global.css` | CSS custom properties (colors, shadows, spacing), utility classes |
 | `src/env.d.ts` | Astro TypeScript ambient declarations |
 
@@ -67,10 +77,14 @@ No test or lint scripts are configured.
 | `src/pages/apartment.astro` | `/apartment` | Full property details with image carousels |
 | `src/pages/gallery.astro` | `/gallery` | Photo gallery with Astro Image component, JS filter, lightbox |
 | `src/pages/pricelist.astro` | `/pricelist` | Rates, policies, check-in times |
-| `src/pages/contact.astro` | `/contact` | Inquiry form (Netlify Forms — see TODO above) |
+| `src/pages/booking.astro` | `/booking` | Direct booking page — calendar, availability fetch, pricing calc, guest form + Turnstile |
+| `src/pages/booking/confirm.astro` | `/booking/confirm` | Post-submission confirmation screen (noindex) |
+| `src/pages/contact.astro` | `/contact` | Short inquiry form → `/api/contact` |
 | `src/pages/about-mandre.astro` | `/about-mandre` | Destination guide with image carousels and Google Maps embed |
 | `src/pages/reviews.astro` | `/reviews` | Guest testimonials |
 | `src/pages/directions.astro` | `/directions` | Travel info with Google Maps embed |
+| `src/pages/admin/login.astro` | `/admin/login` | Password login for admin (noindex) |
+| `src/pages/admin/index.astro` | `/admin` | Reservations dashboard — pending/confirmed/declined, manual blocks, pricing (noindex) |
 | `src/pages/404.astro` | 404 | Custom error page |
 
 ## Images

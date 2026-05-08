@@ -21,11 +21,13 @@ const { title, description = 'fallback' } = Astro.props;
 
 ## Two-Layout System
 
-All pages use a two-layer nesting:
+All public pages use a two-layer nesting:
 1. **`BaseLayout.astro`** — `<html>` shell, SEO meta, Nav, Footer, WhatsAppButton, CookieBanner, seasonal bar
 2. **`PageLayout.astro`** — wraps `BaseLayout`, adds hero header with background image, dark overlay, title, subtitle
 
-`index.astro` uses `BaseLayout` directly (custom hero). Every other page uses `PageLayout`.
+`index.astro` uses `BaseLayout` directly (custom hero). Every other public page uses `PageLayout`.
+
+**Exception — Admin pages** (`src/pages/admin/`): bypass both layouts entirely. They render a fully custom `<!DOCTYPE html>` shell with `<meta name="robots" content="noindex, nofollow">`, a branded `adm-header`, and no Nav/Footer. They import only `global.css` for base tokens. Do not wrap admin pages in BaseLayout.
 
 ---
 
@@ -265,4 +267,49 @@ Used at: `src/pages/index.astro:94-99`, `src/pages/index.astro:132-137`.
 
 ## SEO Pattern
 
-Every page has its own `title` and `description` passed to `BaseLayout`. `BaseLayout` generates all meta tags, canonical URL, and Open Graph tags from these props (`src/layouts/BaseLayout.astro:20-46`). Defaults are provided if props are omitted.
+**Meta tags** — Every page passes `title` and `description` to `BaseLayout`. `BaseLayout` generates all meta tags, canonical URL, Open Graph, and Twitter Card tags from these props (`src/layouts/BaseLayout.astro:20-46`). Defaults are provided if props are omitted. Canonical URLs are built from `Astro.site` (set to `https://bluemoonmandre.eu` in `astro.config.mjs`).
+
+**Sitemap** — `@astrojs/sitemap@3.2.0` (pinned — v3.7+ requires Astro 5) auto-generates `sitemap-index.xml` + `sitemap-0.xml` at build time. Configured in `astro.config.mjs` with a filter that excludes `/admin` and `/booking/confirm`. The sitemap URL is referenced in `public/robots.txt`.
+
+**robots.txt** — Lives at `public/robots.txt`. Allows all crawlers on public pages, disallows `/admin` and `/booking/confirm`, references the sitemap.
+
+**noindex pages** — Admin pages (`/admin`, `/admin/login`) and the booking confirmation page (`/booking/confirm`) carry `<meta name="robots" content="noindex, nofollow">` directly in their `<head>`. These pages bypass `BaseLayout` so the tag is hardcoded in each file.
+
+**JSON-LD structured data** — Key pages embed a `<script type="application/ld+json">` block using Astro's `set:html` directive to inject pre-serialised JSON without Vite processing it:
+
+```astro
+<script type="application/ld+json" set:html={JSON.stringify(schemaObject)} />
+```
+
+- `src/pages/index.astro` — `LodgingBusiness` schema (amenities, capacity, check-in/out, booking URL)
+- `src/pages/reviews.astro` — `LodgingBusiness` with `aggregateRating` + individual `Review` entries; schema data is computed in the frontmatter from the `reviews` array before being passed to `JSON.stringify`
+
+---
+
+## Worker API Routes
+
+All API routes are handled in `src/worker/index.ts` and delegated to module handlers:
+
+| Method | Path | Handler | Purpose |
+|--------|------|---------|---------|
+| POST | `/api/contact` | `contact.ts` | Contact form → owner email via Resend |
+| GET | `/api/availability` | `booking.ts` | Returns blocked/pending dates, per-month pricing, season config |
+| POST | `/api/booking` | `booking.ts` | Creates reservation in D1, sends owner + guest emails |
+| GET | `/api/booking/decide` | `booking.ts` | Owner approve/decline via signed token link in email |
+| GET | `/api/booking/resolve` | `booking.ts` | Alias for `/decide` |
+| * | `/api/admin/*` | `admin.ts` | Admin dashboard: list reservations, manage blocks, update pricing |
+
+**Env bindings** (defined in `Env` interface in `index.ts`): `ASSETS`, `DB` (D1), `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `CONTACT_TO_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`.
+
+---
+
+## Booking / Availability Data Flow
+
+The booking page fetches live data client-side on load:
+
+```js
+const res = await fetch('/api/availability');
+const { blocked, pending, pricing, season, minNights, depositPct } = await res.json();
+```
+
+`blocked` and `pending` are arrays of ISO date strings used to disable calendar days. `pricing` is a `{month: rate}` map used for price calculation. All this data lives in Cloudflare D1 (`pricing_rules`, `manual_blocks`, `reservations` tables via `src/worker/db.ts`).

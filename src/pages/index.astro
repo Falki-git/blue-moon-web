@@ -239,6 +239,38 @@ import mandreAerial from '../assets/gallery/mandre-aerial.jpg';
 
 </BaseLayout>
 
+<script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "LodgingBusiness",
+  "name": "Blue Moon Apartment",
+  "description": "Luxury 2-bedroom family apartment in Mandre, island of Pag, Croatia. 92m², private hot tub terrace, sea views, 200m from the beach. Open June–September.",
+  "url": "https://bluemoonmandre.eu",
+  "image": "https://bluemoonmandre.eu/images/og-image.jpg",
+  "email": "bluemoon.mandre@gmail.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Mandre",
+    "addressRegion": "Zadar County",
+    "addressCountry": "HR"
+  },
+  "numberOfRooms": 2,
+  "maximumAttendeeCapacity": 6,
+  "checkinTime": "15:00",
+  "checkoutTime": "10:00",
+  "priceRange": "€€€",
+  "tourBookingPage": "https://bluemoonmandre.eu/booking",
+  "amenityFeature": [
+    {"@type": "LocationFeatureSpecification", "name": "Private hot tub", "value": true},
+    {"@type": "LocationFeatureSpecification", "name": "Sea view", "value": true},
+    {"@type": "LocationFeatureSpecification", "name": "Air conditioning", "value": true},
+    {"@type": "LocationFeatureSpecification", "name": "Private parking", "value": true},
+    {"@type": "LocationFeatureSpecification", "name": "BBQ grill", "value": true},
+    {"@type": "LocationFeatureSpecification", "name": "WiFi", "value": true},
+    {"@type": "LocationFeatureSpecification", "name": "Fully equipped kitchen", "value": true},
+    {"@type": "LocationFeatureSpecification", "name": "Beachfront proximity (200 m)", "value": true}
+  ]
+})} />
+
 <script>
   fetch('/api/availability')
     .then(r => r.json() as Promise<{ ok: boolean; pricing: Record<string, number> }>)
