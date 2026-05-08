@@ -55,6 +55,7 @@ Covers the full guest journey — from discovery and gallery browsing through di
 - 💬 **WhatsApp CTA** — floating button with pre-filled message for instant guest contact
 - 🗺️ **Google Maps embeds** — location and directions without external JS libraries
 - 🌍 **Multi-language ready** — i18n architecture in place (7 languages planned, English live)
+- 🔍 **SEO-optimised** — XML sitemap (auto-generated at build), `robots.txt`, canonical URLs, Open Graph + Twitter Card meta, JSON-LD structured data (LodgingBusiness, AggregateRating)
 - 🔒 **Security headers** — CSP, HSTS, X-Frame-Options, and more via `_headers`
 - 🚫 **Custom 404** — branded error page with navigation back to site
 
@@ -96,6 +97,7 @@ src/
   worker/           # Cloudflare Worker — API routes, D1 queries, email, auth
 public/
   images/           # logo.svg, nav-logo.svg, og-image.jpg, favicon.svg
+  robots.txt        # Crawler directives; references sitemap-index.xml
   _redirects        # URL redirect rules
   _headers          # Security headers
 ```
