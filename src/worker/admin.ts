@@ -12,7 +12,7 @@ import {
 } from './db';
 import { isInSeason, SEASON_MONTHS } from './pricing';
 import {
-  sendEmail, buildGuestBookingApproved, buildGuestBookingDeclined,
+  sendEmail, buildGuestBookingApproved,
 } from './email';
 
 function err(status: number, error: string): Response {
@@ -97,11 +97,9 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
 
     await updateReservationStatus(env.DB, id, newStatus);
 
-    if (action === 'approve' || action === 'decline') {
+    if (action === 'approve') {
       const updated = { ...row, status: newStatus } as typeof row;
-      const msg = action === 'approve'
-        ? buildGuestBookingApproved(updated)
-        : buildGuestBookingDeclined(updated);
+      const msg = buildGuestBookingApproved(updated);
       ctx.waitUntil(
         sendEmail(env, {
           to: row.email, replyTo: env.CONTACT_TO_EMAIL,
