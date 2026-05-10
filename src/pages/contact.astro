@@ -143,8 +143,8 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
         </aside>
 
         <!-- ─── RIGHT: Form ────────────────────────────────── -->
-        <div class="contact-form-wrap">
-          <div class="contact-form-card">
+        <div class="contact-form-wrap" id="contactFormWrap">
+          <div class="contact-form-card" id="contactFormCard">
             <h3>Contact us</h3>
             <p class="form-intro">Have a question about the apartment, the area, or your stay? Send us a message and we'll get back to you within 24 hours.</p>
 
@@ -279,6 +279,10 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
     .contact-cta { flex-direction: column; align-items: stretch; text-align: center; }
   }
 
+  #contactFormWrap {
+    scroll-margin-top: calc(var(--nav-height) + 1rem);
+  }
+
   .contact-layout {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
@@ -379,6 +383,7 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.25rem;
+    align-items: start;
   }
 
   .form-group {
@@ -418,7 +423,8 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
     background: var(--white);
   }
   .contact-form input.is-error,
-  .contact-form select.is-error {
+  .contact-form select.is-error,
+  .contact-form textarea.is-error {
     border-color: #e05c5c;
   }
   .contact-form input::placeholder,
@@ -559,7 +565,7 @@ import heroImg from '../assets/gallery/hot-tub-2.jpg';
       if (data.ok) {
         form.style.display = 'none';
         if (formSuccess) formSuccess.hidden = false;
-        document.getElementById('contactSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('contactFormCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
         throw new Error(data.error ?? 'Something went wrong.');
       }
