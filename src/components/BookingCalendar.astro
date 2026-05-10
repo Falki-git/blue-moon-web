@@ -70,6 +70,7 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
     <span><span class="bcal__dot bcal__dot--available"></span>Available</span>
     <span><span class="bcal__dot bcal__dot--pending"></span>On hold</span>
     <span><span class="bcal__dot bcal__dot--blocked"></span>Booked</span>
+    <span><span class="bcal__dot bcal__dot--transition"></span>Changeover</span>
     <span><span class="bcal__dot bcal__dot--selected"></span>Your selection</span>
   </div>
 
@@ -81,6 +82,10 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
     ok: boolean;
     blocked: string[];
     pending: string[];
+    checkoutOnly: string[];
+    checkinOnly: string[];
+    pendingCheckoutOnly: string[];
+    pendingCheckinOnly: string[];
     pricing: Record<string, number>;
     season: { start: string; end: string };
     minNights: number;
@@ -103,6 +108,10 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
 
   let blocked = new Set<string>();
   let pending = new Set<string>();
+  let checkoutOnly = new Set<string>();
+  let checkinOnly = new Set<string>();
+  let pendingCheckoutOnly = new Set<string>();
+  let pendingCheckinOnly = new Set<string>();
   let pricing: Record<number, number> = {};
   let minNights = 5;
   let seasonStart = '2026-06-01';
@@ -149,7 +158,7 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
 
   function rangeHasOccupied(fromIso: string, toExclusiveIso: string): boolean {
     for (const d of eachDay(fromIso, toExclusiveIso)) {
-      if (blocked.has(d) || pending.has(d)) return true;
+      if (blocked.has(d) || pending.has(d) || checkoutOnly.has(d) || pendingCheckoutOnly.has(d)) return true;
     }
     return false;
   }
@@ -183,10 +192,16 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
 
     const inLockedRange = checkIn && checkOut ? { from: checkIn, to: checkOut } : null;
 
+    const inSelectingCheckout = !!(checkIn && !checkOut);
+
     allCells.forEach(el => {
       const iso = el.getAttribute('data-iso')!;
       el.classList.remove(
         'bcal__cell--available', 'bcal__cell--blocked', 'bcal__cell--pending',
+        'bcal__cell--checkout-only', 'bcal__cell--checkin-only',
+        'bcal__cell--pending-checkout-only', 'bcal__cell--pending-checkin-only',
+        'bcal__cell--pending-to-confirmed', 'bcal__cell--confirmed-to-pending',
+        'bcal__cell--selectable',
         'bcal__cell--today', 'bcal__cell--selected', 'bcal__cell--in-range',
         'bcal__cell--checkin', 'bcal__cell--checkout', 'bcal__cell--past',
       );
@@ -201,18 +216,42 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
         return;
       }
 
-      if (blocked.has(iso)) {
+      const isCheckoutOnly = checkoutOnly.has(iso);
+      const isCheckinOnly = checkinOnly.has(iso);
+      const isPendingCheckoutOnly = pendingCheckoutOnly.has(iso);
+      const isPendingCheckinOnly = pendingCheckinOnly.has(iso);
+
+      if (blocked.has(iso) || (isCheckoutOnly && isCheckinOnly)) {
         el.classList.add('bcal__cell--blocked');
         el.setAttribute('disabled', '');
         return;
       }
-      if (pending.has(iso)) {
+      if (isCheckoutOnly && isPendingCheckinOnly) {
+        // Confirmed starts + pending ends same day: stripe→gray
+        el.classList.add('bcal__cell--pending-to-confirmed');
+        if (inSelectingCheckout) el.classList.add('bcal__cell--selectable');
+      } else if (isCheckoutOnly) {
+        el.classList.add('bcal__cell--checkout-only');
+        if (inSelectingCheckout) el.classList.add('bcal__cell--selectable');
+      } else if (isCheckinOnly && isPendingCheckoutOnly) {
+        // Confirmed ends + pending starts same day: gray→stripe
+        el.classList.add('bcal__cell--confirmed-to-pending');
+        if (inSelectingCheckout) el.classList.add('bcal__cell--selectable');
+      } else if (isCheckinOnly) {
+        el.classList.add('bcal__cell--checkin-only');
+      } else if (pending.has(iso)) {
         el.classList.add('bcal__cell--pending');
         el.setAttribute('disabled', '');
         return;
+      } else if (isPendingCheckoutOnly) {
+        el.classList.add('bcal__cell--pending-checkout-only');
+        if (inSelectingCheckout) el.classList.add('bcal__cell--selectable');
+      } else if (isPendingCheckinOnly) {
+        el.classList.add('bcal__cell--pending-checkin-only');
+      } else {
+        el.classList.add('bcal__cell--available');
       }
 
-      el.classList.add('bcal__cell--available');
       if (iso === todayIso) el.classList.add('bcal__cell--today');
 
       if (inLockedRange) {
@@ -253,6 +292,8 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
   function handleClick(iso: string) {
     if (blocked.has(iso) || pending.has(iso) || iso < todayIso) return;
     if (iso < seasonStart || iso > seasonEnd) return;
+    // Transition dates that are only valid as checkout endpoints
+    if ((checkoutOnly.has(iso) || pendingCheckoutOnly.has(iso)) && (!checkIn || checkOut)) return;
 
     if (checkIn && !checkOut && iso === checkIn) {
       checkIn = null;
@@ -336,6 +377,10 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
       if (!data || !data.ok) throw new Error('bad response');
       blocked = new Set(data.blocked);
       pending = new Set(data.pending);
+      checkoutOnly = new Set(data.checkoutOnly);
+      checkinOnly = new Set(data.checkinOnly);
+      pendingCheckoutOnly = new Set(data.pendingCheckoutOnly);
+      pendingCheckinOnly = new Set(data.pendingCheckinOnly);
       pricing = data.pricing as unknown as Record<number, number>;
       minNights = data.minNights;
       seasonStart = data.season.start;
@@ -520,10 +565,11 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
     border-radius: 3px;
     flex-shrink: 0;
   }
-  .bcal__dot--available { background: #c6e8f7; }
-  .bcal__dot--blocked   { background: #d4d9de; }
-  .bcal__dot--pending   { background: repeating-linear-gradient(45deg, #f4dca0, #f4dca0 3px, #f7e8c4 3px, #f7e8c4 6px); }
-  .bcal__dot--selected  { background: var(--ocean-blue); }
+  .bcal__dot--available   { background: #c6e8f7; }
+  .bcal__dot--blocked     { background: #d4d9de; }
+  .bcal__dot--pending     { background: repeating-linear-gradient(45deg, #f4dca0, #f4dca0 3px, #f7e8c4 3px, #f7e8c4 6px); }
+  .bcal__dot--transition  { background: linear-gradient(to bottom right, #c6e8f7 50%, #d4d9de 50%); }
+  .bcal__dot--selected    { background: var(--ocean-blue); }
 
   .bcal__hint {
     text-align: center;
@@ -531,6 +577,92 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
     font-size: 0.85rem;
     color: var(--text-muted);
     font-weight: 600;
+  }
+
+  /* Confirmed checkout-only: left=available-blue, right=blocked-gray */
+  .bcal__cell--checkout-only {
+    background: linear-gradient(to bottom right, #c6e8f7 50%, #d4d9de 50%);
+    color: #8a9db0;
+    cursor: not-allowed;
+  }
+  .bcal__cell--checkout-only.bcal__cell--selectable {
+    cursor: pointer;
+  }
+  .bcal__cell--checkout-only.bcal__cell--selectable:hover,
+  .bcal__cell--checkout-only.bcal__cell--selected {
+    background: linear-gradient(to bottom right, #a3d6ed 50%, #c4c9ce 50%);
+  }
+
+  /* Confirmed checkin-only: left=blocked-gray, right=available-blue */
+  .bcal__cell--checkin-only {
+    background: linear-gradient(to bottom right, #d4d9de 50%, #c6e8f7 50%);
+    color: var(--ocean-blue);
+    cursor: pointer;
+  }
+  .bcal__cell--checkin-only:hover {
+    background: linear-gradient(to bottom right, #c4c9ce 50%, #a3d6ed 50%);
+  }
+
+  /* Pending checkout-only: left=available-blue, right=pending stripe
+     Blue diagonal mask on top of full stripe — stripe shows through on right half */
+  .bcal__cell--pending-checkout-only {
+    background:
+      linear-gradient(to bottom right, #c6e8f7 50%, transparent 50%),
+      repeating-linear-gradient(45deg, #f4dca0, #f4dca0 4px, #f7e8c4 4px, #f7e8c4 8px);
+    color: #8a6d2a;
+    cursor: not-allowed;
+  }
+  .bcal__cell--pending-checkout-only.bcal__cell--selectable {
+    cursor: pointer;
+  }
+  .bcal__cell--pending-checkout-only.bcal__cell--selectable:hover,
+  .bcal__cell--pending-checkout-only.bcal__cell--selected {
+    background: linear-gradient(to bottom right, #a3d6ed 50%, #edd090 50%);
+  }
+
+  /* Pending checkin-only: left=pending stripe, right=available-blue
+     Blue diagonal mask covering right half, stripe shows through on left half */
+  .bcal__cell--pending-checkin-only {
+    background:
+      linear-gradient(to bottom right, transparent 50%, #c6e8f7 50%),
+      repeating-linear-gradient(45deg, #f4dca0, #f4dca0 4px, #f7e8c4 4px, #f7e8c4 8px);
+    color: #8a6d2a;
+    cursor: pointer;
+  }
+  .bcal__cell--pending-checkin-only:hover {
+    background: linear-gradient(to bottom right, #edd090 50%, #a3d6ed 50%);
+  }
+
+  /* Pending ends + confirmed starts same day: left=pending stripe, right=confirmed gray */
+  .bcal__cell--pending-to-confirmed {
+    background:
+      linear-gradient(to bottom right, transparent 50%, #d4d9de 50%),
+      repeating-linear-gradient(45deg, #f4dca0, #f4dca0 4px, #f7e8c4 4px, #f7e8c4 8px);
+    color: #8a9db0;
+    cursor: not-allowed;
+  }
+  .bcal__cell--pending-to-confirmed.bcal__cell--selectable {
+    cursor: pointer;
+  }
+  .bcal__cell--pending-to-confirmed.bcal__cell--selectable:hover,
+  .bcal__cell--pending-to-confirmed.bcal__cell--selected {
+    background: linear-gradient(to bottom right, #edd090 50%, #c4c9ce 50%);
+  }
+
+  /* Confirmed ends + pending starts same day: left=confirmed gray, right=pending stripe */
+  .bcal__cell--confirmed-to-pending {
+    background:
+      linear-gradient(to bottom right, #d4d9de 50%, transparent 50%),
+      repeating-linear-gradient(45deg, #f4dca0, #f4dca0 4px, #f7e8c4 4px, #f7e8c4 8px);
+    color: #8a6d2a;
+    cursor: not-allowed;
+  }
+  .bcal__cell--confirmed-to-pending.bcal__cell--selectable {
+    cursor: pointer;
+  }
+  .bcal__cell--confirmed-to-pending.bcal__cell--selectable:hover,
+  .bcal__cell--confirmed-to-pending.bcal__cell--selected {
+    background: linear-gradient(to bottom right, #c4c9ce 50%, #edd090 50%);
   }
 
   @media (max-width: 720px) {

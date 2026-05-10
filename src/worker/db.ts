@@ -36,6 +36,12 @@ export interface PricingRuleRow {
   updated_at: number;
 }
 
+function addOneDay(isoDate: string): string {
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const date = new Date(y, m - 1, d + 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 function expandRangeInclusive(fromISO: string, toISO: string): string[] {
   const out: string[] = [];
   const [fy, fm, fd] = fromISO.split('-').map(Number);
@@ -62,19 +68,39 @@ function expandRangeExclusive(checkInISO: string, checkOutISO: string): string[]
   return out;
 }
 
+export interface OccupiedDates {
+  blocked: string[];
+  pending: string[];
+  checkoutOnly: string[];
+  checkinOnly: string[];
+  pendingCheckoutOnly: string[];
+  pendingCheckinOnly: string[];
+}
+
 export async function listOccupiedDates(
   db: D1Database, fromISO: string, toISO: string,
-): Promise<{ blocked: string[]; pending: string[] }> {
+): Promise<OccupiedDates> {
   const blocked = new Set<string>();
   const pending = new Set<string>();
+  const checkoutOnly = new Set<string>();
+  const checkinOnly = new Set<string>();
+  const pendingCheckoutOnly = new Set<string>();
+  const pendingCheckinOnly = new Set<string>();
 
   const blocks = await db.prepare(
     'SELECT from_date, to_date FROM manual_blocks WHERE NOT (to_date < ?1 OR from_date > ?2)'
   ).bind(fromISO, toISO).all<{ from_date: string; to_date: string }>();
   for (const b of blocks.results ?? []) {
-    for (const d of expandRangeInclusive(b.from_date, b.to_date)) {
-      if (d >= fromISO && d <= toISO) blocked.add(d);
+    const blockCheckOut = addOneDay(b.to_date);
+    const nights = expandRangeExclusive(b.from_date, blockCheckOut);
+
+    if (b.from_date >= fromISO && b.from_date <= toISO) checkoutOnly.add(b.from_date);
+    for (let i = 1; i < nights.length; i++) {
+      const d = nights[i];
+      if (d < fromISO || d > toISO) continue;
+      blocked.add(d);
     }
+    if (blockCheckOut >= fromISO && blockCheckOut <= toISO) checkinOnly.add(blockCheckOut);
   }
 
   const reservations = await db.prepare(
@@ -83,18 +109,62 @@ export async function listOccupiedDates(
          AND NOT (check_out <= ?1 OR check_in > ?2)`
   ).bind(fromISO, toISO).all<{ status: ReservationStatus; check_in: string; check_out: string }>();
   for (const r of reservations.results ?? []) {
-    for (const d of expandRangeExclusive(r.check_in, r.check_out)) {
+    const nights = expandRangeExclusive(r.check_in, r.check_out);
+    const isConfirmed = r.status === 'confirmed';
+
+    if (r.check_in >= fromISO && r.check_in <= toISO) {
+      if (isConfirmed) checkoutOnly.add(r.check_in);
+      else pendingCheckoutOnly.add(r.check_in);
+    }
+    for (let i = 1; i < nights.length; i++) {
+      const d = nights[i];
       if (d < fromISO || d > toISO) continue;
-      if (r.status === 'confirmed') blocked.add(d);
+      if (isConfirmed) blocked.add(d);
       else pending.add(d);
+    }
+    if (r.check_out >= fromISO && r.check_out <= toISO) {
+      if (isConfirmed) checkinOnly.add(r.check_out);
+      else pendingCheckinOnly.add(r.check_out);
     }
   }
 
-  for (const d of blocked) pending.delete(d);
+  // Back-to-back confirmed reservations sharing a boundary date → fully blocked
+  for (const d of [...checkoutOnly]) {
+    if (checkinOnly.has(d)) {
+      blocked.add(d);
+      checkoutOnly.delete(d);
+      checkinOnly.delete(d);
+    }
+  }
+  // Back-to-back pending reservations sharing a boundary date → fully pending
+  for (const d of [...pendingCheckoutOnly]) {
+    if (pendingCheckinOnly.has(d)) {
+      pending.add(d);
+      pendingCheckoutOnly.delete(d);
+      pendingCheckinOnly.delete(d);
+    }
+  }
+  // Blocked interior overrides all boundary sets
+  for (const d of blocked) {
+    pending.delete(d);
+    checkoutOnly.delete(d);
+    checkinOnly.delete(d);
+    pendingCheckoutOnly.delete(d);
+    pendingCheckinOnly.delete(d);
+  }
+  // Pending interior overrides pending boundary dates on the same date
+  for (const d of pending) {
+    pendingCheckoutOnly.delete(d);
+    pendingCheckinOnly.delete(d);
+  }
 
   return {
     blocked: [...blocked].sort(),
     pending: [...pending].sort(),
+    checkoutOnly: [...checkoutOnly].sort(),
+    checkinOnly: [...checkinOnly].sort(),
+    pendingCheckoutOnly: [...pendingCheckoutOnly].sort(),
+    pendingCheckinOnly: [...pendingCheckinOnly].sort(),
   };
 }
 
