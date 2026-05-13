@@ -275,7 +275,7 @@ export function buildGuestBookingApproved(r: ReservationRow): { subject: string;
   const subject   = 'Your reservation is confirmed — Blue Moon Apartment';
 
   const content = `
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">Your reservation is confirmed, ${esc(firstName)}!</div>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">Your reservation is confirmed!</div>
 <p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">We're delighted to confirm your stay at Blue Moon Apartment. We look forward to welcoming you to Mandre!</p>
 
 ${sectionHeading('Stay Details')}
@@ -315,7 +315,7 @@ ${sectionHeading('Check-in Information')}
   const html = emailShell(content);
 
   const text = [
-    `Your reservation is confirmed, ${firstName}!`,
+    `Your reservation is confirmed!`,
     '',
     `Check-in:  ${r.check_in}`,
     `Check-out: ${r.check_out}`,
