@@ -13,7 +13,7 @@ import {
   buildGuestBookingApproved,
 } from './email';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 
 function err(status: number, error: string): Response {
   return Response.json({ ok: false, error }, { status });
@@ -138,7 +138,7 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
   });
   if (!ownerRes.ok) {
     console.error('Resend owner email failed:', await ownerRes.text());
-    return err(502, 'Failed to send notification. Please email us directly at bluemoon.mandre@gmail.com');
+    return err(502, 'Failed to send notification. Please try again.');
   }
 
   const guestMsg = buildGuestBookingPending(row);

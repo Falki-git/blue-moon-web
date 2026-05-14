@@ -1,7 +1,7 @@
 import type { Env } from './index';
 import { esc, emailShell, detailRow, detailTable, sectionHeading } from './email';
 
-const EMAIL_RE     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE     = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const SEASON_START = '2026-06-01';
 const SEASON_END   = '2026-09-30';
 const FROM         = 'Blue Moon Apartment <noreply@bluemoonmandre.eu>';
@@ -130,7 +130,7 @@ ${detailTable(ownerRows)}`);
 
   if (!ownerRes.ok) {
     console.error('Resend owner email failed:', await ownerRes.text());
-    return err(502, 'Failed to send message. Please email us directly at bluemoon.mandre@gmail.com');
+    return err(502, 'Failed to send message. Please try again.');
   }
 
   // Guest acknowledgment — fire-and-forget, never blocks the response
