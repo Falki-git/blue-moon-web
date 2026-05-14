@@ -283,3 +283,19 @@ export async function upsertPricingRule(
        ON CONFLICT(month) DO UPDATE SET rate_eur = excluded.rate_eur, updated_at = excluded.updated_at`
   ).bind(month, rateEur).run();
 }
+
+export async function getSetting(db: D1Database, key: string): Promise<string | null> {
+  try {
+    const r = await db.prepare('SELECT value FROM settings WHERE key = ?1').bind(key).first<{ value: string }>();
+    return r?.value ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function upsertSetting(db: D1Database, key: string, value: string): Promise<void> {
+  await db.prepare(
+    `INSERT INTO settings (key, value, updated_at) VALUES (?1, ?2, unixepoch())
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`
+  ).bind(key, value).run();
+}

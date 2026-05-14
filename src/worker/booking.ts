@@ -5,7 +5,7 @@ import {
 } from './pricing';
 import {
   insertReservation, listOccupiedDates, rangeOverlapsOccupied,
-  getReservation, updateReservationStatus,
+  getReservation, updateReservationStatus, getSetting,
 } from './db';
 import { signDecisionToken, verifyDecisionToken } from './auth';
 import {
@@ -30,6 +30,8 @@ function diffNights(checkIn: string, checkOut: string): number {
 export async function handleAvailability(_request: Request, env: Env): Promise<Response> {
   const pricing = await loadPricing(env.DB);
   const occ = await listOccupiedDates(env.DB, SEASON_2026.start, SEASON_2026.end);
+  const minAdvanceDaysStr = await getSetting(env.DB, 'min_advance_days');
+  const minAdvanceDays = minAdvanceDaysStr !== null ? (parseInt(minAdvanceDaysStr, 10) || 0) : 3;
 
   const pricingByMonth: Record<number, number> = {};
   for (const m of SEASON_MONTHS) pricingByMonth[m] = pricing[m] ?? 0;
@@ -46,6 +48,7 @@ export async function handleAvailability(_request: Request, env: Env): Promise<R
     season: SEASON_2026,
     minNights: MIN_NIGHTS,
     depositPct: DEPOSIT_PCT,
+    minAdvanceDays,
   });
 }
 
@@ -89,6 +92,17 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
   const nights = diffNights(checkin, checkout);
   if (nights < MIN_NIGHTS) {
     return err(400, `Minimum stay is ${MIN_NIGHTS} nights`);
+  }
+
+  const minAdvanceDaysStr = await getSetting(env.DB, 'min_advance_days');
+  const minAdvanceDays = minAdvanceDaysStr !== null ? (parseInt(minAdvanceDaysStr, 10) || 0) : 3;
+  if (minAdvanceDays > 0) {
+    const now = new Date();
+    const minDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + minAdvanceDays));
+    const minCheckin = `${minDate.getUTCFullYear()}-${String(minDate.getUTCMonth() + 1).padStart(2, '0')}-${String(minDate.getUTCDate()).padStart(2, '0')}`;
+    if (checkin < minCheckin) {
+      return err(400, `Bookings must be made at least ${minAdvanceDays} day${minAdvanceDays !== 1 ? 's' : ''} before check-in`);
+    }
   }
 
   const tsForm = new FormData();

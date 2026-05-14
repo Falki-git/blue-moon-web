@@ -9,7 +9,7 @@ import '../../styles/global.css';
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
-  <title>Admin · Reservations | Blue Moon Apartment</title>
+  <title>Admin | Blue Moon Apartment</title>
 </head>
 <body class="adm-body">
   <header class="adm-header">
@@ -17,75 +17,101 @@ import '../../styles/global.css';
       <a href="/" class="adm-header__brand">
         <img src="/images/nav-logo.svg" alt="Blue Moon Apartment" width="100" height="50" />
       </a>
-      <span class="adm-header__title">Reservations admin</span>
+      <span class="adm-header__title">Admin</span>
       <button class="btn btn-secondary adm-header__logout" id="logoutBtn" type="button">Sign out</button>
     </div>
   </header>
+
+  <nav class="adm-tabnav">
+    <div class="adm-tabnav__inner">
+      <button class="adm-tabnav__tab adm-tabnav__tab--active" data-tab="booking" type="button">
+        Booking
+        <span class="adm-tabnav__badge" id="tabPendingBadge" hidden>0</span>
+      </button>
+      <button class="adm-tabnav__tab" data-tab="settings" type="button">Settings</button>
+    </div>
+  </nav>
 
   <main class="adm-main">
     <div id="loading" class="adm-loading">Loading…</div>
     <div id="content" hidden>
 
-      <section class="adm-section">
-        <div class="adm-section__head">
-          <h2>Pending requests</h2>
-          <span class="adm-count" id="pendingCount">0</span>
-        </div>
-        <div id="pendingList"></div>
-      </section>
+      <div id="panel-booking" class="adm-panel">
 
-      <section class="adm-section">
-        <div class="adm-section__head">
-          <h2>Confirmed reservations</h2>
-          <span class="adm-count" id="confirmedCount">0</span>
-        </div>
-        <div id="confirmedList"></div>
-      </section>
-
-      <section class="adm-section">
-        <div class="adm-section__head">
-          <h2>Other reservations</h2>
-          <span class="adm-count" id="otherCount">0</span>
-        </div>
-        <p class="adm-section__hint">Declined and cancelled reservations are kept for audit but no longer hold any dates.</p>
-        <div id="otherList"></div>
-      </section>
-
-      <section class="adm-section">
-        <div class="adm-section__head">
-          <h2>Manual blocks</h2>
-        </div>
-        <p class="adm-section__hint">Use this for off-platform bookings (Booking.com, owner stays, maintenance). Both dates are inclusive.</p>
-
-        <form id="blockForm" class="adm-block-form">
-          <div class="adm-form-row">
-            <div class="form-group">
-              <label for="blockFrom">From</label>
-              <input type="date" id="blockFrom" name="from" required min="2026-06-01" max="2026-09-30" />
-            </div>
-            <div class="form-group">
-              <label for="blockTo">To</label>
-              <input type="date" id="blockTo" name="to" required min="2026-06-01" max="2026-09-30" />
-            </div>
-            <div class="form-group" style="flex:1;">
-              <label for="blockNote">Note (optional)</label>
-              <input type="text" id="blockNote" name="note" placeholder="e.g. Booking.com reservation" />
-            </div>
-            <button type="submit" class="btn btn-primary">Add block</button>
+        <section class="adm-section">
+          <div class="adm-section__head">
+            <h2>Pending requests</h2>
+            <span class="adm-count" id="pendingCount">0</span>
           </div>
-          <p class="adm-form-error" id="blockError" hidden></p>
-        </form>
+          <div id="pendingList"></div>
+        </section>
 
-        <div id="blocksList"></div>
-      </section>
+        <section class="adm-section">
+          <div class="adm-section__head">
+            <h2>Confirmed reservations</h2>
+            <span class="adm-count" id="confirmedCount">0</span>
+          </div>
+          <div id="confirmedList"></div>
+        </section>
 
-      <section class="adm-section">
-        <div class="adm-section__head">
-          <h2>Pricing (per night, EUR)</h2>
-        </div>
-        <p class="adm-section__hint">Changes apply to new reservation requests immediately. Already-confirmed reservations keep their original price.</p>
-        <div id="pricingList"></div>
-      </section>
+        <section class="adm-section">
+          <div class="adm-section__head">
+            <h2>Other reservations</h2>
+            <span class="adm-count" id="otherCount">0</span>
+          </div>
+          <p class="adm-section__hint">Declined and cancelled reservations are kept for audit but no longer hold any dates.</p>
+          <div id="otherList"></div>
+        </section>
+
+      </div><!-- /panel-booking -->
+
+      <div id="panel-settings" class="adm-panel" hidden>
+
+        <section class="adm-section">
+          <div class="adm-section__head">
+            <h2>Manual blocks</h2>
+          </div>
+          <p class="adm-section__hint">Use this for off-platform bookings (Booking.com, owner stays, maintenance). Both dates are inclusive.</p>
+
+          <form id="blockForm" class="adm-block-form">
+            <div class="adm-form-row">
+              <div class="form-group">
+                <label for="blockFrom">From</label>
+                <input type="date" id="blockFrom" name="from" required min="2026-06-01" max="2026-09-30" />
+              </div>
+              <div class="form-group">
+                <label for="blockTo">To</label>
+                <input type="date" id="blockTo" name="to" required min="2026-06-01" max="2026-09-30" />
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label for="blockNote">Note (optional)</label>
+                <input type="text" id="blockNote" name="note" placeholder="e.g. Booking.com reservation" />
+              </div>
+              <button type="submit" class="btn btn-primary">Add block</button>
+            </div>
+            <p class="adm-form-error" id="blockError" hidden></p>
+          </form>
+
+          <div id="blocksList"></div>
+        </section>
+
+        <section class="adm-section">
+          <div class="adm-section__head">
+            <h2>Pricing (per night, EUR)</h2>
+          </div>
+          <p class="adm-section__hint">Changes apply to new reservation requests immediately. Already-confirmed reservations keep their original price.</p>
+          <div id="pricingList"></div>
+        </section>
+
+        <section class="adm-section">
+          <div class="adm-section__head">
+            <h2>Booking settings</h2>
+          </div>
+          <p class="adm-section__hint">These settings apply immediately to all new booking requests.</p>
+          <div id="settingsList"></div>
+        </section>
+
+      </div><!-- /panel-settings -->
 
     </div>
   </main>
@@ -119,6 +145,49 @@ import '../../styles/global.css';
       font-size: 1.1rem;
     }
     .adm-header__logout { padding: 0.5rem 1rem; font-size: 0.82rem; }
+
+    .adm-tabnav {
+      background: var(--white);
+      border-bottom: 2px solid rgba(74,159,212,0.15);
+    }
+    .adm-tabnav__inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+    }
+    .adm-tabnav__tab {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      padding: 0.85rem 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .adm-tabnav__tab:hover { color: var(--ocean-blue); }
+    .adm-tabnav__tab--active {
+      color: var(--ocean-blue);
+      border-bottom-color: var(--ocean-blue);
+    }
+    .adm-tabnav__badge {
+      background: var(--ocean-blue);
+      color: var(--white);
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      min-width: 18px;
+      text-align: center;
+      line-height: 1.5;
+    }
 
     .adm-main { max-width: 1180px; margin: 0 auto; padding: 2rem; }
 
@@ -287,8 +356,36 @@ import '../../styles/global.css';
     .adm-pricing-row__btn:hover { background: #1452a0; }
     .adm-pricing-row__btn--saved { background: #4caf50; }
 
+    .adm-settings-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 0.75rem 0;
+    }
+    .adm-settings-row__label {
+      font-weight: 800;
+      color: var(--ocean-blue);
+      margin-bottom: 0.2rem;
+    }
+    .adm-settings-row__hint { color: var(--text-muted); font-size: 0.78rem; }
+    .adm-settings-row__input {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      background: var(--soft-sky);
+      border: 2px solid transparent;
+      border-radius: var(--radius);
+      padding: 0.5rem 0.85rem;
+      outline: none;
+      width: 80px;
+      text-align: right;
+    }
+    .adm-settings-row__input:focus { border-color: var(--sky-blue); background: var(--white); }
+
     @media (max-width: 720px) {
       .adm-main { padding: 1rem; }
+      .adm-tabnav__inner { padding: 0 1rem; }
       .adm-section { padding: 1rem; }
       .adm-form-row { flex-direction: column; align-items: stretch; }
       .adm-pricing-row { grid-template-columns: 1fr 1fr; }
@@ -299,6 +396,7 @@ import '../../styles/global.css';
   </style>
 
   <script>
+    type BookingSettings = { minAdvanceDays: number };
     type Reservation = {
       id: string;
       created_at: number;
@@ -315,6 +413,24 @@ import '../../styles/global.css';
     const loading = document.getElementById('loading')!;
     const content = document.getElementById('content')!;
     const logoutBtn = document.getElementById('logoutBtn') as HTMLButtonElement;
+
+    // ── Tabs ────────────────────────────────────────────────────────────────
+    const tabBtns = document.querySelectorAll<HTMLButtonElement>('.adm-tabnav__tab');
+    const panels  = { booking: document.getElementById('panel-booking')!, settings: document.getElementById('panel-settings')! };
+    const tabPendingBadge = document.getElementById('tabPendingBadge')!;
+
+    function switchTab(name: 'booking' | 'settings') {
+      tabBtns.forEach(b => b.classList.toggle('adm-tabnav__tab--active', b.dataset.tab === name));
+      panels.booking.hidden  = name !== 'booking';
+      panels.settings.hidden = name !== 'settings';
+      history.replaceState(null, '', name === 'settings' ? '#settings' : location.pathname);
+    }
+
+    tabBtns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab as 'booking' | 'settings')));
+
+    const initialTab = location.hash === '#settings' ? 'settings' : 'booking';
+    switchTab(initialTab);
+    // ────────────────────────────────────────────────────────────────────────
 
     const monthName = (m: number) => ({6: 'June', 7: 'July', 8: 'August', 9: 'September'} as const)[m as 6|7|8|9];
     const fmtDate = (iso: string) => {
@@ -391,6 +507,29 @@ import '../../styles/global.css';
     }
     (window as any).__removeBlock = removeBlock;
 
+    async function saveMinAdvanceDays() {
+      const input = document.getElementById('setting-min-advance-days') as HTMLInputElement;
+      const btn   = document.getElementById('setting-min-advance-btn') as HTMLButtonElement;
+      const days  = Number(input.value);
+      if (!Number.isInteger(days) || days < 0 || days > 30) { alert('Enter a valid number (0–30)'); return; }
+      try {
+        await api('/api/admin/settings', {
+          method: 'POST',
+          body: JSON.stringify({ minAdvanceDays: days }),
+        });
+        btn.classList.add('adm-pricing-row__btn--saved');
+        btn.textContent = 'Saved ✓';
+        setTimeout(() => {
+          btn.classList.remove('adm-pricing-row__btn--saved');
+          btn.textContent = 'Save';
+        }, 1800);
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Save failed');
+      }
+    }
+    (window as any).__saveMinAdvanceDays = saveMinAdvanceDays;
+
     async function savePricing(month: number) {
       const input = document.getElementById(`pr-rate-${month}`) as HTMLInputElement;
       const btn   = document.getElementById(`pr-btn-${month}`) as HTMLButtonElement;
@@ -415,10 +554,11 @@ import '../../styles/global.css';
     (window as any).__savePricing = savePricing;
 
     async function refresh() {
-      const [resData, blockData, priceData] = await Promise.all([
+      const [resData, blockData, priceData, settingsData] = await Promise.all([
         api<{ reservations: Reservation[] }>('/api/admin/reservations'),
         api<{ blocks: ManualBlock[] }>('/api/admin/blocks'),
         api<{ pricing: PricingRule[] }>('/api/admin/pricing'),
+        api<BookingSettings>('/api/admin/settings'),
       ]);
 
       const reservations = resData.reservations;
@@ -429,6 +569,9 @@ import '../../styles/global.css';
       document.getElementById('pendingCount')!.textContent   = String(pending.length);
       document.getElementById('confirmedCount')!.textContent = String(confirmed.length);
       document.getElementById('otherCount')!.textContent     = String(other.length);
+
+      tabPendingBadge.textContent = String(pending.length);
+      tabPendingBadge.hidden = pending.length === 0;
 
       document.getElementById('pendingList')!.innerHTML = tableRows(pending, r => `
         <button class="adm-btn adm-btn--approve" onclick="__decide('${r.id}','approve')">Approve</button>
@@ -474,6 +617,17 @@ import '../../styles/global.css';
         `;
       }).join('');
       document.getElementById('pricingList')!.innerHTML = pricingHtml;
+
+      document.getElementById('settingsList')!.innerHTML = `
+        <div class="adm-settings-row">
+          <div style="flex:1;">
+            <div class="adm-settings-row__label">Minimum advance booking days</div>
+            <div class="adm-settings-row__hint">Guests must book this many days before their check-in date. 0 = same-day booking allowed.</div>
+          </div>
+          <input type="number" id="setting-min-advance-days" class="adm-settings-row__input" value="${settingsData.minAdvanceDays}" min="0" max="30" />
+          <button class="adm-pricing-row__btn" id="setting-min-advance-btn" onclick="__saveMinAdvanceDays()">Save</button>
+        </div>
+      `;
     }
 
     logoutBtn.addEventListener('click', async () => {
