@@ -268,6 +268,49 @@ ${detailTable(summaryRowsHtml(r))}
   return { subject, html, text };
 }
 
+export function buildGuestDepositReceived(r: ReservationRow): { subject: string; html: string; text: string } {
+  const firstName = r.full_name.split(' ')[0];
+  const deposit   = depositEur(r.total_eur);
+  const remainder = r.total_eur - deposit;
+  const subject   = 'Your deposit has been received — Blue Moon Apartment';
+
+  const content = `
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">You're all set, ${esc(firstName)}!</div>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">Great news — we've received your deposit of <strong style="color:#1A5FAD;">€${deposit.toLocaleString('en-GB')}</strong>. Your stay at Blue Moon Apartment is fully secured. Sit back and look forward to your vacation in Mandre!</p>
+
+${sectionHeading('Your Stay')}
+${detailTable(summaryRowsHtml(r))}
+
+${sectionHeading('Remaining Balance')}
+<p style="margin:12px 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">The remaining <strong>€${remainder.toLocaleString('en-GB')}</strong> is due by bank transfer <strong>on arrival</strong>. No further action is needed from your side before you come.</p>
+
+${sectionHeading('Check-in Information')}
+<p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">Check-in is from <strong>4:00 PM</strong> on ${fmtDateLong(r.check_in)}. Check-out is by <strong>10:00 AM</strong> on ${fmtDateLong(r.check_out)}. If you need different times, just let us know.</p>
+<p style="margin:0;font-size:15px;color:#1a2a3a;">Address: <strong><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Blue+Moon+Apartment&amp;destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" style="color:#1A5FAD;text-decoration:none;" target="_blank">Riječka ulica 30, Mandre, Island of Pag</a></strong>.</p>`;
+
+  const html = emailShell(content);
+
+  const text = [
+    `You're all set, ${firstName}!`,
+    '',
+    `We've received your deposit of €${deposit}. Your stay at Blue Moon Apartment is fully secured.`,
+    '',
+    `Check-in:  ${r.check_in}`,
+    `Check-out: ${r.check_out}`,
+    `Nights:    ${r.nights}`,
+    `Guests:    ${r.guests}`,
+    `Total:     €${r.total_eur}`,
+    '',
+    `Remaining balance: €${remainder} — due by bank transfer on arrival.`,
+    '',
+    'Check-in from 4:00 PM. Check-out by 10:00 AM.',
+    'Address: Riječka ulica 30, Mandre, Island of Pag.',
+    TEXT_SIG,
+  ].join('\n');
+
+  return { subject, html, text };
+}
+
 export function buildGuestBookingApproved(r: ReservationRow): { subject: string; html: string; text: string } {
   const firstName = r.full_name.split(' ')[0];
   const deposit   = depositEur(r.total_eur);
@@ -309,7 +352,7 @@ ${sectionHeading('Payment')}
 
 ${sectionHeading('Check-in Information')}
 <p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">Check-in is from <strong>4:00 PM</strong> on ${fmtDateLong(r.check_in)}. Check-out is by <strong>10:00 AM</strong> on ${fmtDateLong(r.check_out)}. If you need different times, just let us know.</p>
-<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;">Address: <strong>Riječka ulica 30, Mandre, Island of Pag</strong>.</p>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;">Address: <strong><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Blue+Moon+Apartment&amp;destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" style="color:#1A5FAD;text-decoration:none;" target="_blank">Riječka ulica 30, Mandre, Island of Pag</a></strong>.</p>
 <p style="margin:0;font-size:14px;color:#5a7080;">If you have any questions, simply reply to this email.</p>`;
 
   const html = emailShell(content);

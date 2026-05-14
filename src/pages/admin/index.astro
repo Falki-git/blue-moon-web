@@ -199,7 +199,7 @@ import '../../styles/global.css';
     .adm-status--declined  { background: #f1dada; color: #a64141; }
     .adm-status--cancelled { background: #d4d9de; color: #6a7989; }
 
-    .adm-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .adm-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: flex-start; }
     .adm-btn {
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
@@ -214,8 +214,12 @@ import '../../styles/global.css';
     .adm-btn--approve:hover { background: #1452a0; }
     .adm-btn--decline { background: var(--white); color: #a64141; border-color: #f1dada; }
     .adm-btn--decline:hover { background: #f1dada; }
-    .adm-btn--cancel  { background: var(--white); color: #6a7989; border-color: #d4d9de; }
-    .adm-btn--cancel:hover  { background: #d4d9de; }
+    .adm-btn--cancel  { background: var(--white); color: #a64141; border-color: #f1dada; }
+    .adm-btn--cancel:hover  { background: #f1dada; }
+    .adm-btn--deposit { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+    .adm-btn--deposit:hover { background: #c8e6c9; }
+    .adm-btn--deposit-resend { background: var(--white); color: #6a7989; border-color: #d4d9de; }
+    .adm-btn--deposit-resend:hover { background: #d4d9de; }
     .adm-btn--remove  { background: var(--white); color: #a64141; border-color: #f1dada; }
     .adm-btn--remove:hover  { background: #f1dada; }
 
@@ -303,7 +307,7 @@ import '../../styles/global.css';
       address: string | null; source: string | null;
       guests: number; children_ages: string | null;
       check_in: string; check_out: string; nights: number; total_eur: number;
-      message: string | null; decided_at: number | null;
+      message: string | null; decided_at: number | null; deposit_confirmation_sent_at: number | null;
     };
     type ManualBlock = { id: string; created_at: number; from_date: string; to_date: string; note: string | null };
     type PricingRule = { month: number; rate_eur: number; updated_at: number };
@@ -319,6 +323,7 @@ import '../../styles/global.css';
     };
     const fmtTs = (sec: number) => new Date(sec * 1000).toLocaleString('en-GB');
     const fmtEur = (n: number) => `€${n.toLocaleString('en-GB')}`;
+    const depositEur = (total: number) => Math.round(total * 0.3);
     const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
     async function api<T>(path: string, init?: RequestInit): Promise<T> {
@@ -342,7 +347,7 @@ import '../../styles/global.css';
         <tr>
           <td><strong>${esc(r.full_name)}</strong><br><a href="mailto:${esc(r.email)}">${esc(r.email)}</a>${r.phone ? `<br>${esc(r.phone)}` : ''}</td>
           <td>${fmtDate(r.check_in)} → ${fmtDate(r.check_out)}<br><span style="color:var(--text-muted);font-size:0.78rem;">${r.nights} night${r.nights !== 1 ? 's' : ''}, ${r.guests} guest${r.guests !== 1 ? 's' : ''}</span></td>
-          <td><strong>${fmtEur(r.total_eur)}</strong></td>
+          <td><strong>${fmtEur(r.total_eur)}</strong><br><span style="color:var(--text-muted);font-size:0.72rem;">Dep: ${fmtEur(depositEur(r.total_eur))} &middot; Arr: ${fmtEur(r.total_eur - depositEur(r.total_eur))}</span></td>
           <td><span class="adm-status adm-status--${r.status}">${r.status}</span><br><span style="color:var(--text-muted);font-size:0.72rem;">${fmtTs(r.created_at)}</span></td>
           <td><div class="adm-actions">${actions(r)}</div></td>
         </tr>
@@ -351,7 +356,7 @@ import '../../styles/global.css';
     }
 
     async function decide(id: string, action: 'approve' | 'decline' | 'cancel') {
-      if (action === 'cancel' && !confirm('Cancel this reservation? Dates will be released.')) return;
+      if (action === 'cancel' && !confirm('Delete this reservation? Dates will be released.')) return;
       try {
         await api(`/api/admin/reservations/${id}/decision`, {
           method: 'POST',
@@ -363,6 +368,17 @@ import '../../styles/global.css';
       }
     }
     (window as any).__decide = decide;
+
+    async function sendDepositConfirmation(id: string) {
+      if (!confirm('Send deposit received confirmation to the guest?')) return;
+      try {
+        await api(`/api/admin/reservations/${id}/deposit-received`, { method: 'POST' });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to send email');
+      }
+    }
+    (window as any).__sendDepositConfirmation = sendDepositConfirmation;
 
     async function removeBlock(id: string) {
       if (!confirm('Remove this manual block?')) return;
@@ -419,7 +435,11 @@ import '../../styles/global.css';
         <button class="adm-btn adm-btn--decline" onclick="__decide('${r.id}','decline')">Decline</button>
       `);
       document.getElementById('confirmedList')!.innerHTML = tableRows(confirmed, r => `
-        <button class="adm-btn adm-btn--cancel" onclick="__decide('${r.id}','cancel')">Cancel</button>
+        <div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.15rem;">
+          <button class="adm-btn ${r.deposit_confirmation_sent_at ? 'adm-btn--deposit-resend' : 'adm-btn--deposit'}" onclick="__sendDepositConfirmation('${r.id}')">${r.deposit_confirmation_sent_at ? 'Resend deposit confirmation' : 'Send deposit confirmation'}</button>
+          ${r.deposit_confirmation_sent_at ? `<span style="font-size:0.68rem;color:var(--text-muted);">&#10003; Email sent ${fmtTs(r.deposit_confirmation_sent_at)}</span>` : ''}
+        </div>
+        <button class="adm-btn adm-btn--cancel" onclick="__decide('${r.id}','cancel')">Delete reservation</button>
       `);
       document.getElementById('otherList')!.innerHTML = tableRows(other, () => '');
 
