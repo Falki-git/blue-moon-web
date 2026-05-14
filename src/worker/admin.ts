@@ -7,7 +7,7 @@ import {
   listReservations, listManualBlocks, listPricing,
   getReservation, updateReservationStatus, markDepositPaid,
   insertManualBlock, deleteManualBlock,
-  upsertPricingRule,
+  upsertPricingRule, getSetting, upsertSetting,
   type ReservationStatus,
 } from './db';
 import { isInSeason, SEASON_MONTHS } from './pricing';
@@ -175,6 +175,23 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     }
     await upsertPricingRule(env.DB, month, Math.round(rate));
     return ok({ month, rate_eur: Math.round(rate) });
+  }
+
+  if (path === 'settings' && request.method === 'GET') {
+    const val = await getSetting(env.DB, 'min_advance_days');
+    const minAdvanceDays = val !== null ? (parseInt(val, 10) || 0) : 3;
+    return ok({ minAdvanceDays });
+  }
+
+  if (path === 'settings' && request.method === 'POST') {
+    const body = await readJson(request);
+    if (!body) return err(400, 'Invalid JSON');
+    const days = Number(body.minAdvanceDays);
+    if (!Number.isInteger(days) || days < 0 || days > 30) {
+      return err(400, 'minAdvanceDays must be an integer between 0 and 30');
+    }
+    await upsertSetting(env.DB, 'min_advance_days', String(days));
+    return ok({ minAdvanceDays: days });
   }
 
   return err(404, 'Not found');
