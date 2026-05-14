@@ -90,6 +90,7 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
     season: { start: string; end: string };
     minNights: number;
     depositPct: number;
+    minAdvanceDays: number;
   };
 
   const root      = document.getElementById('bookingCalendar')!;
@@ -105,6 +106,15 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
 
   const today = new Date();
   const todayIso = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+  function addDaysToIso(isoDate: string, days: number): string {
+    const [y, m, d] = isoDate.split('-').map(Number);
+    const date = new Date(y, m - 1, d + days);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  let minAdvanceDays = 3;
+  let minCheckinIso = addDaysToIso(todayIso, minAdvanceDays);
 
   let blocked = new Set<string>();
   let pending = new Set<string>();
@@ -207,7 +217,7 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
       );
       el.removeAttribute('disabled');
 
-      const isPast = iso < todayIso;
+      const isPast = iso < minCheckinIso;
       const isOutOfSeason = iso < seasonStart || iso > seasonEnd;
 
       if (isPast || isOutOfSeason) {
@@ -290,7 +300,7 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
   }
 
   function handleClick(iso: string) {
-    if (blocked.has(iso) || pending.has(iso) || iso < todayIso) return;
+    if (blocked.has(iso) || pending.has(iso) || iso < minCheckinIso) return;
     if (iso < seasonStart || iso > seasonEnd) return;
     // Transition dates that are only valid as checkout endpoints
     if ((checkoutOnly.has(iso) || pendingCheckoutOnly.has(iso)) && (!checkIn || checkOut)) return;
@@ -385,6 +395,8 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
       minNights = data.minNights;
       seasonStart = data.season.start;
       seasonEnd   = data.season.end;
+      minAdvanceDays = data.minAdvanceDays ?? 3;
+      minCheckinIso = addDaysToIso(todayIso, minAdvanceDays);
       currentLeft = defaultLeft();
       root.removeAttribute('data-loading');
       hintEl.textContent = `Click an available date to set your check-in (minimum ${minNights} nights).`;
