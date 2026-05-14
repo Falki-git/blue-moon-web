@@ -1,0 +1,422 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import type { Translations } from '../../i18n/utils';
+import heroBg from '../../assets/gallery/hallway-2.jpg';
+
+interface Props {
+  lang: string;
+  T: Translations;
+}
+
+const { lang, T } = Astro.props;
+const prefix = lang === 'en' ? '' : `/${lang}`;
+---
+
+<PageLayout
+  title={T.pricelist.metaTitle}
+  description={T.pricelist.metaDescription}
+  pageTitle={T.pricelist.pageTitle}
+  pageSubtitle={T.pricelist.pageSubtitle}
+  label={T.pricelist.label}
+  bgClass="ph-sea"
+  bgImage={heroBg}
+  heroObjectPosition="center 36.3%"
+  lang={lang}
+>
+
+  <!-- ═══ SEASON CARDS ═══ -->
+  <section class="section">
+    <div class="container">
+      <div class="text-center header-block">
+        <span class="section-label">{T.pricelist.seasonLabel}</span>
+        <h2>{T.pricelist.seasonTitle}</h2>
+        <p class="subtext">{T.pricelist.seasonSubtext}</p>
+      </div>
+
+      <div class="season-cards">
+
+        <!-- Early Summer -->
+        <div class="season-card season-card--early">
+          <div class="season-card__header">
+            <div class="season-card__icon">🌿</div>
+            <h3>{T.pricelist.earlySummer}</h3>
+            <p class="season-card__dates">{T.pricelist.earlySummerDates}</p>
+          </div>
+          <div class="season-card__price">
+            <span class="season-card__currency">€</span>
+            <span class="season-card__amount" data-rate-month="6">199</span>
+            <span class="season-card__per">{T.pricelist.perNight}</span>
+          </div>
+          <a href={`${prefix}/booking?month=6`} class="btn btn-sky" style="width:100%; justify-content:center;">{T.pricelist.bookEarly}</a>
+          <p class="shoulder-note">{T.pricelist.earlyNote}</p>
+        </div>
+
+        <!-- Peak -->
+        <div class="season-card season-card--peak">
+          <div class="season-card__ribbon">{T.pricelist.mostPopular}</div>
+          <div class="season-card__header">
+            <div class="season-card__icon">☀️</div>
+            <h3>{T.pricelist.peakSeason}</h3>
+            <p class="season-card__dates">{T.pricelist.peakSeasonDates}</p>
+          </div>
+          <div class="season-card__price">
+            <span class="season-card__currency">€</span>
+            <span class="season-card__amount" data-rate-month="7">279</span>
+            <span class="season-card__per">{T.pricelist.perNight}</span>
+          </div>
+          <a href={`${prefix}/booking?month=7`} class="btn btn-gold" style="width:100%; justify-content:center;">{T.pricelist.bookPeak}</a>
+          <p class="shoulder-note">{T.pricelist.peakNote}</p>
+        </div>
+
+        <!-- Golden September -->
+        <div class="season-card season-card--golden">
+          <div class="season-card__header">
+            <div class="season-card__icon">🍂</div>
+            <h3>{T.pricelist.goldenSep}</h3>
+            <p class="season-card__dates">{T.pricelist.goldenSepDates}</p>
+          </div>
+          <div class="season-card__price">
+            <span class="season-card__currency">€</span>
+            <span class="season-card__amount" data-rate-month="9">199</span>
+            <span class="season-card__per">{T.pricelist.perNight}</span>
+          </div>
+          <a href={`${prefix}/booking?month=8`} class="btn btn-primary" style="width:100%; justify-content:center;">{T.pricelist.bookGolden}</a>
+          <p class="shoulder-note">{T.pricelist.goldenNote}</p>
+        </div>
+
+      </div>
+
+      <!-- Shared amenities box -->
+      <div class="season-included">
+        <p class="season-included__label">{T.pricelist.includedLabel}</p>
+        <ul class="season-included__list">
+          <li>{T.pricelist.include1}</li>
+          <li>{T.pricelist.include2}</li>
+          <li>{T.pricelist.include3}</li>
+          <li>{T.pricelist.include4}</li>
+          <li>{T.pricelist.include5}</li>
+          <li>{T.pricelist.include6}</li>
+          <li>{T.pricelist.include7}</li>
+          <li>{T.pricelist.include8}</li>
+        </ul>
+      </div>
+
+      <p class="season-minnights">{T.pricelist.minNights}</p>
+    </div>
+  </section>
+
+  <!-- ═══ POLICIES ═══ -->
+  <section class="section" style="background: var(--soft-sky);">
+    <div class="container">
+      <div class="text-center" style="margin-bottom:2.5rem;">
+        <span class="section-label">{T.pricelist.policiesLabel}</span>
+        <h2>{T.pricelist.policiesTitle}</h2>
+      </div>
+      <div class="policies-grid">
+        <div class="policy-item">
+          <div class="policy-icon">🔑</div>
+          <h4>{T.pricelist.checkinTitle}</h4>
+          <p>{T.pricelist.checkinBody}</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">🚪</div>
+          <h4>{T.pricelist.checkoutTitle}</h4>
+          <p>{T.pricelist.checkoutBody}</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">📅</div>
+          <h4>{T.pricelist.minStayTitle}</h4>
+          <p>{T.pricelist.minStayBody}</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">💳</div>
+          <h4>{T.pricelist.depositTitle}</h4>
+          <p>{T.pricelist.depositBody}</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">↩️</div>
+          <h4>{T.pricelist.cancelTitle}</h4>
+          <p>{T.pricelist.cancelBody}</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">🐾</div>
+          <h4>{T.pricelist.petsTitle}</h4>
+          <p>{T.pricelist.petsBody}</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">🚭</div>
+          <h4>{T.pricelist.smokingTitle}</h4>
+          <p>{T.pricelist.smokingBody}</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-icon">👥</div>
+          <h4>{T.pricelist.maxOccupancyTitle}</h4>
+          <p>{T.pricelist.maxOccupancyBody}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ WHAT'S INCLUDED ═══ -->
+  <section class="section">
+    <div class="container">
+      <div class="text-center" style="margin-bottom:2rem;">
+        <span class="section-label">{T.pricelist.noSurprisesLabel}</span>
+        <h2>{T.pricelist.noSurprisesTitle}</h2>
+      </div>
+      <div class="included-grid">
+        <div class="included-item"><span>✓</span> {T.pricelist.includedFull1}</div>
+        <div class="included-item"><span>✓</span> {T.pricelist.includedFull2}</div>
+        <div class="included-item"><span>✓</span> {T.pricelist.includedFull3}</div>
+        <div class="included-item"><span>✓</span> {T.pricelist.includedFull4}</div>
+        <div class="included-item"><span>✓</span> {T.pricelist.includedFull5}</div>
+        <div class="included-item"><span>✓</span> {T.pricelist.includedFull6}</div>
+        <div class="included-item"><span>✓</span> {T.pricelist.includedFull7}</div>
+        <div class="included-item"><span>✓</span> {T.pricelist.includedFull8}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CTA ═══ -->
+  <section style="background: var(--ocean-blue); padding: 3.5rem 0; text-align:center;">
+    <div class="container">
+      <h2 style="color:white; margin-bottom:0.75rem;">{T.pricelist.ctaTitle}</h2>
+      <p style="color:rgba(255,255,255,0.8); margin-bottom:2rem;">{T.pricelist.ctaBody}</p>
+      <a href={`${prefix}/contact`} class="btn btn-white">{T.pricelist.ctaCta}</a>
+    </div>
+  </section>
+
+</PageLayout>
+
+<script>
+  fetch('/api/availability')
+    .then(r => r.json() as Promise<{ ok: boolean; pricing: Record<string, number> }>)
+    .then(data => {
+      if (!data.ok) return;
+      document.querySelectorAll<HTMLElement>('[data-rate-month]').forEach(el => {
+        const rate = data.pricing[el.getAttribute('data-rate-month')!];
+        if (typeof rate === 'number') el.textContent = String(rate);
+      });
+    })
+    .catch(() => { /* keep static fallback */ });
+</script>
+
+<style>
+  .header-block { margin-bottom: 3rem; }
+  .subtext { color: var(--text-muted); margin-top: 0.75rem; font-size: 1rem; }
+
+  .season-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .season-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: 2.5rem 2.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .season-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
+  .season-card--early  { border-top: 5px solid var(--sky-blue); }
+  .season-card--peak   { border-top: 5px solid var(--sunset-gold); }
+  .season-card--golden { border-top: 5px solid var(--ocean-blue); }
+
+  .season-card__ribbon {
+    position: absolute;
+    top: 1.25rem;
+    right: -2.5rem;
+    background: var(--sunset-gold);
+    color: var(--deep-navy);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 3rem;
+    transform: rotate(35deg);
+  }
+
+  .season-card__header { text-align: center; margin-bottom: 1.5rem; }
+  .season-card__icon   { font-size: 3rem; margin-bottom: 0.5rem; }
+  .season-card__header h3 { margin-bottom: 0.4rem; }
+  .season-card__dates  { color: var(--text-muted); font-size: 0.88rem; font-weight: 600; }
+
+  .season-card__price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.3rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid rgba(74,159,212,0.15);
+  }
+
+  .season-card__currency { font-size: 1.8rem; font-weight: 700; font-family: 'Playfair Display', serif; }
+  .season-card__amount   { font-size: 4rem; font-weight: 700; line-height: 1; font-family: 'Playfair Display', serif; }
+  .season-card__per      { font-size: 0.9rem; font-weight: 700; color: var(--text-muted); }
+
+  .season-card--early  .season-card__currency,
+  .season-card--early  .season-card__amount   { color: var(--sky-blue); }
+  .season-card--peak   .season-card__currency,
+  .season-card--peak   .season-card__amount   { color: var(--sunset-gold); }
+  .season-card--golden .season-card__currency,
+  .season-card--golden .season-card__amount   { color: var(--ocean-blue); }
+
+  .season-included {
+    background: var(--soft-sky);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.75rem;
+    margin-top: 1.5rem;
+  }
+  .season-included__label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sky-blue);
+    margin-bottom: 0.75rem;
+  }
+  .season-included__list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem 1.5rem;
+  }
+  .season-included__list li {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    padding-left: 1.1rem;
+    position: relative;
+  }
+  .season-included__list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--sky-blue);
+    font-weight: 800;
+    font-size: 0.75rem;
+    top: 1px;
+  }
+
+  .season-minnights {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .shoulder-note {
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+  }
+
+  /* Policies */
+  .policies-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .policy-item {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-xs);
+    transition: transform 0.25s ease;
+  }
+  .policy-item:hover { transform: translateY(-3px); }
+
+  .policy-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+  .policy-item h4 {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: var(--ocean-blue);
+    margin-bottom: 0.5rem;
+  }
+  .policy-item p { font-size: 0.85rem; color: var(--text-dark); line-height: 1.5; }
+  .policy-item strong { color: var(--ocean-blue); }
+
+  /* Included */
+  .included-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .included-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--soft-sky);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+  .included-item span {
+    color: var(--sky-blue);
+    font-size: 1rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 860px) {
+    .season-cards { grid-template-columns: 1fr; max-width: none; }
+    .season-included__list { grid-template-columns: repeat(2, 1fr); }
+    .policies-grid { grid-template-columns: 1fr 1fr; }
+    .included-grid { grid-template-columns: 1fr 1fr; }
+
+    .season-card { padding: 1.5rem 1.25rem; }
+    .season-card__header {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 0.75rem;
+      align-items: start;
+      justify-items: start;
+      text-align: left;
+      margin-bottom: 1rem;
+    }
+    .season-card__icon {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      font-size: 1.75rem;
+      margin-bottom: 0;
+      align-self: center;
+    }
+    .season-card__header h3 {
+      grid-column: 2;
+      grid-row: 1;
+      font-size: 1.1rem;
+      margin-bottom: 0;
+    }
+    .season-card__dates {
+      grid-column: 2;
+      grid-row: 2;
+    }
+    .season-card__price { margin-bottom: 1.25rem; padding-bottom: 1.25rem; }
+    .season-card__amount { font-size: 3rem; }
+    .season-card__currency { font-size: 1.4rem; }
+    .season-card__per { font-size: 0.85rem; }
+  }
+  @media (max-width: 540px) {
+    .policies-grid { grid-template-columns: 1fr; }
+    .included-grid { grid-template-columns: 1fr; }
+    .season-included__list { grid-template-columns: 1fr; }
+  }
+</style>

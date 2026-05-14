@@ -1,0 +1,555 @@
+---
+import { Image } from 'astro:assets';
+import PageLayout from '../../layouts/PageLayout.astro';
+import type { Translations } from '../../i18n/utils';
+import heroBg from '../../assets/gallery/Blue Moon cover picture.jpg';
+
+interface Props {
+  lang: string;
+  T: Translations;
+}
+
+const { lang, T } = Astro.props;
+const prefix = lang === 'en' ? '' : `/${lang}`;
+
+const galleryImages = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/gallery/*.{jpg,jpeg,png}',
+  { eager: true }
+);
+const img = (filename: string) =>
+  galleryImages[`../../assets/gallery/${filename}`]?.default;
+
+const photos = [
+  // ── Terrace & Hot Tub ──
+  { id: 1,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace with Hot Tub',   size: 'large',  src: img('hot-tub.png') },
+  { id: 2,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-1.jpg') },
+  { id: 3,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-2.jpg') },
+  { id: 4,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-3.jpg') },
+  { id: 5,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-4.jpg') },
+  { id: 6,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-5.jpg') },
+  { id: 7,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-6.jpg') },
+  { id: 8,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-7.jpg') },
+  { id: 9,  cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-8.jpg') },
+  { id: 10, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-9.jpg') },
+  { id: 11, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-10.jpg') },
+  { id: 12, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace',                size: 'medium', src: img('terrace-11.jpg') },
+  { id: 13, cat: 'terrace',  cls: 'ph-terrace',  label: 'Terrace Panorama',       size: 'large',  src: img('terrace-12.jpg') },
+  // ── Living Room ──
+  { id: 14, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'large',  src: img('livingroom-1.jpg') },
+  { id: 15, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: img('livingroom-2.jpg') },
+  { id: 16, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: img('livingroom-3.jpg') },
+  { id: 17, cat: 'living',   cls: 'ph-interior', label: 'Dining Area',            size: 'medium', src: img('livingroom-4.jpg') },
+  { id: 18, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: img('livingroom-5.jpg') },
+  { id: 19, cat: 'living',   cls: 'ph-interior', label: 'Living Room',            size: 'medium', src: img('livingroom-6.jpg') },
+  { id: 20, cat: 'living',   cls: 'ph-interior', label: 'Open-Plan Living',       size: 'medium', src: img('livingroom-7.jpg') },
+  { id: 21, cat: 'living',   cls: 'ph-interior', label: 'Hallway',               size: 'medium', src: img('hallway-1.jpg') },
+  { id: 22, cat: 'living',   cls: 'ph-interior', label: 'Hallway',               size: 'medium', src: img('hallway-2.jpg') },
+  { id: 23, cat: 'living',   cls: 'ph-interior', label: 'Hallway',               size: 'medium', src: img('hallway-3.jpg') },
+  // ── Kitchen ──
+  { id: 24, cat: 'kitchen',  cls: 'ph-kitchen',  label: 'Kitchen',               size: 'large',  src: img('kitchen1-1.jpg') },
+  { id: 25, cat: 'kitchen',  cls: 'ph-kitchen',  label: 'Kitchen',               size: 'medium', src: img('kitchen1-2.jpg') },
+  { id: 26, cat: 'kitchen',  cls: 'ph-kitchen',  label: 'Kitchen — Detail',      size: 'medium', src: img('kitchen1-3.jpg') },
+  // ── Bedroom 1 ──
+  { id: 27, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'large',  src: img('bedroom1-1.jpg'), subgroupLabel: T.gallery.subgroupBedroom1 },
+  { id: 28, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'medium', src: img('bedroom1-2.jpg') },
+  { id: 29, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'medium', src: img('bedroom1-3.jpg') },
+  { id: 30, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 1',             size: 'medium', src: img('bedroom1-4.jpg') },
+  // ── Bedroom 2 ──
+  { id: 31, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'large',  src: img('bedroom2-1.jpg'), subgroupLabel: T.gallery.subgroupBedroom2 },
+  { id: 32, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: img('bedroom2-2.jpg') },
+  { id: 33, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: img('bedroom2-3.jpg') },
+  { id: 34, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: img('bedroom2-4.jpg') },
+  { id: 35, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: img('bedroom2-5.jpg') },
+  { id: 36, cat: 'bedroom',  cls: 'ph-bedroom',  label: 'Bedroom 2',             size: 'medium', src: img('bedroom2-6.jpg') },
+  // ── Bathrooms ──
+  { id: 37, cat: 'bathroom', cls: 'ph-bathroom', label: 'Bathroom 1',            size: 'medium', src: img('bathroom1-1.jpg'), subgroupLabel: T.gallery.subgroupBathroom1 },
+  { id: 38, cat: 'bathroom', cls: 'ph-bathroom', label: 'Bathroom 1',            size: 'medium', src: img('bathroom1-2.jpg') },
+  { id: 39, cat: 'bathroom', cls: 'ph-bathroom', label: 'Bathroom 2',            size: 'medium', src: img('Bathroom2.jpg'), subgroupLabel: T.gallery.subgroupBathroom2 },
+  // ── Mandre ──
+  { id: 40, cat: 'mandre',   cls: 'ph-sea',      label: 'Mandre',                size: 'large',  src: img('mandre-1.jpg') },
+  { id: 41, cat: 'mandre',   cls: 'ph-sea',      label: 'Mandre',                size: 'medium', src: img('mandre-2.jpg') },
+  { id: 42, cat: 'mandre',   cls: 'ph-sea',      label: 'Mandre',                size: 'medium', src: img('mandre-3.jpg') },
+  { id: 43, cat: 'mandre',   cls: 'ph-sea',      label: 'Mandre',                size: 'medium', src: img('mandre-4.jpg') },
+  { id: 44, cat: 'mandre',   cls: 'ph-sea',      label: 'Mandre',                size: 'medium', src: img('mandre-5.jpg') },
+  { id: 45, cat: 'mandre',   cls: 'ph-sea',      label: 'Mandre',                size: 'medium', src: img('mandre-6.jpg') },
+  { id: 46, cat: 'mandre',   cls: 'ph-sea',      label: 'Mandre',                size: 'medium', src: img('mandre-7.jpg') },
+  { id: 47, cat: 'mandre',   cls: 'ph-sea',      label: 'Mandre',                size: 'medium', src: img('mandre-8.jpg') },
+  { id: 48, cat: 'mandre',   cls: 'ph-sea',      label: 'Mandre',                size: 'medium', src: img('mandre-9.jpg') },
+  { id: 49, cat: 'mandre',   cls: 'ph-sea',      label: 'Mandre',                size: 'medium', src: img('mandre-10.jpg') },
+  { id: 50, cat: 'mandre',   cls: 'ph-sea',      label: 'Mandre',                size: 'medium', src: img('mandre-11.jpg') },
+  // ── Other ──
+  { id: 51, cat: 'other',    cls: 'ph-sea',      label: 'Building & Outdoor',    size: 'large',  src: img('outdoor.jpg') },
+  { id: 52, cat: 'other',    cls: 'ph-interior', label: 'Floor Plan',            size: 'large',  src: img('floor plan.jpg') },
+  { id: 53, cat: 'other',    cls: 'ph-interior', label: 'In-room Safe',          size: 'medium', src: img('safe.jpg') },
+  { id: 54, cat: 'other',    cls: 'ph-sea',      label: 'Mandre — Location',     size: 'medium', src: img('location.jpg') },
+];
+
+const categories = [
+  { id: 'all',      label: T.gallery.filterAll },
+  { id: 'living',   label: T.gallery.filterLiving },
+  { id: 'kitchen',  label: T.gallery.filterKitchen },
+  { id: 'bedroom',  label: T.gallery.filterBedroom },
+  { id: 'bathroom', label: T.gallery.filterBathroom },
+  { id: 'terrace',  label: T.gallery.filterTerrace },
+  { id: 'mandre',   label: T.gallery.filterMandre },
+  { id: 'other',    label: T.gallery.filterOther },
+];
+---
+
+<PageLayout
+  title={T.gallery.metaTitle}
+  description={T.gallery.metaDescription}
+  pageTitle={T.gallery.pageTitle}
+  pageSubtitle={T.gallery.pageSubtitle}
+  label={T.gallery.label}
+  bgClass="ph-terrace"
+  bgImage={heroBg}
+  lang={lang}
+>
+
+  <section class="section">
+    <div class="container">
+
+      <!-- Filter tabs -->
+      <div class="gallery-filters" role="tablist" aria-label="Filter gallery by category">
+        {categories.map((cat, i) => (
+          <button
+            class={`gallery-filter-btn ${i === 0 ? 'is-active' : ''}`}
+            data-cat={cat.id}
+            role="tab"
+            aria-selected={i === 0 ? 'true' : 'false'}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
+      <!-- Gallery grid -->
+      <div class="gallery-grid" id="galleryGrid">
+        {photos.map(photo => (
+          <>
+            {photo.subgroupLabel && (
+              <div class="gallery-heading" data-heading-for={photo.cat}>
+                <h3>{photo.subgroupLabel}</h3>
+              </div>
+            )}
+            <div
+              class={`gallery-item ${photo.size === 'large' ? 'gallery-item--large' : ''}`}
+              data-cat={photo.cat}
+              data-label={photo.label}
+            >
+              {photo.src
+                ? <Image
+                    src={photo.src}
+                    alt={photo.label}
+                    class="gallery-item__img"
+                    widths={photo.size === 'large' ? [600, 1000, 1600] : [400, 700, 1100]}
+                    sizes={photo.size === 'large'
+                      ? '(max-width: 400px) 100vw, (max-width: 640px) 100vw, (max-width: 900px) 66vw, 50vw'
+                      : '(max-width: 400px) 100vw, (max-width: 640px) 50vw, (max-width: 900px) 33vw, 25vw'}
+                    loading="lazy"
+                  />
+                : <div class={`img-ph ${photo.cls} gallery-item__img`} aria-hidden="true">
+                    <span class="ph-icon">📷</span>
+                    <span class="ph-label">{photo.label}</span>
+                  </div>
+              }
+              <div class="gallery-item__overlay">
+                <span class="gallery-item__label">{photo.label}</span>
+              </div>
+            </div>
+          </>
+        ))}
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Lightbox modal -->
+  <div id="galleryModal" class="gallery-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Image viewer">
+    <div class="gallery-modal__backdrop" id="modalBackdrop"></div>
+    <button class="gallery-modal__close" id="modalClose" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button class="gallery-modal__nav gallery-modal__nav--prev" id="modalPrev" aria-label="Previous image">
+      <svg width="10" height="18" viewBox="0 0 10 18" fill="none" aria-hidden="true"><path d="M9 1L1 9L9 17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="gallery-modal__stage" id="modalStage"></div>
+    <button class="gallery-modal__nav gallery-modal__nav--next" id="modalNext" aria-label="Next image">
+      <svg width="10" height="18" viewBox="0 0 10 18" fill="none" aria-hidden="true"><path d="M1 1L9 9L1 17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="gallery-modal__caption" id="modalCaption"></div>
+  </div>
+
+  <!-- CTA -->
+  <section style="background:var(--soft-sky); padding:3rem 0; text-align:center;">
+    <div class="container">
+      <h2 style="margin-bottom:0.75rem;">{T.gallery.likeWhatYouSee}</h2>
+      <p style="color:var(--text-muted); margin-bottom:1.75rem;">{T.gallery.ctaSub}</p>
+      <a href={`${prefix}/booking`} class="btn btn-primary">{T.gallery.bookCta}</a>
+    </div>
+  </section>
+
+</PageLayout>
+
+<style>
+  .gallery-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .gallery-filter-btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    border: 2px solid rgba(74,159,212,0.3);
+    background: var(--white);
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .gallery-filter-btn:hover {
+    border-color: var(--sky-blue);
+    color: var(--ocean-blue);
+    background: rgba(74,159,212,0.07);
+  }
+  .gallery-filter-btn.is-active {
+    background: var(--ocean-blue);
+    border-color: var(--ocean-blue);
+    color: white;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    auto-rows: 220px;
+  }
+
+  .gallery-item {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: zoom-in;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .gallery-item.is-hidden {
+    display: none;
+  }
+  .gallery-item--large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .gallery-heading {
+    grid-column: 1 / -1;
+    display: none;
+    padding: 1.25rem 0 0.25rem;
+  }
+  .gallery-heading.is-shown {
+    display: block;
+  }
+  .gallery-heading h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--ocean-blue);
+    margin: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(74,159,212,0.25);
+  }
+
+  .gallery-item__img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: var(--radius) !important;
+    transition: transform 0.4s ease;
+  }
+  .gallery-item:hover .gallery-item__img {
+    transform: scale(1.04);
+  }
+
+  .gallery-item__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(8,22,40,0);
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    transition: background 0.3s ease;
+    border-radius: var(--radius);
+  }
+  .gallery-item:hover .gallery-item__overlay {
+    background: rgba(8,22,40,0.4);
+  }
+
+  .gallery-item__label {
+    color: white;
+    font-size: 0.82rem;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+  .gallery-item:hover .gallery-item__label {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 900px) {
+    .gallery-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); auto-rows: 160px; }
+    .gallery-item--large { grid-column: span 2; }
+  }
+  @media (max-width: 400px) {
+    .gallery-grid { grid-template-columns: 1fr; auto-rows: 200px; }
+    .gallery-item--large { grid-column: span 1; grid-row: span 1; }
+  }
+
+  /* ── Lightbox ── */
+  .gallery-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    align-items: center;
+    justify-content: center;
+  }
+  .gallery-modal.is-open { display: flex; }
+
+  .gallery-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 22, 40, 0.92);
+  }
+
+  .gallery-modal__stage {
+    position: relative;
+    z-index: 1;
+  }
+  .gallery-modal__stage :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+  }
+  .gallery-modal__stage :global(.img-ph) {
+    width: min(600px, 80vw);
+    height: min(400px, 60vh);
+    border-radius: var(--radius);
+  }
+
+  .gallery-modal__close {
+    position: fixed;
+    top: 1rem;
+    right: 1.25rem;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    outline: none;
+    color: #fff;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-fast);
+  }
+  .gallery-modal__close:hover { background: rgba(255, 255, 255, 0.3); }
+  .gallery-modal__close::after {
+    content: '';
+    position: absolute;
+    inset: -20px;
+  }
+
+  .gallery-modal__nav {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    outline: none;
+    color: #fff;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-fast);
+  }
+  .gallery-modal__nav:hover { background: rgba(255, 255, 255, 0.3); }
+  .gallery-modal__nav::after {
+    content: '';
+    position: absolute;
+    inset: -20px;
+  }
+  .gallery-modal__nav--prev { left: 1rem; }
+  .gallery-modal__nav--next { right: 1rem; }
+
+  .gallery-modal__caption {
+    position: fixed;
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    color: #fff;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .gallery-modal__nav--prev { left: 0.25rem; }
+    .gallery-modal__nav--next { right: 0.25rem; }
+    .gallery-modal__nav { width: 2.25rem; height: 2.25rem; }
+  }
+</style>
+
+<script>
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('.gallery-filter-btn');
+  const items      = document.querySelectorAll<HTMLElement>('.gallery-item');
+  const headings   = document.querySelectorAll<HTMLElement>('.gallery-heading');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => { b.classList.remove('is-active'); b.setAttribute('aria-selected','false'); });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-selected','true');
+
+      const cat = btn.dataset.cat;
+      items.forEach(item => {
+        if (cat === 'all' || item.dataset.cat === cat) {
+          item.classList.remove('is-hidden');
+        } else {
+          item.classList.add('is-hidden');
+        }
+      });
+      headings.forEach(h => {
+        if (cat === h.dataset.headingFor) {
+          h.classList.add('is-shown');
+        } else {
+          h.classList.remove('is-shown');
+        }
+      });
+    });
+  });
+
+  // ── Lightbox ──
+  const modal         = document.getElementById('galleryModal') as HTMLElement;
+  const modalStage    = document.getElementById('modalStage') as HTMLElement;
+  const modalCaption  = document.getElementById('modalCaption') as HTMLElement;
+  const modalClose    = document.getElementById('modalClose') as HTMLButtonElement;
+  const modalPrev     = document.getElementById('modalPrev') as HTMLButtonElement;
+  const modalNext     = document.getElementById('modalNext') as HTMLButtonElement;
+  const modalBackdrop = document.getElementById('modalBackdrop') as HTMLElement;
+
+  let currentIndex = 0;
+
+  function getVisibleItems(): HTMLElement[] {
+    return Array.from(document.querySelectorAll<HTMLElement>('.gallery-item:not(.is-hidden)'));
+  }
+
+  function getHighestSrc(img: HTMLImageElement): string {
+    if (!img.srcset) return img.src;
+    const entries = img.srcset.split(',').map(s => {
+      const parts = s.trim().split(' ');
+      return { url: parts[0], w: parseInt(parts[1]) || 0 };
+    });
+    entries.sort((a, b) => b.w - a.w);
+    return entries[0].url;
+  }
+
+  function sizeStage(naturalWidth: number, naturalHeight: number) {
+    const maxW = window.innerWidth * 0.9;
+    const maxH = window.innerHeight * 0.85;
+    const ratio = naturalWidth / naturalHeight;
+    let w = maxW;
+    let h = w / ratio;
+    if (h > maxH) { h = maxH; w = h * ratio; }
+    modalStage.style.width  = Math.round(w) + 'px';
+    modalStage.style.height = Math.round(h) + 'px';
+  }
+
+  function loadSlide(index: number) {
+    const visible = getVisibleItems();
+    if (!visible.length) return;
+    currentIndex = (index + visible.length) % visible.length;
+    const item = visible[currentIndex];
+
+    const imgEl = item.querySelector<HTMLImageElement>('img');
+    if (imgEl) {
+      const src = getHighestSrc(imgEl);
+      const alt = (item.dataset.label || '').replace(/"/g, '&quot;');
+      sizeStage(imgEl.naturalWidth, imgEl.naturalHeight);
+      modalStage.innerHTML = `<img src="${src}" alt="${alt}">`;
+    } else {
+      const ph = item.querySelector('.img-ph');
+      modalStage.style.width  = '';
+      modalStage.style.height = '';
+      modalStage.innerHTML = ph ? ph.outerHTML : '';
+    }
+
+    modalCaption.textContent = item.dataset.label || '';
+  }
+
+  function openModal(index: number) {
+    loadSlide(index);
+    modal.classList.add('is-open');
+    modal.removeAttribute('aria-hidden');
+    document.body.style.overflow = 'hidden';
+    modalClose.focus();
+  }
+
+  function closeModal() {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    modalStage.innerHTML = '';
+    modalStage.style.width  = '';
+    modalStage.style.height = '';
+  }
+
+  document.querySelectorAll<HTMLElement>('.gallery-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const visible = getVisibleItems();
+      const idx = visible.indexOf(item);
+      if (idx !== -1) openModal(idx);
+    });
+  });
+
+  modalClose.addEventListener('click', closeModal);
+  modalBackdrop.addEventListener('click', closeModal);
+  modalStage.addEventListener('click', () => loadSlide(currentIndex + 1));
+  modalPrev.addEventListener('click', () => loadSlide(currentIndex - 1));
+  modalNext.addEventListener('click', () => loadSlide(currentIndex + 1));
+
+  document.addEventListener('keydown', e => {
+    if (!modal.classList.contains('is-open')) return;
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'ArrowLeft') loadSlide(currentIndex - 1);
+    if (e.key === 'ArrowRight') loadSlide(currentIndex + 1);
+  });
+
+  let touchStartX = 0;
+  modal.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+  modal.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) dx < 0 ? loadSlide(currentIndex + 1) : loadSlide(currentIndex - 1);
+  });
+</script>
