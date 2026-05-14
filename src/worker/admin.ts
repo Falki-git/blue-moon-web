@@ -5,14 +5,14 @@ import {
 } from './auth';
 import {
   listReservations, listManualBlocks, listPricing,
-  getReservation, updateReservationStatus,
+  getReservation, updateReservationStatus, markDepositPaid,
   insertManualBlock, deleteManualBlock,
   upsertPricingRule,
   type ReservationStatus,
 } from './db';
 import { isInSeason, SEASON_MONTHS } from './pricing';
 import {
-  sendEmail, buildGuestBookingApproved,
+  sendEmail, buildGuestBookingApproved, buildGuestDepositReceived,
 } from './email';
 
 function err(status: number, error: string): Response {
@@ -110,6 +110,26 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     }
 
     return ok({ status: newStatus });
+  }
+
+  const depositMatch = path.match(/^reservations\/([^/]+)\/deposit-received$/);
+  if (depositMatch && request.method === 'POST') {
+    const id = depositMatch[1];
+    const row = await getReservation(env.DB, id);
+    if (!row) return err(404, 'Reservation not found');
+    if (row.status !== 'confirmed') return err(409, `Cannot send deposit confirmation for a ${row.status} reservation`);
+
+    await markDepositPaid(env.DB, id);
+    const msg = buildGuestDepositReceived(row);
+    ctx.waitUntil(
+      sendEmail(env, {
+        to: row.email, replyTo: env.CONTACT_TO_EMAIL,
+        subject: msg.subject, html: msg.html, text: msg.text,
+      }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend deposit-received failed:', r.status, t)); })
+        .catch(e => console.error('Resend deposit-received failed:', e))
+    );
+
+    return ok();
   }
 
   if (path === 'blocks' && request.method === 'GET') {

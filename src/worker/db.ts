@@ -20,6 +20,7 @@ export interface ReservationRow {
   message: string | null;
   decision_token: string;
   decided_at: number | null;
+  deposit_confirmation_sent_at: number | null;
 }
 
 export interface ManualBlockRow {
@@ -243,6 +244,12 @@ export async function listReservations(
     : db.prepare(`SELECT * FROM reservations ORDER BY check_in ASC`);
   const rs = await stmt.all<ReservationRow>();
   return rs.results ?? [];
+}
+
+export async function markDepositPaid(db: D1Database, id: string): Promise<void> {
+  await db.prepare(
+    `UPDATE reservations SET deposit_confirmation_sent_at = unixepoch() WHERE id = ?1`
+  ).bind(id).run();
 }
 
 export async function listManualBlocks(db: D1Database): Promise<ManualBlockRow[]> {
