@@ -1,6 +1,16 @@
 import type { Env } from './index';
 import type { ReservationRow } from './db';
 import { depositEur } from './pricing';
+import { getTranslations, INTL_LOCALE_MAP, type SupportedLang, SUPPORTED_LANGS } from '../i18n/utils';
+
+function tpl(s: string, vars: Record<string, string | number>): string {
+  return Object.entries(vars).reduce((r, [k, v]) => r.replace(`{{${k}}}`, String(v)), s);
+}
+
+function safeLang(lang: string | null | undefined): SupportedLang {
+  const l = (lang ?? 'en') as SupportedLang;
+  return SUPPORTED_LANGS.includes(l) ? l : 'en';
+}
 
 const FROM     = 'Blue Moon Apartment <noreply@bluemoonmandre.eu>';
 const SITE     = 'https://bluemoonmandre.eu';
@@ -47,10 +57,10 @@ export async function sendEmail(env: Env, m: SendEmailInput): Promise<Response> 
   });
 }
 
-function fmtDateLong(iso: string): string {
+function fmtDateLong(iso: string, locale = 'en-GB'): string {
   const [y, mo, d] = iso.split('-').map(Number);
   const date = new Date(y, mo - 1, d);
-  return date.toLocaleDateString('en-GB', {
+  return date.toLocaleDateString(locale, {
     weekday: 'short', day: '2-digit', month: 'short', year: 'numeric',
   });
 }
@@ -134,13 +144,13 @@ ${content}
 
 // ─── Booking summary rows ─────────────────────────────────────────────────────
 
-function summaryRowsHtml(r: ReservationRow): string {
+function summaryRowsHtml(r: ReservationRow, locale: string, labels: { checkin: string; checkout: string; nights: string; guests: string; total: string }): string {
   return [
-    detailRow('Check-in',  `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_in)}</strong>`),
-    detailRow('Check-out', `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_out)}</strong>`),
-    detailRow('Nights',    String(r.nights)),
-    detailRow('Guests',    r.guests + (r.children_ages ? ` <span style="color:#5a7080;font-size:13px;">(children: ${esc(r.children_ages)})</span>` : '')),
-    detailRow('Total',     `<strong style="color:#081628;font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong>`),
+    detailRow(labels.checkin,  `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_in, locale)}</strong>`),
+    detailRow(labels.checkout, `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_out, locale)}</strong>`),
+    detailRow(labels.nights,   String(r.nights)),
+    detailRow(labels.guests,   r.guests + (r.children_ages ? ` <span style="color:#5a7080;font-size:13px;">(${esc(r.children_ages)})</span>` : '')),
+    detailRow(labels.total,    `<strong style="color:#081628;font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong>`),
   ].join('\n');
 }
 
@@ -236,74 +246,84 @@ ${detailTable(bookingRows)}
   return { subject, html, text };
 }
 
-export function buildGuestBookingPending(r: ReservationRow): { subject: string; html: string; text: string } {
+export function buildGuestBookingPending(r: ReservationRow, langCode?: string): { subject: string; html: string; text: string } {
+  const lang    = safeLang(langCode ?? r.language);
+  const T       = getTranslations(lang);
+  const locale  = INTL_LOCALE_MAP[lang];
+  const e       = T.email;
+  const labels  = { checkin: e.tableCheckin, checkout: e.tableCheckout, nights: e.tableNights, guests: e.tableGuests, total: e.tableTotal };
   const firstName = r.full_name.split(' ')[0];
-  const subject   = "We've received your reservation request — Blue Moon Apartment";
+  const subject   = e.pendingSubject;
 
   const content = `
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">Thank you, ${esc(firstName)}!</div>
-<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">We received your reservation request. We'll review it and respond <strong>within 24 hours</strong>. Your selected dates are held until then.</p>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(tpl(e.pendingHeading, { name: firstName }))}</div>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.pendingBody)}</p>
 
-${sectionHeading('Your Request')}
-${detailTable(summaryRowsHtml(r))}
+${sectionHeading(e.pendingSection)}
+${detailTable(summaryRowsHtml(r, locale, labels))}
 
-<p style="margin:0;font-size:14px;color:#5a7080;">If anything changes in the meantime, simply reply to this email and we'll be happy to help.</p>`;
+<p style="margin:0;font-size:14px;color:#5a7080;">${esc(e.pendingFollowUp)}</p>`;
 
   const html = emailShell(content);
 
   const text = [
-    `Thank you, ${firstName}!`,
+    tpl(e.pendingHeading, { name: firstName }),
     '',
-    "We received your reservation request. We'll review it and respond within 24 hours. Your selected dates are held until then.",
+    e.pendingBody,
     '',
-    'Your request:',
-    `Check-in:  ${r.check_in}`,
-    `Check-out: ${r.check_out}`,
-    `Nights:    ${r.nights}`,
-    `Guests:    ${r.guests}`,
-    `Total:     €${r.total_eur}`,
+    e.pendingSection + ':',
+    `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
+    `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
+    `${e.tableNights}:   ${r.nights}`,
+    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableTotal}:    €${r.total_eur}`,
     TEXT_SIG,
   ].join('\n');
 
   return { subject, html, text };
 }
 
-export function buildGuestDepositReceived(r: ReservationRow): { subject: string; html: string; text: string } {
+export function buildGuestDepositReceived(r: ReservationRow, langCode?: string): { subject: string; html: string; text: string } {
+  const lang    = safeLang(langCode ?? r.language);
+  const T       = getTranslations(lang);
+  const locale  = INTL_LOCALE_MAP[lang];
+  const e       = T.email;
+  const labels  = { checkin: e.tableCheckin, checkout: e.tableCheckout, nights: e.tableNights, guests: e.tableGuests, total: e.tableTotal };
   const firstName = r.full_name.split(' ')[0];
   const deposit   = depositEur(r.total_eur);
   const remainder = r.total_eur - deposit;
-  const subject   = 'Your deposit has been received — Blue Moon Apartment';
+  const subject   = e.depositSubject;
 
   const content = `
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">You're all set, ${esc(firstName)}!</div>
-<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">Great news — we've received your deposit of <strong style="color:#1A5FAD;">€${deposit.toLocaleString('en-GB')}</strong>. Your stay at Blue Moon Apartment is fully secured. Sit back and look forward to your vacation in Mandre!</p>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(tpl(e.depositHeading, { name: firstName }))}</div>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositBody, { deposit: deposit.toLocaleString('en-GB') }))}</p>
 
-${sectionHeading('Your Stay')}
-${detailTable(summaryRowsHtml(r))}
+${sectionHeading(e.depositStaySection)}
+${detailTable(summaryRowsHtml(r, locale, labels))}
 
-${sectionHeading('Remaining Balance')}
-<p style="margin:12px 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">The remaining <strong>€${remainder.toLocaleString('en-GB')}</strong> is due by bank transfer <strong>on arrival</strong>. No further action is needed from your side before you come.</p>
+${sectionHeading(e.depositBalanceSection)}
+<p style="margin:12px 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositBalanceBody, { remainder: remainder.toLocaleString('en-GB') }))}</p>
 
-${sectionHeading('Check-in Information')}
-<p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">Check-in is from <strong>4:00 PM</strong> on ${fmtDateLong(r.check_in)}. Check-out is by <strong>10:00 AM</strong> on ${fmtDateLong(r.check_out)}. If you need different times, just let us know.</p>
-<p style="margin:0;font-size:15px;color:#1a2a3a;">Address: <strong><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Blue+Moon+Apartment&amp;destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" style="color:#1A5FAD;text-decoration:none;" target="_blank">Riječka ulica 30, Mandre, Island of Pag</a></strong>.</p>`;
+${sectionHeading(e.depositCheckinSection)}
+<p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositCheckinBody, { checkin: fmtDateLong(r.check_in, locale), checkout: fmtDateLong(r.check_out, locale) }))}</p>
+<p style="margin:0;font-size:15px;color:#1a2a3a;">${esc(e.approvedAddress)} <strong><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Blue+Moon+Apartment&amp;destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" style="color:#1A5FAD;text-decoration:none;" target="_blank">Riječka ulica 30, Mandre, Island of Pag</a></strong>.</p>`;
 
   const html = emailShell(content);
 
   const text = [
-    `You're all set, ${firstName}!`,
+    tpl(e.depositHeading, { name: firstName }),
     '',
-    `We've received your deposit of €${deposit}. Your stay at Blue Moon Apartment is fully secured.`,
+    tpl(e.depositBody, { deposit: String(deposit) }),
     '',
-    `Check-in:  ${r.check_in}`,
-    `Check-out: ${r.check_out}`,
-    `Nights:    ${r.nights}`,
-    `Guests:    ${r.guests}`,
-    `Total:     €${r.total_eur}`,
+    `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
+    `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
+    `${e.tableNights}:   ${r.nights}`,
+    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableTotal}:    €${r.total_eur}`,
     '',
-    `Remaining balance: €${remainder} — due by bank transfer on arrival.`,
+    tpl(e.depositBalanceBody, { remainder: String(remainder) }),
     '',
-    'Check-in from 4:00 PM. Check-out by 10:00 AM.',
+    tpl(e.depositCheckinBody, { checkin: r.check_in, checkout: r.check_out }),
     'Address: Riječka ulica 30, Mandre, Island of Pag.',
     TEXT_SIG,
   ].join('\n');
@@ -311,21 +331,26 @@ ${sectionHeading('Check-in Information')}
   return { subject, html, text };
 }
 
-export function buildGuestBookingApproved(r: ReservationRow): { subject: string; html: string; text: string } {
+export function buildGuestBookingApproved(r: ReservationRow, langCode?: string): { subject: string; html: string; text: string } {
+  const lang    = safeLang(langCode ?? r.language);
+  const T       = getTranslations(lang);
+  const locale  = INTL_LOCALE_MAP[lang];
+  const e       = T.email;
+  const labels  = { checkin: e.tableCheckin, checkout: e.tableCheckout, nights: e.tableNights, guests: e.tableGuests, total: e.tableTotal };
   const firstName = r.full_name.split(' ')[0];
   const deposit   = depositEur(r.total_eur);
   const remainder = r.total_eur - deposit;
-  const subject   = 'Your reservation is confirmed — Blue Moon Apartment';
+  const subject   = e.approvedSubject;
 
   const content = `
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">Your reservation is confirmed!</div>
-<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">We're delighted to confirm your stay at Blue Moon Apartment. We look forward to welcoming you to Mandre!</p>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(e.approvedHeading)}</div>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.approvedBody)}</p>
 
-${sectionHeading('Stay Details')}
-${detailTable(summaryRowsHtml(r))}
+${sectionHeading(e.approvedStaySection)}
+${detailTable(summaryRowsHtml(r, locale, labels))}
 
-${sectionHeading('Payment')}
-<p style="margin:12px 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">To secure your booking, please transfer the <strong style="color:#1A5FAD;">30% deposit of €${deposit.toLocaleString('en-GB')}</strong> within 3 days. The remaining <strong>€${remainder.toLocaleString('en-GB')}</strong> is due by bank transfer on arrival.</p>
+${sectionHeading(e.approvedPaymentSection)}
+<p style="margin:12px 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.approvedPaymentBody, { deposit: deposit.toLocaleString('en-GB'), remainder: remainder.toLocaleString('en-GB') }))}</p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px;background-color:#EAF6FC;border-radius:8px;border-left:4px solid #E8A82A;">
   <tr><td style="padding:16px 20px;">
     <div style="font-size:11px;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#5a7080;margin-bottom:4px;">IBAN</div>
@@ -348,33 +373,33 @@ ${sectionHeading('Payment')}
     </table>
   </td></tr>
 </table>
-<p style="margin:0 0 24px;font-size:14px;color:#5a7080;">Once your deposit is received, you're all set! We'll take care of everything from here — just sit back and look forward to your vacation in Mandre.</p>
+<p style="margin:0 0 24px;font-size:14px;color:#5a7080;">${esc(e.approvedQuestions)}</p>
 
-${sectionHeading('Check-in Information')}
-<p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">Check-in is from <strong>4:00 PM</strong> on ${fmtDateLong(r.check_in)}. Check-out is by <strong>10:00 AM</strong> on ${fmtDateLong(r.check_out)}. If you need different times, just let us know.</p>
-<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;">Address: <strong><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Blue+Moon+Apartment&amp;destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" style="color:#1A5FAD;text-decoration:none;" target="_blank">Riječka ulica 30, Mandre, Island of Pag</a></strong>.</p>
-<p style="margin:0;font-size:14px;color:#5a7080;">If you have any questions, simply reply to this email.</p>`;
+${sectionHeading(e.approvedCheckinSection)}
+<p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.approvedCheckinBody, { checkin: fmtDateLong(r.check_in, locale), checkout: fmtDateLong(r.check_out, locale) }))}</p>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;">${esc(e.approvedAddress)} <strong><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Blue+Moon+Apartment&amp;destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" style="color:#1A5FAD;text-decoration:none;" target="_blank">Riječka ulica 30, Mandre, Island of Pag</a></strong>.</p>
+<p style="margin:0;font-size:14px;color:#5a7080;">${esc(e.approvedQuestions)}</p>`;
 
   const html = emailShell(content);
 
   const text = [
-    `Your reservation is confirmed!`,
+    e.approvedHeading,
     '',
-    `Check-in:  ${r.check_in}`,
-    `Check-out: ${r.check_out}`,
-    `Nights:    ${r.nights}`,
-    `Guests:    ${r.guests}`,
-    `Total:     €${r.total_eur}`,
+    e.approvedBody,
     '',
-    `30% deposit (€${deposit}) due within 3 days. Remaining €${remainder} due by bank transfer on arrival.`,
+    `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
+    `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
+    `${e.tableNights}:   ${r.nights}`,
+    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableTotal}:    €${r.total_eur}`,
+    '',
+    tpl(e.approvedPaymentBody, { deposit: String(deposit), remainder: String(remainder) }),
     `IBAN: ${BANK_IBAN}`,
     `Account holder: ${BANK_HOLDER}`,
     `Bank: ${BANK_NAME}`,
     `BIC/SWIFT: ${BANK_BIC}`,
     '',
-    'Once your deposit is received, you\'re all set — just look forward to your vacation in Mandre!',
-    '',
-    'Check-in from 4:00 PM. Check-out by 10:00 AM.',
+    tpl(e.approvedCheckinBody, { checkin: r.check_in, checkout: r.check_out }),
     'Address: Riječka ulica 30, Mandre, Island of Pag.',
     TEXT_SIG,
   ].join('\n');

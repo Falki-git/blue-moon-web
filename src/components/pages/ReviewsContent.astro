@@ -1,0 +1,432 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import type { Translations } from '../../i18n/utils';
+import heroBg from '../../assets/gallery/reviews-1.jpg';
+
+interface Props {
+  lang: string;
+  T: Translations;
+}
+
+const { lang, T } = Astro.props;
+const prefix = lang === 'en' ? '' : `/${lang}`;
+
+const reviews = [
+  {
+    id: 1,
+    name: 'Bartosz',
+    country: 'Poland',
+    flag: '🇵🇱',
+    rating: 10,
+    date: 'September 2025',
+    title: 'Clean, well-maintained, and brilliantly equipped',
+    text: 'The property is very clean, well-maintained and brilliantly equipped. The terrace is clean and stocked with sunbeds and a barbecue grill. The apartment is perfectly placed close to the beach, promenade and restaurants.',
+    highlights: ['BBQ grill on terrace', 'Beach & promenade', 'Spotlessly clean'],
+    booking: 'Booking.com',
+  },
+  {
+    id: 2,
+    name: 'Tomasz',
+    country: 'Poland',
+    flag: '🇵🇱',
+    rating: 10,
+    date: 'September 2025',
+    title: 'The jacuzzi is a fairy tale',
+    text: 'A beautiful apartment, very comfortable. It had everything you could need for your stay, and more. Very clean, close to the beach and restaurants, small shop right across the street. The sea view from the terrace is gorgeous — and the jacuzzi is a fairy tale.',
+    highlights: ['Jacuzzi', 'Sea view from terrace', 'Shop across the street'],
+    booking: 'Booking.com',
+  },
+  {
+    id: 3,
+    name: 'Alex',
+    country: 'Germany',
+    flag: '🇩🇪',
+    rating: 10,
+    date: 'June 2025',
+    title: 'A wonderful time in Mandre',
+    text: 'The penthouse has everything you need. Great terrace with the new whirlpool, seating and parasol. Bruno (local contact) welcomed us warmly and showed us the entire apartment. The kitchen was fully equipped — all utensils and even spices, oil etc. — and even had fresh fruit and drinks in the fridge. The bathroom was equally well-prepared: deodorant, cotton pads, washing powder — it had everything. A small supermarket is just 20 metres away. The promenade, beach, restaurants and small shops are a 2–3 minute walk. Goran also arranged an early check-in since we had spent the previous week in Mandre — a seamless transition. Many thanks for that!',
+    highlights: ['New whirlpool', 'Fully stocked kitchen', 'Early check-in arranged'],
+    booking: 'Booking.com',
+  },
+  {
+    id: 4,
+    name: 'Patryk',
+    country: 'Poland',
+    flag: '🇵🇱',
+    rating: 10,
+    date: 'September 2024',
+    title: 'Will meet even the most demanding expectations',
+    text: 'Modern, brilliantly equipped apartment. In my opinion it will meet even the most demanding expectations. Very good communication with Bruno, who was always available and never refused to help. Highly recommend!',
+    highlights: ['Modern & equipped', 'Bruno always available', 'Highly recommended'],
+    booking: 'Booking.com',
+  },
+  {
+    id: 5,
+    name: 'Žiga',
+    country: 'Slovenia',
+    flag: '🇸🇮',
+    rating: 10,
+    date: 'September 2024',
+    title: 'Hospitable, friendly hosts — highly recommend',
+    text: 'Hospitable, friendly hosts. Great location, beautiful apartment — very clean and tidy. We recommend to everyone.',
+    highlights: ['Friendly hosts', 'Clean & tidy', 'Great location'],
+    booking: 'Booking.com',
+  },
+  {
+    id: 6,
+    name: 'Iveta',
+    country: 'Slovakia',
+    flag: '🇸🇰',
+    rating: 10,
+    date: 'August 2024',
+    title: 'Great holiday',
+    text: 'A beautiful brand-new apartment, fully equipped, spotlessly clean, two bathrooms, three LCD TVs, large terrace with seating and sunbeds. WiFi worked flawlessly. All listing photos are genuine. The wonderful Bruno welcomed us with a bowl of fresh fruit, chilled mineral water and juice. We had a parking space and garage. Communication was excellent. Thank you Bruno and Goran for a superb stay!',
+    highlights: ['Two bathrooms', 'Welcome basket', 'Parking & garage'],
+    booking: 'Booking.com',
+  },
+  {
+    id: 7,
+    name: 'Paolo',
+    country: 'Italy',
+    flag: '🇮🇹',
+    rating: 10,
+    date: 'August 2024',
+    title: 'Everything was perfect — you are the best!',
+    text: 'Everything was perfect! You are the best! Congratulations! We spent a wonderful vacation in the apartment and in the village of Mandre! Thank you for your work!',
+    highlights: ['Perfect stay', 'Mandre village', 'Outstanding hosts'],
+    booking: 'Booking.com',
+  },
+  {
+    id: 8,
+    name: 'Korban / Łukasz',
+    country: 'Poland',
+    flag: '🇵🇱',
+    rating: 10,
+    date: 'August 2024',
+    title: 'Thank you Blue Moon Team for an excellent vacation!',
+    text: 'Beautiful apartment in excellent location in Mandre. 1 minute to shop and bakery. 3 minutes to the beach. Very comfortable terrace with amazing landscape! Great support from local contact Bruno. All was perfect. Thank you Blue Moon Team for excellent vacation! It was full relax time for me and my family!',
+    highlights: ['Perfect location', 'Terrace & views', 'Bruno on site'],
+    booking: 'Booking.com',
+  },
+  {
+    id: 9,
+    name: 'Pavla',
+    country: 'Czech Republic',
+    flag: '🇨🇿',
+    rating: 10,
+    date: 'August 2024',
+    title: 'Designed with care and a great sense for detail',
+    text: 'We had an absolutely great comfort during our stay, the apartment was wonderfully furnished, it is obvious that it was designed with care and great sense for details. We had everything we needed and more than we would expect. The terrace is absolute top. The host was very helpful and welcoming.',
+    highlights: ['Terrace', 'Beautiful furnishings', 'Welcoming host'],
+    booking: 'Booking.com',
+  },
+];
+
+const avgRating = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+
+const monthMap: Record<string, string> = {
+  January: '01', February: '02', March: '03', April: '04',
+  May: '05', June: '06', July: '07', August: '08',
+  September: '09', October: '10', November: '11', December: '12',
+};
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LodgingBusiness',
+  'name': 'Blue Moon Apartment',
+  'url': 'https://bluemoonmandre.eu',
+  'aggregateRating': {
+    '@type': 'AggregateRating',
+    'ratingValue': '10',
+    'bestRating': '10',
+    'worstRating': '1',
+    'reviewCount': '12',
+  },
+  'review': reviews.map(r => {
+    const [month, year] = r.date.split(' ');
+    return {
+      '@type': 'Review',
+      'name': r.title,
+      'reviewBody': r.text,
+      'datePublished': `${year}-${monthMap[month] ?? '01'}`,
+      'author': { '@type': 'Person', 'name': r.name },
+      'reviewRating': {
+        '@type': 'Rating',
+        'ratingValue': String(r.rating),
+        'bestRating': '10',
+        'worstRating': '1',
+      },
+    };
+  }),
+};
+---
+
+<PageLayout
+  title={T.reviews.metaTitle}
+  description={T.reviews.metaDescription}
+  pageTitle={T.reviews.pageTitle}
+  pageSubtitle={T.reviews.pageSubtitle}
+  label={T.reviews.label}
+  bgClass="ph-sea"
+  bgImage={heroBg}
+  lang={lang}
+>
+
+  <!-- ═══ SUMMARY BAR ═══ -->
+  <section class="section-sm" style="background:var(--soft-sky);">
+    <div class="container">
+      <div class="rating-summary">
+        <div class="rating-summary__score">
+          <span class="rating-summary__num">{avgRating}</span>
+          <div>
+            <div class="stars" style="font-size:1.4rem;">★★★★★</div>
+            <span class="rating-summary__count">{T.reviews.ratingCount}</span>
+          </div>
+        </div>
+        <div class="rating-bars">
+          <div class="rating-bar">
+            <span>{T.reviews.cleanlinessLabel}</span>
+            <div class="bar"><div class="bar__fill" style="width:100%"></div></div>
+            <span class="bar__label">10.0</span>
+          </div>
+          <div class="rating-bar">
+            <span>{T.reviews.locationLabel}</span>
+            <div class="bar"><div class="bar__fill" style="width:100%"></div></div>
+            <span class="bar__label">10.0</span>
+          </div>
+          <div class="rating-bar">
+            <span>{T.reviews.hostLabel}</span>
+            <div class="bar"><div class="bar__fill" style="width:100%"></div></div>
+            <span class="bar__label">10.0</span>
+          </div>
+          <div class="rating-bar">
+            <span>{T.reviews.valueLabel}</span>
+            <div class="bar"><div class="bar__fill" style="width:100%"></div></div>
+            <span class="bar__label">10.0</span>
+          </div>
+        </div>
+        <div class="rating-summary__cta">
+          <p>{T.reviews.joinGuests}</p>
+          <a href={`${prefix}/booking`} class="btn btn-primary btn-sm">{T.reviews.bookStay}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ REVIEWS GRID ═══ -->
+  <section class="section">
+    <div class="container">
+      <div class="reviews-masonry">
+        {reviews.map(review => (
+          <article class="review-full card">
+            <header class="review-full__header">
+              <div class="review-full__stars">{review.rating} / 10</div>
+              <div class="review-full__meta">
+                <span class="review-full__badge">{review.booking}</span>
+              </div>
+            </header>
+            {review.title && <h3 class="review-full__title">"{review.title}"</h3>}
+            {review.text && <blockquote class="review-full__text">{review.text}</blockquote>}
+            <div class="review-full__highlights">
+              {review.highlights.map(h => (
+                <span class="highlight-chip">{h}</span>
+              ))}
+            </div>
+            <footer class="review-full__footer">
+              <div class="review-full__author">
+                <strong>{review.name}</strong>
+                <span>{review.flag} {review.country} · {T.reviews.verifiedGuest}</span>
+              </div>
+              <span class="review-full__date">{review.date}</span>
+            </footer>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ LEAVE A REVIEW ═══ -->
+  <section class="section-sm" style="background:var(--soft-sky); text-align:center;">
+    <div class="container">
+      <h2 style="margin-bottom:0.75rem;">{T.reviews.stayedWithUs}</h2>
+      <p style="color:var(--text-muted); margin-bottom:1.75rem; max-width:480px; margin-left:auto; margin-right:auto;">{T.reviews.leaveReviewBody}</p>
+      <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+        <a href="https://www.booking.com/hotel/hr/blue-moon-apartment-mandre.en-gb.html" target="_blank" rel="noopener" class="btn btn-primary">{T.reviews.leaveReviewBtn}</a>
+        <a href={`${prefix}/contact`} class="btn btn-secondary">{T.reviews.contactBtn}</a>
+      </div>
+    </div>
+  </section>
+
+</PageLayout>
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+<style>
+  /* Rating summary */
+  .rating-summary {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 3rem;
+    align-items: center;
+    padding: 2rem 2.5rem;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .rating-summary__score {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .rating-summary__num {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--ocean-blue);
+    line-height: 1;
+  }
+  .rating-summary__count {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    display: block;
+    margin-top: 0.2rem;
+  }
+
+  .rating-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-width: 280px;
+  }
+  .rating-bar {
+    display: grid;
+    grid-template-columns: 80px 1fr 30px;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .rating-bar > span:first-child {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: right;
+  }
+  .bar {
+    height: 7px;
+    background: rgba(74,159,212,0.18);
+    border-radius: 50px;
+    overflow: hidden;
+  }
+  .bar__fill {
+    height: 100%;
+    background: var(--sky-blue);
+    border-radius: 50px;
+  }
+  .bar__label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--ocean-blue);
+  }
+
+  .rating-summary__cta { text-align: center; }
+  .rating-summary__cta p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    font-style: italic;
+  }
+
+  .reviews-masonry {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .review-full {
+    padding: 1.75rem;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .review-full__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .review-full__stars {
+    color: var(--sunset-gold);
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+  }
+  .review-full__badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--soft-sky);
+    color: var(--sky-blue);
+    padding: 0.2rem 0.6rem;
+    border-radius: 50px;
+  }
+
+  .review-full__title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ocean-blue);
+    font-style: italic;
+  }
+
+  .review-full__text {
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    line-height: 1.75;
+    font-style: normal;
+  }
+
+  .review-full__highlights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .highlight-chip {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--sky-blue);
+    background: rgba(74,159,212,0.1);
+    padding: 0.25rem 0.65rem;
+    border-radius: 50px;
+    letter-spacing: 0.02em;
+  }
+
+  .review-full__footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-top: 1px solid rgba(74,159,212,0.12);
+    padding-top: 0.85rem;
+    gap: 0.5rem;
+  }
+  .review-full__author { display: flex; flex-direction: column; gap: 0.15rem; }
+  .review-full__author strong { font-size: 0.9rem; color: var(--ocean-blue); }
+  .review-full__author span   { font-size: 0.78rem; color: var(--text-muted); }
+  .review-full__date {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 960px) {
+    .rating-summary { grid-template-columns: 1fr; gap: 1.5rem; text-align: center; }
+    .rating-summary__score { justify-content: center; }
+    .rating-bar > span:first-child { text-align: left; }
+    .reviews-masonry { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 580px) {
+    .reviews-masonry { grid-template-columns: 1fr; }
+    .rating-bars { min-width: unset; }
+  }
+</style>

@@ -1,10 +1,16 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getTranslations } from '../i18n/utils';
+
+const lang = Astro.currentLocale ?? 'en';
+const T = getTranslations(lang);
+const prefix = lang === 'en' ? '' : `/${lang}`;
 ---
 
 <BaseLayout
-  title="Page Not Found | Blue Moon Apartment"
-  description="The page you're looking for doesn't exist. Return to Blue Moon Apartment homepage."
+  title={T.notFound.metaTitle}
+  description={T.notFound.metaDescription}
+  lang={lang}
 >
 
   <section class="notfound">
@@ -14,30 +20,76 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <img src="/images/logo.svg" alt="" width="200" style="height:auto;" />
       </div>
       <h1 class="notfound__code">404</h1>
-      <h2 class="notfound__title">Lost Under the Stars?</h2>
+      <h2 class="notfound__title">{T.notFound.heading}</h2>
       <p class="notfound__text">
-        The page you're looking for seems to have drifted off like a boat on the Adriatic. Don't worry — the apartment is still here waiting for you.
+        {T.notFound.body}
       </p>
       <div class="notfound__links">
-        <a href="/" class="btn btn-primary">← Back to Home</a>
-        <a href="/booking" class="btn btn-sky">Check availability</a>
+        <a href={`${prefix}/`} class="btn btn-primary">{T.notFound.backHome}</a>
+        <a href={`${prefix}/booking`} class="btn btn-sky">{T.notFound.checkAvailability}</a>
       </div>
 
       <div class="notfound__quicklinks">
-        <p>Or go directly to:</p>
+        <p>{T.notFound.orGoTo}</p>
         <ul>
-          <li><a href="/apartment">The Apartment</a></li>
-          <li><a href="/pricelist">Pricelist</a></li>
-          <li><a href="/gallery">Gallery</a></li>
-          <li><a href="/about-mandre">About Mandre</a></li>
-          <li><a href="/contact">Contact</a></li>
-          <li><a href="/directions">Directions</a></li>
+          <li><a href={`${prefix}/apartment`}>{T.nav.apartment}</a></li>
+          <li><a href={`${prefix}/pricelist`}>{T.nav.pricelist}</a></li>
+          <li><a href={`${prefix}/gallery`}>{T.nav.gallery}</a></li>
+          <li><a href={`${prefix}/about-mandre`}>{T.nav.aboutMandre}</a></li>
+          <li><a href={`${prefix}/contact`}>{T.nav.contact}</a></li>
+          <li><a href={`${prefix}/directions`}>{T.nav.directions}</a></li>
         </ul>
       </div>
     </div>
   </section>
 
 </BaseLayout>
+
+<script>
+  (function () {
+    const supported = ['hr', 'de', 'si', 'it', 'pl', 'cz'];
+    // Only the fully-translated language has content here; others fall back to English text
+    // but will still get correct link prefixes.
+    const i18n: Record<string, { heading: string; body: string; backHome: string; checkAvailability: string; orGoTo: string }> = {
+      hr: {
+        heading: 'Izgubili ste se pod zvijezdama?',
+        body: 'Stranica koju tražite kao da je otplovila poput broda po Jadranu. Ne brinite — apartman je i dalje tu i čeka vas.',
+        backHome: '← Natrag na početnu',
+        checkAvailability: 'Provjeri slobodne termine',
+        orGoTo: 'Ili idite izravno na:',
+      },
+    };
+
+    const seg = location.pathname.split('/').filter(Boolean);
+    const lang = supported.includes(seg[0]) ? seg[0] : '';
+    if (!lang) return;
+
+    const prefix = '/' + lang;
+
+    // Fix every internal link so it carries the lang prefix
+    document.querySelectorAll<HTMLAnchorElement>('a[href^="/"]').forEach(a => {
+      const href = a.getAttribute('href')!;
+      if (href !== prefix && !href.startsWith(prefix + '/')) {
+        a.setAttribute('href', prefix + href);
+      }
+    });
+
+    // Swap 404 page text if a translation exists for this lang
+    const t = i18n[lang];
+    if (!t) return;
+
+    const title = document.querySelector('.notfound__title');
+    const body  = document.querySelector('.notfound__text');
+    const btns  = document.querySelectorAll<HTMLAnchorElement>('.notfound__links a');
+    const orGoTo = document.querySelector('.notfound__quicklinks p');
+
+    if (title)   title.textContent   = t.heading;
+    if (body)    body.textContent    = t.body;
+    if (btns[0]) btns[0].textContent = t.backHome;
+    if (btns[1]) btns[1].textContent = t.checkAvailability;
+    if (orGoTo)  orGoTo.textContent  = t.orGoTo;
+  })();
+</script>
 
 <style>
   .notfound {

@@ -1,0 +1,453 @@
+---
+import { Image } from 'astro:assets';
+import PageLayout from '../../layouts/PageLayout.astro';
+import type { Translations } from '../../i18n/utils';
+import heroBg from '../../assets/gallery/outside.jpg';
+import findAptImg from '../../assets/gallery/how to get to the apartment.jpg';
+import parkingImg from '../../assets/gallery/outdoor.jpg';
+
+interface Props {
+  lang: string;
+  T: Translations;
+}
+
+const { lang, T } = Astro.props;
+const prefix = lang === 'en' ? '' : `/${lang}`;
+---
+
+<PageLayout
+  title={T.directions.metaTitle}
+  description={T.directions.metaDescription}
+  pageTitle={T.directions.pageTitle}
+  pageSubtitle={T.directions.pageSubtitle}
+  label={T.directions.label}
+  bgClass="ph-town"
+  bgImage={heroBg}
+  heroObjectPosition="center 72%"
+  lang={lang}
+>
+
+  <!-- ═══ ROUTES ═══ -->
+  <section class="section">
+    <div class="container">
+      <div class="text-center" style="margin-bottom:3rem;">
+        <span class="section-label">{T.directions.routesLabel}</span>
+        <h2>{T.directions.routesTitle}</h2>
+      </div>
+
+      <div class="routes-grid">
+
+        <!-- Route 1: Zagreb -->
+        <div class="route-card card">
+          <div class="route-card__header">
+            <span class="route-icon">🚗</span>
+            <div>
+              <h3>{T.directions.fromZagreb}</h3>
+              <span class="route-time">{T.directions.fromZagrebTime}</span>
+            </div>
+          </div>
+          <ol class="route-steps">
+            <li>
+              <span class="step-num">1</span>
+              <p set:html={T.directions.zagreb1}></p>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <p set:html={T.directions.zagreb2}></p>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <p set:html={T.directions.zagreb3}></p>
+            </li>
+            <li>
+              <span class="step-num">4</span>
+              <p set:html={T.directions.zagreb4}></p>
+            </li>
+            <li>
+              <span class="step-num">5</span>
+              <p set:html={T.directions.zagreb5}></p>
+            </li>
+          </ol>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ&waypoints=Naplatna+postaja+Posedarje" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">{T.directions.navigateGoogleMaps}</a>
+        </div>
+
+        <!-- Route 2: Ferry -->
+        <div class="route-card card">
+          <div class="route-card__header">
+            <span class="route-icon">⛴️</span>
+            <div>
+              <h3>{T.directions.byFerry}</h3>
+              <span class="route-time">{T.directions.byFerryNote}</span>
+            </div>
+          </div>
+          <ol class="route-steps">
+            <li>
+              <span class="step-num">1</span>
+              <p set:html={T.directions.ferry1}></p>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <p set:html={T.directions.ferry2}></p>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <p set:html={T.directions.ferry3}></p>
+            </li>
+          </ol>
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <a href="https://www.jadrolinija.hr/en/" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">{T.directions.ferrySchedule}</a>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ&waypoints=Trajekt+Prizna" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">{T.directions.navigateViaFerry}</a>
+          </div>
+        </div>
+
+        <!-- Route 3: Airport -->
+        <div class="route-card card">
+          <div class="route-card__header">
+            <span class="route-icon">✈️</span>
+            <div>
+              <h3>{T.directions.viaZadarAirport}</h3>
+              <span class="route-time">{T.directions.viaZadarAirportTime}</span>
+            </div>
+          </div>
+          <ol class="route-steps">
+            <li>
+              <span class="step-num">1</span>
+              <p set:html={T.directions.airport1}></p>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <p set:html={T.directions.airport2}></p>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <p set:html={T.directions.airport3}></p>
+            </li>
+            <li>
+              <span class="step-num">4</span>
+              <p set:html={T.directions.airport4}></p>
+            </li>
+          </ol>
+          <a href="https://www.google.com/maps/dir/?api=1&origin=Zadar+Airport&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" target="_blank" rel="noopener" class="btn btn-sky btn-sm route-btn">{T.directions.navigateFromAirport}</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FINDING THE APARTMENT ═══ -->
+  <section class="section" style="background:var(--soft-sky);">
+    <div class="container">
+      <div class="find-apt-grid">
+
+        <div>
+          <Image
+            src={findAptImg}
+            alt="Blue Moon Apartment entrance and building"
+            widths={[400, 700, 1100]}
+            sizes="(max-width: 960px) 100vw, 50vw"
+            style="width:100%; height:auto; border-radius:var(--radius-lg); display:block;"
+          />
+        </div>
+
+        <div class="find-apt-content">
+          <span class="section-label">{T.directions.findingLabel}</span>
+          <h2>{T.directions.findingTitle}</h2>
+          <p class="find-apt-address">
+            <svg width="14" height="18" viewBox="0 0 14 20" fill="none" aria-hidden="true" style="flex-shrink:0; margin-top:2px;"><path d="M7 0C3.134 0 0 3.134 0 7c0 5.25 7 13 7 13s7-7.75 7-13C14 3.134 10.866 0 7 0z" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="2.4" stroke="currentColor" stroke-width="1.4"/></svg>
+            {T.directions.findingAddress}
+          </p>
+          <ol class="find-apt-steps">
+            <li set:html={T.directions.finding1}></li>
+            <li set:html={T.directions.finding2}></li>
+            <li set:html={T.directions.finding3}></li>
+            <li set:html={T.directions.finding4}></li>
+          </ol>
+          <div class="find-apt-ctas">
+            <a href="https://www.google.com/maps/dir/?api=1&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" target="_blank" rel="noopener" class="btn btn-primary">{T.directions.navigateGoogleMaps}</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PARKING ═══ -->
+  <section class="section" style="background:var(--warm-sand);">
+    <div class="container">
+      <div class="parking-grid">
+        <div>
+          <span class="section-label">{T.directions.parkingLabel}</span>
+          <h2>{T.directions.parkingTitle}</h2>
+          <p>{T.directions.parkingBody}</p>
+
+          <div class="parking-options">
+            <div class="parking-option">
+              <span class="parking-option__icon">🅿️</span>
+              <div>
+                <h4>{T.directions.parkingOption1Title}</h4>
+                <p>{T.directions.parkingOption1Body}</p>
+              </div>
+            </div>
+            <div class="parking-option">
+              <span class="parking-option__icon">🏠</span>
+              <div>
+                <h4>{T.directions.parkingOption2Title}</h4>
+                <p>{T.directions.parkingOption2Body}</p>
+                <ul class="garage-specs">
+                  <li>{T.directions.garageMaxWidth}</li>
+                  <li>{T.directions.garageMaxHeight}</li>
+                </ul>
+                <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted);">{T.directions.garageNote}</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div>
+          <Image src={parkingImg} alt="Building &amp; Parking" widths={[400, 700, 1100]} sizes="(max-width: 900px) 100vw, 50vw" style="width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; object-position:right center; border-radius:var(--radius); display:block;" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ MAP ═══ -->
+  <section class="section">
+    <div class="container">
+      <div class="text-center" style="margin-bottom:2rem;">
+        <span class="section-label">{T.directions.mapLabel}</span>
+        <h2>{T.directions.mapTitle}</h2>
+        <p style="color:var(--text-muted); max-width:520px; margin:0.75rem auto 0;">{T.directions.mapSubtext}</p>
+      </div>
+      <div class="big-map">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2800!2d14.9219219!3d44.4761043!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x476237f06a0a6c8d%3A0x94d26d9fb7478cb4!2sBlue%20Moon%20Apartment!5e0!3m2!1sen!2shr!4v1714000000000!5m2!1sen!2shr"
+          width="100%"
+          height="420"
+          style="border:0; border-radius:var(--radius-lg); display:block;"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Blue Moon Apartment location in Mandre, Island of Pag, Croatia"
+        ></iframe>
+      </div>
+      <div class="map-ctas">
+        <a href="https://www.google.com/maps/dir/?api=1&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" target="_blank" rel="noopener" class="btn btn-primary">{T.directions.mapNavigate}</a>
+        <a href={`${prefix}/contact#contactFormWrap`} class="btn btn-secondary">{T.directions.mapAsk}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ NEARBY ═══ -->
+  <section class="section" style="background:var(--soft-sky);">
+    <div class="container">
+      <div class="text-center" style="margin-bottom:2rem;">
+        <span class="section-label">{T.directions.nearbyLabel}</span>
+        <h2>{T.directions.nearbyTitle}</h2>
+      </div>
+      <div class="nearby-grid">
+        <div class="nearby-item"><span class="nearby-dist">{T.directions.nearbyDist1}</span><span class="nearby-label">{T.directions.nearbyItem1}</span></div>
+        <div class="nearby-item"><span class="nearby-dist" set:html={T.directions.nearbyDist2}></span><span class="nearby-label">{T.directions.nearbyItem2}</span></div>
+        <div class="nearby-item"><span class="nearby-dist">{T.directions.nearbyDist3}</span><span class="nearby-label">{T.directions.nearbyItem3}</span></div>
+        <div class="nearby-item"><span class="nearby-dist">{T.directions.nearbyDist4}</span><span class="nearby-label">{T.directions.nearbyItem4}</span></div>
+        <div class="nearby-item"><span class="nearby-dist">{T.directions.nearbyDist5}</span><span class="nearby-label">{T.directions.nearbyItem5}</span></div>
+        <div class="nearby-item"><span class="nearby-dist">{T.directions.nearbyDist6}</span><span class="nearby-label">{T.directions.nearbyItem6}</span></div>
+        <div class="nearby-item"><span class="nearby-dist">{T.directions.nearbyDist7}</span><span class="nearby-label">{T.directions.nearbyItem7}</span></div>
+        <div class="nearby-item"><span class="nearby-dist">{T.directions.nearbyDist8}</span><span class="nearby-label">{T.directions.nearbyItem8}</span></div>
+        <div class="nearby-item"><span class="nearby-dist">{T.directions.nearbyDist9}</span><span class="nearby-label">{T.directions.nearbyItem9}</span></div>
+      </div>
+    </div>
+  </section>
+
+</PageLayout>
+
+<style>
+  /* Finding the apartment */
+  .find-apt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+    align-items: center;
+  }
+  .find-apt-content h2 { margin: 0.5rem 0 1rem; }
+  .find-apt-address {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-weight: 700;
+    color: var(--ocean-blue);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+  .find-apt-steps {
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-bottom: 2rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+  .find-apt-steps li::marker { color: var(--sky-blue); font-weight: 800; }
+  .find-apt-steps :global(strong) { color: var(--text-dark); }
+  .find-apt-ctas {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 960px) {
+    .find-apt-grid { grid-template-columns: 1fr; gap: 2rem; }
+  }
+
+  /* Routes */
+  .routes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .routes-grid .route-card:last-child {
+    grid-column: 1 / -1;
+    max-width: calc(50% - 1rem);
+    justify-self: center;
+  }
+
+  .route-card { padding: 2rem; display: flex; flex-direction: column; }
+  .route-card > :last-child { margin-top: auto; }
+  .route-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(74,159,212,0.15);
+  }
+  .route-icon { font-size: 2.2rem; flex-shrink: 0; }
+  .route-card__header h3 { margin: 0 0 0.25rem; font-size: 1.25rem; }
+  .route-time {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--sky-blue);
+    display: block;
+  }
+
+  .route-steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin-bottom: 1.75rem;
+  }
+  .route-steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--ocean-blue);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .route-steps p { font-size: 0.88rem; color: var(--text-dark); line-height: 1.6; }
+  .route-steps :global(strong) { color: var(--ocean-blue); }
+
+  .route-btn { align-self: flex-start; }
+
+  /* Parking */
+  .parking-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .parking-grid h2 { margin-bottom: 1rem; }
+  .parking-grid > div > p { color: var(--text-muted); }
+
+  .parking-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1.75rem;
+  }
+  .parking-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-xs);
+  }
+  .parking-option__icon { font-size: 2rem; flex-shrink: 0; }
+  .parking-option h4 { font-family:'Nunito',sans-serif; font-size:0.9rem; font-weight:800; color:var(--ocean-blue); margin-bottom:0.35rem; }
+  .parking-option p  { font-size:0.85rem; color:var(--text-muted); }
+
+  .garage-specs {
+    list-style: none;
+    margin-top: 0.4rem;
+    display: flex;
+    gap: 1rem;
+  }
+  .garage-specs li { font-size:0.85rem; color:var(--text-dark); }
+
+  /* Map */
+  .big-map { position: relative; }
+
+  .map-ctas {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.75rem;
+    flex-wrap: wrap;
+  }
+
+  /* Nearby */
+  .nearby-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+  .nearby-item {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    text-align: center;
+    box-shadow: var(--shadow-xs);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .nearby-dist {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ocean-blue);
+    line-height: 1.2;
+  }
+  .nearby-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+  }
+
+  @media (max-width: 860px) {
+    .routes-grid { grid-template-columns: 1fr; }
+    .routes-grid .route-card:last-child { grid-column: auto; max-width: 100%; justify-self: stretch; }
+    .parking-grid { grid-template-columns: 1fr; gap: 2rem; }
+  }
+  @media (max-width: 560px) {
+    .nearby-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>

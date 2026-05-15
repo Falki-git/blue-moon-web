@@ -1,4 +1,12 @@
 ---
+import type { Translations } from '../i18n/utils';
+
+interface Props {
+  T: Translations;
+  lang?: string;
+}
+
+const { T, lang = 'en' } = Astro.props;
 ---
 
 <div class="cookie-banner" id="cookieBanner" role="alertdialog" aria-label="Cookie consent" aria-live="polite" hidden>
@@ -6,14 +14,13 @@
     <div class="cookie-banner__text">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <p>
-        We use cookies to improve your browsing experience and analyse site traffic.
-        By clicking <strong>Accept</strong>, you consent to our use of cookies.
-        <a href="/contact#privacy">Learn more</a>
+        {T.cookie.text}
+        <a href={`${lang === 'en' ? '' : `/${lang}`}/contact#privacy`}>{T.cookie.learnMore}</a>
       </p>
     </div>
     <div class="cookie-banner__actions">
-      <button class="btn btn-sm btn-secondary" id="cookieDecline">Decline</button>
-      <button class="btn btn-sm btn-primary" id="cookieAccept">Accept</button>
+      <button class="btn btn-sm btn-secondary" id="cookieDecline">{T.cookie.decline}</button>
+      <button class="btn btn-sm btn-primary" id="cookieAccept">{T.cookie.accept}</button>
     </div>
   </div>
 </div>

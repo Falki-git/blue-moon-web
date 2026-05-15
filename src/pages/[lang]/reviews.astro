@@ -1,0 +1,12 @@
+---
+import { SUPPORTED_LANGS, getTranslations } from '../../i18n/utils';
+import ReviewsContent from '../../components/pages/ReviewsContent.astro';
+
+export function getStaticPaths() {
+  return SUPPORTED_LANGS.filter(l => l !== 'en').map(lang => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const T = getTranslations(lang);
+---
+<ReviewsContent {lang} {T} />

@@ -1,12 +1,19 @@
 ---
-const SEASON_MONTHS = [
-  { year: 2026, month: 5, name: 'June' },
-  { year: 2026, month: 6, name: 'July' },
-  { year: 2026, month: 7, name: 'August' },
-  { year: 2026, month: 8, name: 'September' },
-];
+import type { Translations } from '../i18n/utils';
 
-const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+interface Props {
+  T: Translations;
+}
+
+const { T } = Astro.props;
+const b = T.booking;
+
+const SEASON_MONTHS = [
+  { year: 2026, month: 5 },
+  { year: 2026, month: 6 },
+  { year: 2026, month: 7 },
+  { year: 2026, month: 8 },
+];
 
 type Cell =
   | { type: 'empty' }
@@ -28,7 +35,17 @@ function buildMonthGrid(year: number, month: number): Cell[] {
 const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.month) }));
 ---
 
-<div class="bcal" id="bookingCalendar" data-loading="1">
+<div class="bcal" id="bookingCalendar" data-loading="1"
+  data-months={JSON.stringify(b.calMonths)}
+  data-hint-loading={b.calLoading}
+  data-hint-select={b.calHintSelect}
+  data-hint-checkin={b.calHintCheckin}
+  data-hint-unavailable={b.calHintUnavailable}
+  data-hint-minstay={b.calHintMinStay}
+  data-hint-selected={b.calHintSelected}
+  data-hint-deselect={b.calHintDeselect}
+  data-hint-error={b.calError}
+>
   <div class="bcal__header">
     <button class="bcal__nav" id="bcalPrev" aria-label="Previous month" type="button">
       <svg width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden="true">
@@ -36,8 +53,8 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
       </svg>
     </button>
     <div class="bcal__titles">
-      <span class="bcal__title" id="bcalTitleLeft">June 2026</span>
-      <span class="bcal__title bcal__title--right" id="bcalTitleRight">July 2026</span>
+      <span class="bcal__title" id="bcalTitleLeft">{b.calMonths[0]} 2026</span>
+      <span class="bcal__title bcal__title--right" id="bcalTitleRight">{b.calMonths[1]} 2026</span>
     </div>
     <button class="bcal__nav" id="bcalNext" aria-label="Next month" type="button">
       <svg width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden="true">
@@ -50,7 +67,7 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
     {grids.map((grid, index) => (
       <div class="bcal__pane" data-month-index={index}>
         <div class="bcal__grid">
-          {DOW.map(d => <div class="bcal__dow">{d}</div>)}
+          {b.calDow.map((d: string) => <div class="bcal__dow">{d}</div>)}
           {grid.cells.map(cell =>
             cell.type === 'empty'
               ? <div class="bcal__cell bcal__cell--empty" aria-hidden="true"></div>
@@ -67,14 +84,14 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
   </div>
 
   <div class="bcal__legend">
-    <span><span class="bcal__dot bcal__dot--available"></span>Available</span>
-    <span><span class="bcal__dot bcal__dot--pending"></span>Pending</span>
-    <span><span class="bcal__dot bcal__dot--blocked"></span>Booked</span>
-    <span><span class="bcal__dot bcal__dot--transition"></span>Changeover</span>
-    <span><span class="bcal__dot bcal__dot--selected"></span>Your selection</span>
+    <span><span class="bcal__dot bcal__dot--available"></span>{b.calLegendAvailable}</span>
+    <span><span class="bcal__dot bcal__dot--pending"></span>{b.calLegendPending}</span>
+    <span><span class="bcal__dot bcal__dot--blocked"></span>{b.calLegendBooked}</span>
+    <span><span class="bcal__dot bcal__dot--transition"></span>{b.calLegendChangeover}</span>
+    <span><span class="bcal__dot bcal__dot--selected"></span>{b.calLegendSelected}</span>
   </div>
 
-  <p class="bcal__hint" id="bcalHint">Loading availability…</p>
+  <p class="bcal__hint" id="bcalHint">{b.calLoading}</p>
 </div>
 
 <script>
@@ -101,8 +118,21 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
   const nextBtn   = document.getElementById('bcalNext') as HTMLButtonElement;
   const hintEl    = document.getElementById('bcalHint')!;
 
-  const monthNames = ['June', 'July', 'August', 'September'];
+  const monthNames: string[] = JSON.parse(root.getAttribute('data-months')!);
   const monthYearTitles = monthNames.map(n => `${n} 2026`);
+  const i18n = {
+    loading:     root.getAttribute('data-hint-loading')!,
+    select:      root.getAttribute('data-hint-select')!,
+    checkin:     root.getAttribute('data-hint-checkin')!,
+    unavailable: root.getAttribute('data-hint-unavailable')!,
+    minStay:     root.getAttribute('data-hint-minstay')!,
+    selected:    root.getAttribute('data-hint-selected')!,
+    deselect:    root.getAttribute('data-hint-deselect')!,
+    error:       root.getAttribute('data-hint-error')!,
+  };
+  function tpl(s: string, vars: Record<string, string | number>): string {
+    return Object.entries(vars).reduce((r, [k, v]) => r.replace(`{{${k}}}`, String(v)), s);
+  }
 
   const today = new Date();
   const todayIso = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
@@ -307,7 +337,7 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
 
     if (checkIn && !checkOut && iso === checkIn) {
       checkIn = null;
-      hintEl.textContent = 'Select a check-in date.';
+      hintEl.textContent = i18n.deselect;
       paint();
       emit();
       return;
@@ -316,7 +346,7 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
     if (!checkIn || (checkIn && checkOut)) {
       checkIn = iso;
       checkOut = null;
-      hintEl.textContent = `Check-in: ${iso}. Now choose a check-out date (minimum ${minNights} nights).`;
+      hintEl.textContent = tpl(i18n.checkin, { date: iso, min: minNights });
       paint();
       emit();
       return;
@@ -324,25 +354,25 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
 
     if (iso <= checkIn) {
       checkIn = iso;
-      hintEl.textContent = `Check-in: ${iso}. Now choose a check-out date (minimum ${minNights} nights).`;
+      hintEl.textContent = tpl(i18n.checkin, { date: iso, min: minNights });
       paint();
       emit();
       return;
     }
 
     if (rangeHasOccupied(checkIn, iso)) {
-      hintEl.textContent = 'There are unavailable dates in that range — pick a check-out before them.';
+      hintEl.textContent = i18n.unavailable;
       return;
     }
 
     if (diffNights(checkIn, iso) < minNights) {
-      hintEl.textContent = `Minimum stay is ${minNights} nights — pick a later check-out.`;
+      hintEl.textContent = tpl(i18n.minStay, { min: minNights });
       return;
     }
 
     checkOut = iso;
     const nights = diffNights(checkIn, checkOut);
-    hintEl.textContent = `${nights} night${nights !== 1 ? 's' : ''} selected. Click any date again to change.`;
+    hintEl.textContent = tpl(i18n.selected, { nights });
     paint();
     emit();
   }
@@ -399,13 +429,13 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
       minCheckinIso = addDaysToIso(todayIso, minAdvanceDays);
       currentLeft = defaultLeft();
       root.removeAttribute('data-loading');
-      hintEl.textContent = `Click an available date to set your check-in (minimum ${minNights} nights).`;
+      hintEl.textContent = tpl(i18n.select, { min: minNights });
       showPanes();
       paint();
     })
     .catch(() => {
       showPanes();
-      hintEl.textContent = 'Could not load availability. Please refresh the page.';
+      hintEl.textContent = i18n.error;
     });
 
   (window as unknown as { bookingCalendar: { setRange: (a: string, b: string) => void } }).bookingCalendar = {
