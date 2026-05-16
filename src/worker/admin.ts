@@ -120,7 +120,7 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     if (row.status !== 'confirmed') return err(409, `Cannot send deposit confirmation for a ${row.status} reservation`);
 
     await markDepositPaid(env.DB, id);
-    const msg = buildGuestDepositReceived(row);
+    const msg = buildGuestDepositReceived(row, row.language ?? 'en');
     ctx.waitUntil(
       sendEmail(env, {
         to: row.email, replyTo: env.CONTACT_TO_EMAIL,

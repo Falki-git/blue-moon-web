@@ -66,8 +66,9 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
   const fullName = String(body.fullName ?? '').trim();
   const email    = String(body.email    ?? '').trim();
   const phone    = String(body.phone    ?? '').trim();
+  const bodyLang = String(body.lang ?? '').trim().toLowerCase();
   const acceptLang = request.headers.get('Accept-Language') ?? '';
-  const language = acceptLang.split(',')[0].split('-')[0].trim() || 'en';
+  const language = bodyLang || acceptLang.split(',')[0].split('-')[0].trim() || 'en';
   const country  = String(body.country  ?? '').trim();
   const address  = String(body.address  ?? '').trim();
   const source   = String(body.source   ?? '').trim();
@@ -155,7 +156,7 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
     return err(502, 'Failed to send notification. Please try again.');
   }
 
-  const guestMsg = buildGuestBookingPending(row);
+  const guestMsg = buildGuestBookingPending(row, language);
   ctx.waitUntil(
     sendEmail(env, {
       to: email, replyTo: env.CONTACT_TO_EMAIL,
@@ -205,7 +206,7 @@ export async function handleDecision(request: Request, env: Env, ctx: ExecutionC
   const updated = { ...row, status: newStatus } as typeof row;
 
   if (newStatus === 'confirmed') {
-    const guestMsg = buildGuestBookingApproved(updated);
+    const guestMsg = buildGuestBookingApproved(updated, updated.language ?? 'en');
     ctx.waitUntil(
       sendEmail(env, {
         to: row.email, replyTo: env.CONTACT_TO_EMAIL,

@@ -1,5 +1,6 @@
 import type { Env } from './index';
 import { esc, emailShell, detailRow, detailTable, sectionHeading } from './email';
+import { getTranslations, INTL_LOCALE_MAP, type SupportedLang, SUPPORTED_LANGS } from '../i18n/utils';
 
 const EMAIL_RE     = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const SEASON_START = '2026-06-01';
@@ -41,8 +42,10 @@ export async function handleContact(request: Request, env: Env, ctx: ExecutionCo
   const checkout = String(body.checkout ?? '').trim();
   const guests   = body.guests ? Number(body.guests) : null;
   const phone    = String(body.phone    ?? '').trim();
+  const bodyLang = String(body.lang ?? '').trim().toLowerCase();
   const acceptLang = request.headers.get('Accept-Language') ?? '';
-  const language = acceptLang.split(',')[0].split('-')[0].trim() || 'en';
+  const langCode = (bodyLang || acceptLang.split(',')[0].split('-')[0].trim() || 'en') as SupportedLang;
+  const language = SUPPORTED_LANGS.includes(langCode) ? langCode : 'en' as SupportedLang;
   const children = String(body.children ?? '').trim();
   const message  = String(body.message  ?? '').trim();
   const tsToken  = String(body['cf-turnstile-response'] ?? '');
@@ -74,7 +77,7 @@ export async function handleContact(request: Request, env: Env, ctx: ExecutionCo
   const tsData = await tsRes.json() as { success: boolean };
   if (!tsData.success) return err(400, 'Security check failed. Please try again.');
 
-  const lang   = LANG_MAP[language] ?? language;
+  const lang   = LANG_MAP[language as string] ?? language;
   const nights = (checkin && checkout)
     ? Math.round((new Date(checkout).getTime() - new Date(checkin).getTime()) / 86_400_000)
     : null;
@@ -134,29 +137,31 @@ ${detailTable(ownerRows)}`);
   }
 
   // Guest acknowledgment — fire-and-forget, never blocks the response
+  const T = getTranslations(language);
+  const em = T.email;
   const firstName = fullName.split(' ')[0];
 
   const guestSummaryRows = [
-    checkin       ? detailRow('Check-in',  esc(checkin))  : null,
-    checkout      ? detailRow('Check-out', esc(checkout)) : null,
-    nights !== null ? detailRow('Duration', `${nights} night${nights !== 1 ? 's' : ''}`) : null,
-    guests !== null ? detailRow('Guests',   String(guests)) : null,
+    checkin       ? detailRow(em.tableCheckin,  esc(checkin))  : null,
+    checkout      ? detailRow(em.tableCheckout, esc(checkout)) : null,
+    nights !== null ? detailRow(em.tableNights, String(nights)) : null,
+    guests !== null ? detailRow(em.tableGuests, String(guests)) : null,
   ].filter((s): s is string => s !== null).join('\n');
 
   const guestHtml = emailShell(`
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">Thank you, ${esc(firstName)}!</div>
-<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">We received your message and will get back to you <strong>within 24 hours</strong>.</p>
-${guestSummaryRows ? `${sectionHeading('Your Inquiry')}${detailTable(guestSummaryRows)}` : ''}
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(em.contactAckHeading.replace('{{name}}', firstName))}</div>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(em.contactAckBody)}</p>
+${guestSummaryRows ? `${sectionHeading(em.contactAckSection)}${detailTable(guestSummaryRows)}` : ''}
 <p style="margin:0;font-size:14px;color:#5a7080;">In the meantime, feel free to explore our <a href="https://bluemoonmandre.eu/gallery" style="color:#1A5FAD;text-decoration:none;">gallery</a> or learn more about <a href="https://bluemoonmandre.eu/about-mandre" style="color:#1A5FAD;text-decoration:none;">Mandre</a>.</p>`);
 
   const guestText = [
-    `Thank you, ${firstName}!`,
+    em.contactAckHeading.replace('{{name}}', firstName),
     '',
-    'We received your message and will get back to you within 24 hours.',
-    checkin       ? `\nCheck-in:  ${checkin}`                                 : null,
-    checkout      ? `Check-out: ${checkout}`                                  : null,
-    nights !== null ? `Duration:  ${nights} night${nights !== 1 ? 's' : ''}` : null,
-    guests !== null ? `Guests:    ${guests}`                                  : null,
+    em.contactAckBody,
+    checkin       ? `\n${em.tableCheckin}:  ${checkin}`     : null,
+    checkout      ? `${em.tableCheckout}: ${checkout}`      : null,
+    nights !== null ? `${em.tableNights}:  ${nights}`       : null,
+    guests !== null ? `${em.tableGuests}:  ${guests}`       : null,
     '',
     '--',
     'Goran Falkoni',
@@ -173,12 +178,12 @@ ${guestSummaryRows ? `${sectionHeading('Your Inquiry')}${detailTable(guestSummar
         from: FROM,
         to: email,
         reply_to: env.CONTACT_TO_EMAIL,
-        subject: 'We received your message — Blue Moon Apartment',
+        subject: em.contactAckSubject,
         html: guestHtml,
         text: guestText,
       }),
     }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend guest ack failed:', r.status, t)); })
-      .catch(e => console.error('Resend guest ack failed:', e))
+      .catch(err => console.error('Resend guest ack failed:', err))
   );
 
   return Response.json({ ok: true });

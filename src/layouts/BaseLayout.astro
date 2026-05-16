@@ -4,24 +4,53 @@ import Footer from '../components/Footer.astro';
 import WhatsAppButton from '../components/WhatsAppButton.astro';
 import CookieBanner from '../components/CookieBanner.astro';
 import '../styles/global.css';
+import { getTranslations, SUPPORTED_LANGS, HREFLANG_MAP, type SupportedLang } from '../i18n/utils';
 
 interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  lang?: string;
 }
 
 const {
   title,
   description = 'Blue Moon Apartment — a luxury 2-bedroom family retreat on the island of Pag, Croatia. 92m², sea views, private hot tub terrace, 200m from the beach. Open June–September.',
   ogImage = '/images/og-image.jpg',
+  lang = 'en',
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://bluemoonmandre.eu');
+const T = getTranslations(lang);
+
+const OG_LOCALE_MAP: Record<string, string> = {
+  en: 'en_US', hr: 'hr_HR', de: 'de_DE',
+  si: 'sl_SI', it: 'it_IT', pl: 'pl_PL', cz: 'cs_CZ',
+};
+const ogLocale = OG_LOCALE_MAP[lang] ?? 'en_US';
+
+// Canonical slug: strip lang prefix so hreflang links can be built for all languages
+const pathname = Astro.url.pathname;
+function getSlug(path: string): string {
+  for (const l of SUPPORTED_LANGS) {
+    if (l === 'en') continue;
+    if (path === `/${l}` || path === `/${l}/`) return '/';
+    if (path.startsWith(`/${l}/`)) return path.slice(l.length + 1);
+  }
+  return path || '/';
+}
+const slug = getSlug(pathname);
+const siteBase = 'https://bluemoonmandre.eu';
+
+function hreflangUrl(l: SupportedLang): string {
+  if (l === 'en') return `${siteBase}${slug === '/' ? '/' : slug}`;
+  return `${siteBase}/${l}${slug === '/' ? '/' : slug}`;
+}
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? siteBase);
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang={lang}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -30,13 +59,19 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://bluemoon
   <!-- Canonical -->
   <link rel="canonical" href={canonicalURL} />
 
+  <!-- hreflang for SEO (uses ISO codes even though URLs use project codes) -->
+  {SUPPORTED_LANGS.map(l => (
+    <link rel="alternate" hreflang={HREFLANG_MAP[l]} href={hreflangUrl(l)} />
+  ))}
+  <link rel="alternate" hreflang="x-default" href={hreflangUrl('en')} />
+
   <!-- Open Graph -->
   <meta property="og:type"        content="website" />
   <meta property="og:url"         content={canonicalURL} />
   <meta property="og:title"       content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:image"       content={ogImage} />
-  <meta property="og:locale"      content="en_US" />
+  <meta property="og:locale"      content={ogLocale} />
   <meta property="og:site_name"   content="Blue Moon Apartment" />
 
   <!-- Twitter Card -->
@@ -57,18 +92,56 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://bluemoon
   />
 
   <title>{title}</title>
+
+  <!-- Language cookie redirect — runs synchronously before render to avoid flash -->
+  <script is:inline>
+    (function () {
+      var SUPPORTED = ['en','hr','de','si','it','pl','cz'];
+      var COOKIE = 'bm_lang';
+      var path = location.pathname;
+
+      // Skip admin and booking confirm pages
+      if (path.startsWith('/admin') || path.startsWith('/booking/confirm')) return;
+
+      function getCookie(name) {
+        var m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+        return m ? decodeURIComponent(m[1]) : null;
+      }
+
+      function getLangFromPath(p) {
+        var segs = p.split('/').filter(Boolean);
+        return segs.length > 0 && SUPPORTED.indexOf(segs[0]) !== -1 ? segs[0] : 'en';
+      }
+
+      function buildUrl(targetLang, currentPath) {
+        var urlLang = getLangFromPath(currentPath);
+        var stripped = urlLang !== 'en'
+          ? (currentPath.replace('/' + urlLang, '') || '/')
+          : currentPath;
+        return targetLang === 'en' ? (stripped || '/') : '/' + targetLang + stripped;
+      }
+
+      var cookieLang = getCookie(COOKIE);
+      if (!cookieLang || SUPPORTED.indexOf(cookieLang) === -1) return;
+
+      var urlLang = getLangFromPath(path);
+      if (cookieLang !== urlLang) {
+        location.replace(buildUrl(cookieLang, path));
+      }
+    })();
+  </script>
 </head>
 <body>
-  <Nav />
+  <Nav lang={lang} T={T} />
 
   <!-- Seasonal notice -->
-  <a href="/booking" class="season-bar" id="seasonBar" aria-label="Season 2026 open 1 June to 30 September — Book now">
+  <a href={lang === 'en' ? '/booking' : `/${lang}/booking`} class="season-bar" id="seasonBar" aria-label={T.seasonBar.ariaLabel}>
     <div class="container">
       <span>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <span class="season-bar__prefix">Season 2026 — Open </span><strong>1 Jun</strong> to <strong>30 Sep</strong>
+        <span class="season-bar__prefix">{T.seasonBar.prefix}</span><strong>{T.seasonBar.dateFrom}</strong> {T.seasonBar.dateSeparator} <strong>{T.seasonBar.dateTo}</strong>
       </span>
-      <span class="season-bar__cta">Book now →</span>
+      <span class="season-bar__cta">{T.seasonBar.cta}</span>
     </div>
   </a>
 
@@ -76,9 +149,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://bluemoon
     <slot />
   </main>
 
-  <Footer />
-  <WhatsAppButton />
-  <CookieBanner />
+  <Footer lang={lang} T={T} />
+  <WhatsAppButton {T} />
+  <CookieBanner T={T} {lang} />
 </body>
 </html>
 
