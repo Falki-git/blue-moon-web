@@ -125,3 +125,59 @@ export async function requireSession(request: Request, env: Env): Promise<Respon
 }
 
 export const SESSION_COOKIE_NAME = SESSION_COOKIE;
+
+// ── Crew session (bm_crew_session) ──────────────────────────────────────────
+
+const CREW_COOKIE   = 'bm_crew_session';
+const CREW_USER     = 'crew';
+const CREW_TTL_DAYS = 7;
+
+export async function signCrewSession(env: Env): Promise<string> {
+  const exp = nowSec() + CREW_TTL_DAYS * 86400;
+  const payload = `${CREW_USER}.${exp}`;
+  const sig = await hmac(env.SESSION_SECRET, payload);
+  return `${payload}.${sig}`;
+}
+
+export async function verifyCrewSession(
+  cookieValue: string | null,
+  env: Env,
+): Promise<{ userId: string } | null> {
+  if (!cookieValue) return null;
+  const parts = cookieValue.split('.');
+  if (parts.length !== 3) return null;
+  const [userId, expStr, sig] = parts;
+  if (userId !== CREW_USER) return null;
+  const exp = Number(expStr);
+  if (!exp || exp < nowSec()) return null;
+  const expected = await hmac(env.SESSION_SECRET, `${userId}.${exp}`);
+  if (!constantTimeEqual(sig, expected)) return null;
+  return { userId };
+}
+
+export function buildCrewSessionCookie(value: string): string {
+  return `${CREW_COOKIE}=${value}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${CREW_TTL_DAYS * 86400}`;
+}
+
+export function clearCrewSessionCookie(): string {
+  return `${CREW_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
+}
+
+export async function requireCrewSession(
+  request: Request,
+  env: Env,
+): Promise<Response | null> {
+  const cookie = parseCookie(request.headers.get('cookie'), CREW_COOKIE);
+  const session = await verifyCrewSession(cookie, env);
+  if (!session) {
+    return Response.json({ ok: false, error: 'Not authenticated' }, { status: 401 });
+  }
+  if (request.method !== 'GET') {
+    const origin = request.headers.get('origin');
+    const url = new URL(request.url);
+    if (origin && new URL(origin).host !== url.host) {
+      return Response.json({ ok: false, error: 'Bad origin' }, { status: 403 });
+    }
+  }
+  return null;
+}

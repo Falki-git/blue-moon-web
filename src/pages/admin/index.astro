@@ -29,6 +29,7 @@ import '../../styles/global.css';
         <span class="adm-tabnav__badge" id="tabPendingBadge" hidden>0</span>
       </button>
       <button class="adm-tabnav__tab" data-tab="settings" type="button">Settings</button>
+      <button class="adm-tabnav__tab" data-tab="cleaning" type="button">Cleaning Crew Data</button>
     </div>
   </nav>
 
@@ -112,6 +113,121 @@ import '../../styles/global.css';
         </section>
 
       </div><!-- /panel-settings -->
+
+      <div id="panel-cleaning" class="adm-panel" hidden>
+
+        <section class="adm-section">
+          <div class="adm-section__head">
+            <h2>Add guest</h2>
+          </div>
+          <p class="adm-section__hint">Enter guest details manually. Nights is calculated automatically from the dates you select.</p>
+
+          <form id="guestForm" class="adm-guest-form">
+            <div class="adm-form-row">
+              <div class="form-group" style="flex:2;">
+                <label for="gf-name">Guest name *</label>
+                <input type="text" id="gf-name" name="guest_name" required placeholder="Full name" />
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label for="gf-booking">Booking number</label>
+                <input type="text" id="gf-booking" name="booking_number" placeholder="e.g. 1234567890" />
+              </div>
+            </div>
+            <div class="adm-form-row">
+              <div class="form-group">
+                <label for="gf-checkin">Check-in *</label>
+                <input type="date" id="gf-checkin" name="check_in" required />
+              </div>
+              <div class="form-group">
+                <label for="gf-checkout">Check-out *</label>
+                <input type="date" id="gf-checkout" name="check_out" required />
+              </div>
+              <div class="form-group">
+                <label for="gf-nights">Nights</label>
+                <input type="number" id="gf-nights" name="nights" min="1" readonly
+                       style="background:var(--soft-sky);color:var(--text-muted);cursor:default;" />
+              </div>
+              <div class="form-group">
+                <label for="gf-bdate">Booking date</label>
+                <input type="date" id="gf-bdate" name="booking_date" />
+              </div>
+            </div>
+            <div class="adm-form-row">
+              <div class="form-group">
+                <label for="gf-checkin-hour">Check-in hour</label>
+                <input type="text" id="gf-checkin-hour" name="checkin_hour" placeholder="e.g. 15:00" />
+              </div>
+              <div class="form-group">
+                <label for="gf-checkout-hour">Check-out hour</label>
+                <input type="text" id="gf-checkout-hour" name="checkout_hour" placeholder="e.g. 10:00" />
+              </div>
+            </div>
+            <div class="adm-form-row">
+              <div class="form-group">
+                <label for="gf-country">Country</label>
+                <select id="gf-country" name="country">
+                  <option value="">— select —</option>
+                  <option>Croatia</option>
+                  <option>Czechia</option>
+                  <option>Germany</option>
+                  <option>Italy</option>
+                  <option>Poland</option>
+                  <option>Slovakia</option>
+                  <option>Slovenia</option>
+                  <option>Switzerland</option>
+                  <option>United Kingdom</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="gf-total">Total guests *</label>
+                <input type="number" id="gf-total" name="total_guests" min="1" value="1" required />
+              </div>
+              <div class="form-group">
+                <label for="gf-adults">Adults *</label>
+                <input type="number" id="gf-adults" name="adults" min="0" value="1" required />
+              </div>
+              <div class="form-group">
+                <label for="gf-children">Children</label>
+                <input type="number" id="gf-children" name="children" min="0" value="0" />
+              </div>
+            </div>
+            <div class="adm-form-row">
+              <div class="form-group" style="flex:1;">
+                <label for="gf-cages">Children's ages</label>
+                <input type="text" id="gf-cages" name="children_ages" placeholder="e.g. 3, 7" />
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label for="gf-email">Email</label>
+                <input type="email" id="gf-email" name="email" />
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label for="gf-phone">Phone</label>
+                <input type="tel" id="gf-phone" name="phone" />
+              </div>
+            </div>
+            <div class="adm-form-row">
+              <div class="form-group" style="flex:1;">
+                <label for="gf-notes">Notes</label>
+                <input type="text" id="gf-notes" name="notes" placeholder="Any special notes for the cleaning crew" />
+              </div>
+            </div>
+            <div class="adm-form-row" style="margin-top:0.5rem;">
+              <button type="submit" class="btn btn-primary">Add guest</button>
+            </div>
+            <p class="adm-form-error" id="guestError" hidden></p>
+          </form>
+        </section>
+
+        <section class="adm-section">
+          <div class="adm-section__head">
+            <h2>Guest list</h2>
+            <span class="adm-count" id="guestCount">0</span>
+          </div>
+          <div id="guestsList"></div>
+        </section>
+
+      </div><!-- /panel-cleaning -->
 
     </div>
   </main>
@@ -291,8 +407,13 @@ import '../../styles/global.css';
     .adm-btn--deposit-resend:hover { background: #d4d9de; }
     .adm-btn--remove  { background: var(--white); color: #a64141; border-color: #f1dada; }
     .adm-btn--remove:hover  { background: #f1dada; }
+    .adm-btn--sm { padding: 0.25rem 0.6rem; font-size: 0.74rem; }
 
     .adm-block-form { margin-bottom: 1rem; }
+    .adm-guest-form { margin-bottom: 1rem; }
+    .adm-guest-form .adm-form-row + .adm-form-row { margin-top: 0.75rem; }
+    .adm-guest-edit-row td { background: var(--white); padding: 0.75rem 0.75rem 1rem; border-top: 2px solid var(--sky-blue); }
+    .adm-guest-edit-form .adm-form-row + .adm-form-row { margin-top: 0.6rem; }
     .adm-form-row {
       display: flex;
       align-items: end;
@@ -307,7 +428,8 @@ import '../../styles/global.css';
       text-transform: uppercase;
       color: var(--text-muted);
     }
-    .adm-form-row input {
+    .adm-form-row input,
+    .adm-form-row select {
       font-family: 'Nunito', sans-serif;
       font-size: 0.9rem;
       background: var(--soft-sky);
@@ -315,8 +437,10 @@ import '../../styles/global.css';
       border-radius: var(--radius);
       padding: 0.55rem 0.85rem;
       outline: none;
+      color: var(--text-dark);
     }
-    .adm-form-row input:focus { border-color: var(--sky-blue); background: var(--white); }
+    .adm-form-row input:focus,
+    .adm-form-row select:focus { border-color: var(--sky-blue); background: var(--white); }
     .adm-form-row .btn { padding: 0.6rem 1.5rem; font-size: 0.85rem; }
     .adm-form-error { color: #a64141; font-size: 0.82rem; font-weight: 700; margin-top: 0.5rem; }
 
@@ -409,26 +533,164 @@ import '../../styles/global.css';
     };
     type ManualBlock = { id: string; created_at: number; from_date: string; to_date: string; note: string | null };
     type PricingRule = { month: number; rate_eur: number; updated_at: number };
+    type CleaningGuest = {
+      id: string; guest_name: string; booking_number: string | null; country: string | null;
+      check_in: string; check_out: string; booking_date: string | null;
+      total_guests: number; adults: number; children: number; children_ages: string | null;
+      nights: number; email: string | null; phone: string | null; notes: string | null;
+      checkin_hour: string | null; checkout_hour: string | null;
+    };
 
     const loading = document.getElementById('loading')!;
     const content = document.getElementById('content')!;
     const logoutBtn = document.getElementById('logoutBtn') as HTMLButtonElement;
 
-    // ── Tabs ────────────────────────────────────────────────────────────────
-    const tabBtns = document.querySelectorAll<HTMLButtonElement>('.adm-tabnav__tab');
-    const panels  = { booking: document.getElementById('panel-booking')!, settings: document.getElementById('panel-settings')! };
-    const tabPendingBadge = document.getElementById('tabPendingBadge')!;
+    let editingGuestId: string | null = null;
+    let currentGuests: CleaningGuest[] = [];
 
-    function switchTab(name: 'booking' | 'settings') {
-      tabBtns.forEach(b => b.classList.toggle('adm-tabnav__tab--active', b.dataset.tab === name));
-      panels.booking.hidden  = name !== 'booking';
-      panels.settings.hidden = name !== 'settings';
-      history.replaceState(null, '', name === 'settings' ? '#settings' : location.pathname);
+    const COUNTRIES = ['Croatia','Czechia','Germany','Italy','Poland','Slovakia','Slovenia','Switzerland','United Kingdom','Other'];
+
+    function countryOptions(selected: string | null): string {
+      return `<option value="">— select —</option>` +
+        COUNTRIES.map(c => `<option${selected === c ? ' selected' : ''}>${esc(c)}</option>`).join('');
     }
 
-    tabBtns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab as 'booking' | 'settings')));
+    function renderGuestTable(guests: CleaningGuest[]): string {
+      if (guests.length === 0) return '<p class="adm-empty">No guests entered yet.</p>';
+      const rows = guests.map(g => {
+        const isEditing = editingGuestId === g.id;
+        const editRow = isEditing ? `
+          <tr class="adm-guest-edit-row">
+            <td colspan="8">
+              <div class="adm-guest-edit-form">
+                <div class="adm-form-row">
+                  <div class="form-group" style="flex:2;">
+                    <label>Guest name *</label>
+                    <input type="text" id="ef-name-${g.id}" value="${esc(g.guest_name)}" />
+                  </div>
+                  <div class="form-group" style="flex:1;">
+                    <label>Booking number</label>
+                    <input type="text" id="ef-booking-${g.id}" value="${esc(g.booking_number ?? '')}" />
+                  </div>
+                </div>
+                <div class="adm-form-row">
+                  <div class="form-group">
+                    <label>Check-in *</label>
+                    <input type="date" id="ef-checkin-${g.id}" value="${g.check_in}" onchange="__calcEditNights('${g.id}')" />
+                  </div>
+                  <div class="form-group">
+                    <label>Check-out *</label>
+                    <input type="date" id="ef-checkout-${g.id}" value="${g.check_out}" onchange="__calcEditNights('${g.id}')" />
+                  </div>
+                  <div class="form-group">
+                    <label>Nights</label>
+                    <input type="number" id="ef-nights-${g.id}" value="${g.nights}" min="1" readonly style="background:var(--soft-sky);color:var(--text-muted);cursor:default;" />
+                  </div>
+                  <div class="form-group">
+                    <label>Booking date</label>
+                    <input type="date" id="ef-bdate-${g.id}" value="${g.booking_date ?? ''}" />
+                  </div>
+                </div>
+                <div class="adm-form-row">
+                  <div class="form-group">
+                    <label>Check-in hour</label>
+                    <input type="text" id="ef-checkin-hour-${g.id}" value="${esc(g.checkin_hour ?? '')}" placeholder="e.g. 15:00" />
+                  </div>
+                  <div class="form-group">
+                    <label>Check-out hour</label>
+                    <input type="text" id="ef-checkout-hour-${g.id}" value="${esc(g.checkout_hour ?? '')}" placeholder="e.g. 10:00" />
+                  </div>
+                </div>
+                <div class="adm-form-row">
+                  <div class="form-group">
+                    <label>Country</label>
+                    <select id="ef-country-${g.id}">${countryOptions(g.country)}</select>
+                  </div>
+                  <div class="form-group">
+                    <label>Total guests *</label>
+                    <input type="number" id="ef-total-${g.id}" value="${g.total_guests}" min="1" />
+                  </div>
+                  <div class="form-group">
+                    <label>Adults *</label>
+                    <input type="number" id="ef-adults-${g.id}" value="${g.adults}" min="0" />
+                  </div>
+                  <div class="form-group">
+                    <label>Children</label>
+                    <input type="number" id="ef-children-${g.id}" value="${g.children}" min="0" />
+                  </div>
+                </div>
+                <div class="adm-form-row">
+                  <div class="form-group" style="flex:1;">
+                    <label>Children's ages</label>
+                    <input type="text" id="ef-cages-${g.id}" value="${esc(g.children_ages ?? '')}" />
+                  </div>
+                  <div class="form-group" style="flex:1;">
+                    <label>Email</label>
+                    <input type="email" id="ef-email-${g.id}" value="${esc(g.email ?? '')}" />
+                  </div>
+                  <div class="form-group" style="flex:1;">
+                    <label>Phone</label>
+                    <input type="tel" id="ef-phone-${g.id}" value="${esc(g.phone ?? '')}" />
+                  </div>
+                </div>
+                <div class="adm-form-row">
+                  <div class="form-group" style="flex:1;">
+                    <label>Notes</label>
+                    <input type="text" id="ef-notes-${g.id}" value="${esc(g.notes ?? '')}" />
+                  </div>
+                </div>
+                <div class="adm-form-row" style="margin-top:0.5rem;gap:0.5rem;">
+                  <button class="btn btn-primary" style="font-size:0.85rem;padding:0.6rem 1.25rem;" onclick="__saveGuest('${g.id}')">Save changes</button>
+                  <button class="adm-btn" style="background:var(--white);border:1px solid #d4d9de;" onclick="__cancelEdit()">Cancel</button>
+                </div>
+                <p class="adm-form-error" id="ef-error-${g.id}" hidden></p>
+              </div>
+            </td>
+          </tr>` : '';
+        return `
+          <tr>
+            <td><strong>${esc(g.guest_name)}</strong></td>
+            <td>${fmtDate(g.check_in)}</td>
+            <td>${fmtDate(g.check_out)}</td>
+            <td>${g.nights}</td>
+            <td>${g.total_guests}${g.children > 0 ? ` (${g.children} ch.)` : ''}</td>
+            <td>${g.country ? esc(g.country) : '<span style="color:var(--text-light,#b0bec5);">—</span>'}</td>
+            <td>${g.check_in.substring(0, 4)}</td>
+            <td style="white-space:nowrap;">
+              <button class="adm-btn adm-btn--sm${isEditing ? '' : ' adm-btn--remove'}" style="${isEditing ? 'background:var(--soft-sky);color:var(--ocean-blue);border-color:rgba(74,159,212,0.3);' : ''}" onclick="__editGuest('${g.id}')">Edit</button>
+              <button class="adm-btn adm-btn--sm adm-btn--remove" onclick="__removeGuest('${g.id}')">Remove</button>
+            </td>
+          </tr>
+          ${editRow}`;
+      }).join('');
+      return `<table class="adm-table"><thead><tr>
+        <th>Guest</th><th>Check-in</th><th>Check-out</th>
+        <th>Nights</th><th>Guests</th><th>Country</th><th>Season</th><th></th>
+      </tr></thead><tbody>${rows}</tbody></table>`;
+    }
 
-    const initialTab = location.hash === '#settings' ? 'settings' : 'booking';
+    // ── Tabs ────────────────────────────────────────────────────────────────
+    type TabName = 'booking' | 'settings' | 'cleaning';
+    const tabBtns = document.querySelectorAll<HTMLButtonElement>('.adm-tabnav__tab');
+    const panels  = {
+      booking:  document.getElementById('panel-booking')!,
+      settings: document.getElementById('panel-settings')!,
+      cleaning: document.getElementById('panel-cleaning')!,
+    };
+    const tabPendingBadge = document.getElementById('tabPendingBadge')!;
+
+    function switchTab(name: TabName) {
+      tabBtns.forEach(b => b.classList.toggle('adm-tabnav__tab--active', b.dataset.tab === name));
+      (Object.keys(panels) as TabName[]).forEach(k => { panels[k].hidden = k !== name; });
+      const hash = name === 'settings' ? '#settings' : name === 'cleaning' ? '#cleaning' : location.pathname;
+      history.replaceState(null, '', hash);
+    }
+
+    tabBtns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab as TabName)));
+
+    const initialTab: TabName =
+      location.hash === '#settings' ? 'settings' :
+      location.hash === '#cleaning' ? 'cleaning' : 'booking';
     switchTab(initialTab);
     // ────────────────────────────────────────────────────────────────────────
 
@@ -507,6 +769,83 @@ import '../../styles/global.css';
     }
     (window as any).__removeBlock = removeBlock;
 
+    async function removeGuest(id: string) {
+      if (!confirm('Remove this guest entry?')) return;
+      try {
+        await api(`/api/admin/cleaning-guests/${id}`, { method: 'DELETE' });
+        if (editingGuestId === id) editingGuestId = null;
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Action failed');
+      }
+    }
+    (window as any).__removeGuest = removeGuest;
+
+    function editGuest(id: string) {
+      editingGuestId = id;
+      document.getElementById('guestsList')!.innerHTML = renderGuestTable(currentGuests);
+    }
+    (window as any).__editGuest = editGuest;
+
+    function cancelEdit() {
+      editingGuestId = null;
+      document.getElementById('guestsList')!.innerHTML = renderGuestTable(currentGuests);
+    }
+    (window as any).__cancelEdit = cancelEdit;
+
+    function calcEditNights(id: string) {
+      const ci = (document.getElementById(`ef-checkin-${id}`) as HTMLInputElement)?.value;
+      const co = (document.getElementById(`ef-checkout-${id}`) as HTMLInputElement)?.value;
+      const nightsEl = document.getElementById(`ef-nights-${id}`) as HTMLInputElement;
+      if (ci && co && co > ci) {
+        nightsEl.value = String(Math.round((new Date(co).getTime() - new Date(ci).getTime()) / 86400000));
+      } else {
+        nightsEl.value = '';
+      }
+    }
+    (window as any).__calcEditNights = calcEditNights;
+
+    async function saveGuest(id: string) {
+      const errEl = document.getElementById(`ef-error-${id}`) as HTMLElement | null;
+      if (errEl) errEl.hidden = true;
+      const get = (suffix: string) =>
+        (document.getElementById(`ef-${suffix}-${id}`) as HTMLInputElement | HTMLSelectElement | null)?.value ?? '';
+      const body = {
+        guest_name:     get('name').trim(),
+        booking_number: get('booking').trim() || null,
+        country:        get('country') || null,
+        check_in:       get('checkin'),
+        check_out:      get('checkout'),
+        booking_date:   get('bdate') || null,
+        total_guests:   Number(get('total')),
+        adults:         Number(get('adults')),
+        children:       Number(get('children')),
+        children_ages:  get('cages').trim() || null,
+        nights:         Number(get('nights')),
+        email:          get('email').trim() || null,
+        phone:          get('phone').trim() || null,
+        notes:          get('notes').trim() || null,
+        checkin_hour:   get('checkin-hour').trim() || null,
+        checkout_hour:  get('checkout-hour').trim() || null,
+      };
+      try {
+        await api(`/api/admin/cleaning-guests/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(body),
+        });
+        editingGuestId = null;
+        await refresh();
+      } catch (e) {
+        if (errEl) {
+          errEl.textContent = e instanceof Error ? e.message : 'Save failed';
+          errEl.hidden = false;
+        } else {
+          alert(e instanceof Error ? e.message : 'Save failed');
+        }
+      }
+    }
+    (window as any).__saveGuest = saveGuest;
+
     async function saveMinAdvanceDays() {
       const input = document.getElementById('setting-min-advance-days') as HTMLInputElement;
       const btn   = document.getElementById('setting-min-advance-btn') as HTMLButtonElement;
@@ -554,11 +893,12 @@ import '../../styles/global.css';
     (window as any).__savePricing = savePricing;
 
     async function refresh() {
-      const [resData, blockData, priceData, settingsData] = await Promise.all([
+      const [resData, blockData, priceData, settingsData, cleaningData] = await Promise.all([
         api<{ reservations: Reservation[] }>('/api/admin/reservations'),
         api<{ blocks: ManualBlock[] }>('/api/admin/blocks'),
         api<{ pricing: PricingRule[] }>('/api/admin/pricing'),
         api<BookingSettings>('/api/admin/settings'),
+        api<{ guests: CleaningGuest[] }>('/api/admin/cleaning-guests'),
       ]);
 
       const reservations = resData.reservations;
@@ -628,6 +968,10 @@ import '../../styles/global.css';
           <button class="adm-pricing-row__btn" id="setting-min-advance-btn" onclick="__saveMinAdvanceDays()">Save</button>
         </div>
       `;
+
+      currentGuests = cleaningData.guests;
+      document.getElementById('guestCount')!.textContent = String(currentGuests.length);
+      document.getElementById('guestsList')!.innerHTML = renderGuestTable(currentGuests);
     }
 
     logoutBtn.addEventListener('click', async () => {
@@ -655,6 +999,57 @@ import '../../styles/global.css';
       } catch (e) {
         blockError.textContent = e instanceof Error ? e.message : 'Failed to add block';
         blockError.hidden = false;
+      }
+    });
+
+    function calcNights() {
+      const ci = (document.getElementById('gf-checkin') as HTMLInputElement).value;
+      const co = (document.getElementById('gf-checkout') as HTMLInputElement).value;
+      const nightsInput = document.getElementById('gf-nights') as HTMLInputElement;
+      if (ci && co && co > ci) {
+        const diff = (new Date(co).getTime() - new Date(ci).getTime()) / 86400000;
+        nightsInput.value = String(Math.round(diff));
+      } else {
+        nightsInput.value = '';
+      }
+    }
+    document.getElementById('gf-checkin')!.addEventListener('change', calcNights);
+    document.getElementById('gf-checkout')!.addEventListener('change', calcNights);
+
+    const guestForm  = document.getElementById('guestForm') as HTMLFormElement;
+    const guestError = document.getElementById('guestError') as HTMLElement;
+    guestForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      guestError.hidden = true;
+      const fd = new FormData(guestForm);
+      const body = {
+        guest_name:     String(fd.get('guest_name')    ?? ''),
+        booking_number: String(fd.get('booking_number') ?? '') || null,
+        country:        String(fd.get('country')        ?? '') || null,
+        check_in:       String(fd.get('check_in')       ?? ''),
+        check_out:      String(fd.get('check_out')      ?? ''),
+        booking_date:   String(fd.get('booking_date')   ?? '') || null,
+        total_guests:   Number(fd.get('total_guests')   ?? 1),
+        adults:         Number(fd.get('adults')         ?? 1),
+        children:       Number(fd.get('children')       ?? 0),
+        children_ages:  String(fd.get('children_ages')  ?? '') || null,
+        nights:         Number(fd.get('nights')         ?? 0),
+        email:          String(fd.get('email')          ?? '') || null,
+        phone:          String(fd.get('phone')          ?? '') || null,
+        notes:          String(fd.get('notes')          ?? '') || null,
+        checkin_hour:   String(fd.get('checkin_hour')   ?? '') || null,
+        checkout_hour:  String(fd.get('checkout_hour')  ?? '') || null,
+      };
+      try {
+        await api('/api/admin/cleaning-guests', {
+          method: 'POST',
+          body: JSON.stringify(body),
+        });
+        guestForm.reset();
+        await refresh();
+      } catch (e) {
+        guestError.textContent = e instanceof Error ? e.message : 'Failed to add guest';
+        guestError.hidden = false;
       }
     });
 
