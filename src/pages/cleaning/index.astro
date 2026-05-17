@@ -1,0 +1,405 @@
+---
+import '../../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+  <title>Cleaning Crew | Blue Moon Apartment</title>
+</head>
+<body class="crew-body">
+
+  <header class="crew-header">
+    <div class="crew-header__inner">
+      <img src="/images/nav-logo.svg" alt="Blue Moon Apartment" height="38" />
+      <span class="crew-header__title">Cleaning Crew</span>
+      <button id="logoutBtn" class="crew-logout" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <main class="crew-main">
+    <div id="loading" class="crew-loading">Loading…</div>
+    <div id="content" hidden>
+      <div id="guestList"></div>
+    </div>
+  </main>
+
+  <style is:global>
+    .crew-body {
+      background: var(--soft-sky);
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .crew-header {
+      background: var(--white);
+      border-bottom: 1px solid rgba(74,159,212,0.15);
+      box-shadow: var(--shadow-xs);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .crew-header__inner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .crew-header__inner img { display: block; height: 36px; width: auto; }
+    .crew-header__title {
+      flex: 1;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: var(--ocean-blue);
+      font-size: 1rem;
+    }
+    .crew-logout {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: none;
+      border: 1px solid rgba(74,159,212,0.4);
+      border-radius: 8px;
+      color: var(--ocean-blue);
+      padding: 0.4rem 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .crew-logout:active { background: var(--soft-sky); }
+
+    .crew-main {
+      padding: 1rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .crew-loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+    .crew-empty {
+      color: var(--text-muted);
+      padding: 0.5rem 0;
+      font-style: italic;
+      font-size: 0.88rem;
+    }
+
+    .crew-section {
+      margin-bottom: 1.5rem;
+    }
+    .crew-section__title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 0 0 0.5rem;
+    }
+
+    /* Card */
+    .crew-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-xs);
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+    .crew-card--upcoming {
+      border-left: 3px solid var(--ocean-blue);
+    }
+    .crew-card--current {
+      border-left: 3px solid #f59e0b;
+    }
+
+    /* Summary row — always visible */
+    .crew-card__summary {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.2rem 0.5rem;
+      padding: 0.9rem 1rem;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    .crew-card__summary::-webkit-details-marker { display: none; }
+
+    .crew-card__name {
+      font-weight: 800;
+      color: var(--text-dark);
+      font-size: 0.95rem;
+      grid-column: 1;
+    }
+    .crew-card__toggle {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      align-self: center;
+      font-size: 1.2rem;
+      color: var(--sky-blue);
+      transition: transform 0.2s;
+      padding-left: 0.5rem;
+    }
+    details[open] .crew-card__toggle { transform: rotate(180deg); }
+
+    .crew-card__meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      grid-column: 1;
+    }
+
+    /* Chips */
+    .crew-card__chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      padding: 0 1rem 0.75rem;
+    }
+    .crew-chip {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      background: var(--soft-sky);
+      color: var(--ocean-blue);
+    }
+    .crew-chip--children { background: #f7e8c4; color: #8a6d2a; }
+
+    .crew-card__divider {
+      border: none;
+      border-top: 1px solid rgba(74,159,212,0.1);
+      margin: 0;
+    }
+
+    /* Detail grid */
+    .crew-card__details {
+      padding: 0.85rem 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem 1rem;
+    }
+    .crew-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+    .crew-detail--full { grid-column: 1 / -1; }
+    .crew-detail__label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .crew-detail__value {
+      font-size: 0.88rem;
+      color: var(--text-dark);
+      font-weight: 600;
+      word-break: break-word;
+    }
+    .crew-detail__value--empty {
+      color: var(--text-light, #b0bec5);
+      font-style: italic;
+      font-weight: 400;
+    }
+    .crew-whatsapp { color: #25d366; text-decoration: none; }
+    .crew-whatsapp:active { opacity: 0.7; }
+    .crew-note-badge {
+      margin-left: 0.35rem;
+      font-size: 0.95rem;
+      vertical-align: middle;
+    }
+  </style>
+
+  <script>
+    type CrewGuest = {
+      id: string;
+      created_at: number;
+      guest_name: string;
+      booking_number: string | null;
+      country: string | null;
+      check_in: string;
+      check_out: string;
+      booking_date: string | null;
+      total_guests: number;
+      adults: number;
+      children: number;
+      children_ages: string | null;
+      nights: number;
+      email: string | null;
+      phone: string | null;
+      notes: string | null;
+      checkin_hour: string | null;
+      checkout_hour: string | null;
+    };
+
+    const loading = document.getElementById('loading')!;
+    const content = document.getElementById('content')!;
+
+    const fmtDate = (iso: string) => {
+      const [y, mo, d] = iso.split('-').map(Number);
+      return new Date(y, mo - 1, d).toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'short', year: 'numeric',
+      });
+    };
+
+    const fmtDateShort = (iso: string) => {
+      const [, mo, d] = iso.split('-').map(Number);
+      return `${d}.${mo}.`;
+    };
+
+    const esc = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    const val = (v: string | number | null | undefined) =>
+      v != null && String(v).trim()
+        ? `<span class="crew-detail__value">${esc(String(v))}</span>`
+        : `<span class="crew-detail__value crew-detail__value--empty">—</span>`;
+
+    function todayISO(): string {
+      return new Date().toLocaleDateString('en-CA');
+    }
+
+    function renderCard(g: CrewGuest, autoOpen: boolean, accent: 'current' | 'next' | false): string {
+      const season = g.check_in.substring(0, 4);
+      const accentClass = accent === 'current' ? ' crew-card--current' : accent === 'next' ? ' crew-card--upcoming' : '';
+      return `
+        <details class="crew-card${accentClass}"${autoOpen ? ' open' : ''}>
+          <summary class="crew-card__summary">
+            <span class="crew-card__name">${esc(g.guest_name)}${g.notes ? '<span class="crew-note-badge" title="Has notes">📋</span>' : ''}</span>
+            <span class="crew-card__toggle">&#8964;</span>
+            <span class="crew-card__meta">${fmtDateShort(g.check_in)} &rarr; ${fmtDateShort(g.check_out)} &middot; ${g.nights} night${g.nights !== 1 ? 's' : ''}</span>
+          </summary>
+          <div class="crew-card__chips">
+            ${g.country ? `<span class="crew-chip">${esc(g.country)}</span>` : ''}
+            <span class="crew-chip">${g.total_guests} guest${g.total_guests !== 1 ? 's' : ''}</span>
+            ${g.children > 0 ? `<span class="crew-chip crew-chip--children">${g.children} child${g.children !== 1 ? 'ren' : ''}</span>` : ''}
+          </div>
+          <hr class="crew-card__divider" />
+          <div class="crew-card__details">
+            <div class="crew-detail">
+              <span class="crew-detail__label">Season</span>
+              <span class="crew-detail__value">${esc(season)}</span>
+            </div>
+            <div class="crew-detail">
+              <span class="crew-detail__label">Booking number</span>
+              ${val(g.booking_number)}
+            </div>
+            <div class="crew-detail">
+              <span class="crew-detail__label">Booking date</span>
+              ${val(g.booking_date ? fmtDate(g.booking_date) : null)}
+            </div>
+            <div class="crew-detail">
+              <span class="crew-detail__label">Check-in hour</span>
+              ${val(g.checkin_hour)}
+            </div>
+            <div class="crew-detail">
+              <span class="crew-detail__label">Check-out hour</span>
+              ${val(g.checkout_hour)}
+            </div>
+            <div class="crew-detail">
+              <span class="crew-detail__label">Adults</span>
+              ${val(g.adults)}
+            </div>
+            <div class="crew-detail">
+              <span class="crew-detail__label">Children</span>
+              ${val(g.children)}
+            </div>
+            <div class="crew-detail">
+              <span class="crew-detail__label">Children's ages</span>
+              ${val(g.children_ages)}
+            </div>
+            <div class="crew-detail">
+              <span class="crew-detail__label">Email</span>
+              ${val(g.email)}
+            </div>
+            <div class="crew-detail">
+              <span class="crew-detail__label">Phone</span>
+              ${g.phone
+                ? `<a class="crew-detail__value crew-whatsapp" href="https://wa.me/${g.phone.replace(/[^\d+]/g, '').replace(/^\+/, '')}" target="_blank" rel="noopener noreferrer">${esc(g.phone)}</a>`
+                : `<span class="crew-detail__value crew-detail__value--empty">—</span>`}
+            </div>
+            ${g.notes ? `
+            <div class="crew-detail crew-detail--full">
+              <span class="crew-detail__label">Notes</span>
+              ${val(g.notes)}
+            </div>` : ''}
+          </div>
+        </details>
+      `;
+    }
+
+    function renderSections(guests: CrewGuest[]): string {
+      const today = todayISO();
+      const visible = guests.filter(g => g.check_out > today);
+      const current  = visible.filter(g => g.check_in <= today);
+      const upcoming = visible.filter(g => g.check_in > today);
+      const next   = upcoming[0] ?? null;
+      const later  = upcoming.slice(1);
+
+      const placeholder = '<p class="crew-empty">—</p>';
+
+      const currentHtml = current.length
+        ? current.map(g => renderCard(g, false, 'current')).join('')
+        : placeholder;
+
+      const nextHtml = next
+        ? renderCard(next, false, 'next')
+        : placeholder;
+
+      const laterHtml = later.length
+        ? later.map(g => renderCard(g, false, false)).join('')
+        : placeholder;
+
+      return `
+        <section class="crew-section">
+          <h2 class="crew-section__title">Current guest</h2>
+          ${currentHtml}
+        </section>
+        <section class="crew-section">
+          <h2 class="crew-section__title">Next guest</h2>
+          ${nextHtml}
+        </section>
+        <section class="crew-section">
+          <h2 class="crew-section__title">Later guests</h2>
+          ${laterHtml}
+        </section>
+      `;
+    }
+
+    async function api<T>(path: string, init?: RequestInit): Promise<T> {
+      const res = await fetch(path, {
+        ...init,
+        headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
+        credentials: 'same-origin',
+      });
+      if (res.status === 401) {
+        window.location.href = '/cleaning/login';
+        throw new Error('not authenticated');
+      }
+      const data = await res.json() as T & { ok?: boolean; error?: string };
+      if ((data as any).ok === false) throw new Error((data as any).error ?? 'Request failed');
+      return data;
+    }
+
+    document.getElementById('logoutBtn')!.addEventListener('click', async () => {
+      try { await fetch('/api/crew/logout', { method: 'POST', credentials: 'same-origin' }); }
+      finally { window.location.href = '/cleaning/login'; }
+    });
+
+    api<{ guests: CrewGuest[] }>('/api/crew/guests')
+      .then(({ guests }) => {
+        document.getElementById('guestList')!.innerHTML = renderSections(guests);
+        loading.style.display = 'none';
+        content.hidden = false;
+      })
+      .catch(() => { /* api() already redirected on 401 */ });
+  </script>
+</body>
+</html>
