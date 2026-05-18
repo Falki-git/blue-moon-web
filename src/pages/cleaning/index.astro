@@ -208,6 +208,8 @@ import '../../styles/global.css';
       font-style: italic;
       font-weight: 400;
     }
+    .crew-detail--phone .crew-detail__value,
+    .crew-detail--phone .crew-whatsapp { font-size: 0.78rem; }
     .crew-whatsapp { color: #25d366; text-decoration: none; }
     .crew-whatsapp:active { opacity: 0.7; }
     .crew-note-badge {
@@ -242,13 +244,6 @@ import '../../styles/global.css';
     const loading = document.getElementById('loading')!;
     const content = document.getElementById('content')!;
 
-    const fmtDate = (iso: string) => {
-      const [y, mo, d] = iso.split('-').map(Number);
-      return new Date(y, mo - 1, d).toLocaleDateString('en-GB', {
-        day: 'numeric', month: 'short', year: 'numeric',
-      });
-    };
-
     const fmtDateShort = (iso: string) => {
       const [, mo, d] = iso.split('-').map(Number);
       return `${d}.${mo}.`;
@@ -267,7 +262,6 @@ import '../../styles/global.css';
     }
 
     function renderCard(g: CrewGuest, autoOpen: boolean, accent: 'current' | 'next' | false): string {
-      const season = g.check_in.substring(0, 4);
       const accentClass = accent === 'current' ? ' crew-card--current' : accent === 'next' ? ' crew-card--upcoming' : '';
       return `
         <details class="crew-card${accentClass}"${autoOpen ? ' open' : ''}>
@@ -283,18 +277,6 @@ import '../../styles/global.css';
           </div>
           <hr class="crew-card__divider" />
           <div class="crew-card__details">
-            <div class="crew-detail">
-              <span class="crew-detail__label">Season</span>
-              <span class="crew-detail__value">${esc(season)}</span>
-            </div>
-            <div class="crew-detail">
-              <span class="crew-detail__label">Booking number</span>
-              ${val(g.booking_number)}
-            </div>
-            <div class="crew-detail">
-              <span class="crew-detail__label">Booking date</span>
-              ${val(g.booking_date ? fmtDate(g.booking_date) : null)}
-            </div>
             <div class="crew-detail">
               <span class="crew-detail__label">Check-in hour</span>
               ${val(g.checkin_hour)}
@@ -315,15 +297,15 @@ import '../../styles/global.css';
               <span class="crew-detail__label">Children's ages</span>
               ${val(g.children_ages)}
             </div>
-            <div class="crew-detail">
-              <span class="crew-detail__label">Email</span>
-              ${val(g.email)}
-            </div>
-            <div class="crew-detail">
+            <div class="crew-detail crew-detail--phone">
               <span class="crew-detail__label">Phone</span>
               ${g.phone
                 ? `<a class="crew-detail__value crew-whatsapp" href="https://wa.me/${g.phone.replace(/[^\d+]/g, '').replace(/^\+/, '')}" target="_blank" rel="noopener noreferrer">${esc(g.phone)}</a>`
                 : `<span class="crew-detail__value crew-detail__value--empty">—</span>`}
+            </div>
+            <div class="crew-detail crew-detail--full">
+              <span class="crew-detail__label">Email</span>
+              ${val(g.email)}
             </div>
             ${g.notes ? `
             <div class="crew-detail crew-detail--full">
