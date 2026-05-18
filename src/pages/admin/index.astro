@@ -144,8 +144,8 @@ import '../../styles/global.css';
               </div>
               <div class="form-group">
                 <label for="gf-nights">Nights</label>
-                <input type="number" id="gf-nights" name="nights" min="1" readonly
-                       style="background:var(--soft-sky);color:var(--text-muted);cursor:default;" />
+                <input type="number" id="gf-nights" name="nights" min="1" tabindex="-1" readonly
+                       style="background:transparent;color:var(--text-muted);cursor:default;" />
               </div>
               <div class="form-group">
                 <label for="gf-bdate">Booking date</label>
@@ -180,16 +180,17 @@ import '../../styles/global.css';
                 </select>
               </div>
               <div class="form-group">
-                <label for="gf-total">Total guests *</label>
-                <input type="number" id="gf-total" name="total_guests" min="1" value="1" required />
-              </div>
-              <div class="form-group">
                 <label for="gf-adults">Adults *</label>
                 <input type="number" id="gf-adults" name="adults" min="0" value="1" required />
               </div>
               <div class="form-group">
                 <label for="gf-children">Children</label>
                 <input type="number" id="gf-children" name="children" min="0" value="0" />
+              </div>
+              <div class="form-group">
+                <label>Total guests</label>
+                <input type="number" id="gf-total" name="total_guests" min="1" value="1" tabindex="-1" readonly
+                       style="background:transparent;color:var(--text-muted);cursor:default;" />
               </div>
             </div>
             <div class="adm-form-row">
@@ -209,7 +210,7 @@ import '../../styles/global.css';
             <div class="adm-form-row">
               <div class="form-group" style="flex:1;">
                 <label for="gf-notes">Notes</label>
-                <input type="text" id="gf-notes" name="notes" placeholder="Any special notes for the cleaning crew" />
+                <textarea id="gf-notes" name="notes" placeholder="Any special notes for the cleaning crew" rows="3"></textarea>
               </div>
             </div>
             <div class="adm-form-row" style="margin-top:0.5rem;">
@@ -429,6 +430,7 @@ import '../../styles/global.css';
       color: var(--text-muted);
     }
     .adm-form-row input,
+    .adm-form-row textarea,
     .adm-form-row select {
       font-family: 'Nunito', sans-serif;
       font-size: 0.9rem;
@@ -584,7 +586,7 @@ import '../../styles/global.css';
                   </div>
                   <div class="form-group">
                     <label>Nights</label>
-                    <input type="number" id="ef-nights-${g.id}" value="${g.nights}" min="1" readonly style="background:var(--soft-sky);color:var(--text-muted);cursor:default;" />
+                    <input type="number" id="ef-nights-${g.id}" value="${g.nights}" min="1" tabindex="-1" readonly style="background:transparent;color:var(--text-muted);cursor:default;" />
                   </div>
                   <div class="form-group">
                     <label>Booking date</label>
@@ -607,16 +609,16 @@ import '../../styles/global.css';
                     <select id="ef-country-${g.id}">${countryOptions(g.country)}</select>
                   </div>
                   <div class="form-group">
-                    <label>Total guests *</label>
-                    <input type="number" id="ef-total-${g.id}" value="${g.total_guests}" min="1" />
-                  </div>
-                  <div class="form-group">
                     <label>Adults *</label>
-                    <input type="number" id="ef-adults-${g.id}" value="${g.adults}" min="0" />
+                    <input type="number" id="ef-adults-${g.id}" value="${g.adults}" min="0" oninput="__calcEditTotal('${g.id}')" />
                   </div>
                   <div class="form-group">
                     <label>Children</label>
-                    <input type="number" id="ef-children-${g.id}" value="${g.children}" min="0" />
+                    <input type="number" id="ef-children-${g.id}" value="${g.children}" min="0" oninput="__calcEditTotal('${g.id}')" />
+                  </div>
+                  <div class="form-group">
+                    <label>Total guests</label>
+                    <input type="number" id="ef-total-${g.id}" value="${g.total_guests}" min="1" tabindex="-1" readonly style="background:transparent;color:var(--text-muted);cursor:default;" />
                   </div>
                 </div>
                 <div class="adm-form-row">
@@ -636,7 +638,7 @@ import '../../styles/global.css';
                 <div class="adm-form-row">
                   <div class="form-group" style="flex:1;">
                     <label>Notes</label>
-                    <input type="text" id="ef-notes-${g.id}" value="${esc(g.notes ?? '')}" />
+                    <textarea id="ef-notes-${g.id}" rows="3">${esc(g.notes ?? '')}</textarea>
                   </div>
                 </div>
                 <div class="adm-form-row" style="margin-top:0.5rem;gap:0.5rem;">
@@ -796,14 +798,22 @@ import '../../styles/global.css';
     function calcEditNights(id: string) {
       const ci = (document.getElementById(`ef-checkin-${id}`) as HTMLInputElement)?.value;
       const co = (document.getElementById(`ef-checkout-${id}`) as HTMLInputElement)?.value;
-      const nightsEl = document.getElementById(`ef-nights-${id}`) as HTMLInputElement;
+      const nightsInput = document.getElementById(`ef-nights-${id}`) as HTMLInputElement;
       if (ci && co && co > ci) {
-        nightsEl.value = String(Math.round((new Date(co).getTime() - new Date(ci).getTime()) / 86400000));
+        nightsInput.value = String(Math.round((new Date(co).getTime() - new Date(ci).getTime()) / 86400000));
       } else {
-        nightsEl.value = '';
+        nightsInput.value = '';
       }
     }
     (window as any).__calcEditNights = calcEditNights;
+
+    function calcEditTotal(id: string) {
+      const adults   = Number((document.getElementById(`ef-adults-${id}`)   as HTMLInputElement)?.value ?? 0);
+      const children = Number((document.getElementById(`ef-children-${id}`) as HTMLInputElement)?.value ?? 0);
+      const totalInput = document.getElementById(`ef-total-${id}`) as HTMLInputElement | null;
+      if (totalInput) totalInput.value = String(adults + children);
+    }
+    (window as any).__calcEditTotal = calcEditTotal;
 
     async function saveGuest(id: string) {
       const errEl = document.getElementById(`ef-error-${id}`) as HTMLElement | null;
@@ -1007,14 +1017,21 @@ import '../../styles/global.css';
       const co = (document.getElementById('gf-checkout') as HTMLInputElement).value;
       const nightsInput = document.getElementById('gf-nights') as HTMLInputElement;
       if (ci && co && co > ci) {
-        const diff = (new Date(co).getTime() - new Date(ci).getTime()) / 86400000;
-        nightsInput.value = String(Math.round(diff));
+        nightsInput.value = String(Math.round((new Date(co).getTime() - new Date(ci).getTime()) / 86400000));
       } else {
         nightsInput.value = '';
       }
     }
     document.getElementById('gf-checkin')!.addEventListener('change', calcNights);
     document.getElementById('gf-checkout')!.addEventListener('change', calcNights);
+
+    function calcTotal() {
+      const adults   = Number((document.getElementById('gf-adults')   as HTMLInputElement).value ?? 0);
+      const children = Number((document.getElementById('gf-children') as HTMLInputElement).value ?? 0);
+      (document.getElementById('gf-total') as HTMLInputElement).value = String(adults + children);
+    }
+    document.getElementById('gf-adults')!.addEventListener('input', calcTotal);
+    document.getElementById('gf-children')!.addEventListener('input', calcTotal);
 
     const guestForm  = document.getElementById('guestForm') as HTMLFormElement;
     const guestError = document.getElementById('guestError') as HTMLElement;
