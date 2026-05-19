@@ -299,3 +299,83 @@ export async function upsertSetting(db: D1Database, key: string, value: string):
        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`
   ).bind(key, value).run();
 }
+
+// ── Cleaning crew guests ─────────────────────────────────────────────────────
+
+export interface CleaningGuestRow {
+  id: string;
+  created_at: number;
+  guest_name: string;
+  booking_number: string | null;
+  country: string | null;
+  check_in: string;
+  check_out: string;
+  booking_date: string | null;
+  total_guests: number;
+  adults: number;
+  children: number;
+  children_ages: string | null;
+  nights: number;
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
+  checkin_hour: string | null;
+  checkout_hour: string | null;
+}
+
+export async function listCleaningGuests(db: D1Database): Promise<CleaningGuestRow[]> {
+  const rs = await db
+    .prepare('SELECT * FROM cleaning_guests ORDER BY check_in ASC')
+    .all<CleaningGuestRow>();
+  return rs.results ?? [];
+}
+
+export async function insertCleaningGuest(
+  db: D1Database,
+  row: Omit<CleaningGuestRow, 'created_at'>,
+): Promise<void> {
+  await db
+    .prepare(
+      `INSERT INTO cleaning_guests
+        (id, created_at, guest_name, booking_number, country,
+         check_in, check_out, booking_date, total_guests, adults, children,
+         children_ages, nights, email, phone, notes, checkin_hour, checkout_hour)
+       VALUES (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)`,
+    )
+    .bind(
+      row.id, row.guest_name, row.booking_number, row.country,
+      row.check_in, row.check_out, row.booking_date, row.total_guests,
+      row.adults, row.children, row.children_ages, row.nights,
+      row.email, row.phone, row.notes, row.checkin_hour, row.checkout_hour,
+    )
+    .run();
+}
+
+export async function updateCleaningGuest(
+  db: D1Database,
+  id: string,
+  fields: Omit<CleaningGuestRow, 'id' | 'created_at'>,
+): Promise<void> {
+  await db
+    .prepare(
+      `UPDATE cleaning_guests SET
+        guest_name = ?1, booking_number = ?2, country = ?3,
+        check_in = ?4, check_out = ?5, booking_date = ?6,
+        total_guests = ?7, adults = ?8, children = ?9,
+        children_ages = ?10, nights = ?11, email = ?12,
+        phone = ?13, notes = ?14, checkin_hour = ?15, checkout_hour = ?16
+       WHERE id = ?17`,
+    )
+    .bind(
+      fields.guest_name, fields.booking_number, fields.country,
+      fields.check_in, fields.check_out, fields.booking_date,
+      fields.total_guests, fields.adults, fields.children,
+      fields.children_ages, fields.nights, fields.email,
+      fields.phone, fields.notes, fields.checkin_hour, fields.checkout_hour, id,
+    )
+    .run();
+}
+
+export async function deleteCleaningGuest(db: D1Database, id: string): Promise<void> {
+  await db.prepare('DELETE FROM cleaning_guests WHERE id = ?1').bind(id).run();
+}

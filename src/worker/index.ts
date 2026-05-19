@@ -1,6 +1,7 @@
 import { handleContact } from './contact';
 import { handleAvailability, handleBooking, handleDecision } from './booking';
 import { handleAdmin } from './admin';
+import { handleCrew } from './crew';
 
 export interface Env {
   ASSETS: { fetch(request: Request | string, init?: RequestInit): Promise<Response> };
@@ -9,6 +10,7 @@ export interface Env {
   TURNSTILE_SECRET_KEY: string;
   CONTACT_TO_EMAIL: string;
   ADMIN_PASSWORD: string;
+  CREW_PASSWORD: string;
   SESSION_SECRET: string;
 }
 
@@ -22,6 +24,7 @@ export default {
     if (url.pathname === '/api/booking/decide'  && request.method === 'GET') return handleDecision(request, env, ctx);
     if (url.pathname === '/api/booking/resolve' && request.method === 'GET') return handleDecision(request, env, ctx);
     if (url.pathname.startsWith('/api/admin/')) return handleAdmin(request, env, ctx);
+    if (url.pathname.startsWith('/api/crew/'))  return handleCrew(request, env);
 
     return env.ASSETS.fetch(request);
   },

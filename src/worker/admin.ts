@@ -8,6 +8,7 @@ import {
   getReservation, updateReservationStatus, markDepositPaid,
   insertManualBlock, deleteManualBlock,
   upsertPricingRule, getSetting, upsertSetting,
+  listCleaningGuests, insertCleaningGuest, updateCleaningGuest, deleteCleaningGuest,
   type ReservationStatus,
 } from './db';
 import { isInSeason, SEASON_MONTHS } from './pricing';
@@ -192,6 +193,107 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     }
     await upsertSetting(env.DB, 'min_advance_days', String(days));
     return ok({ minAdvanceDays: days });
+  }
+
+  if (path === 'cleaning-guests' && request.method === 'GET') {
+    const guests = await listCleaningGuests(env.DB);
+    return ok({ guests });
+  }
+
+  if (path === 'cleaning-guests' && request.method === 'POST') {
+    const body = await readJson(request);
+    if (!body) return err(400, 'Invalid JSON');
+
+    const guest_name = String(body.guest_name ?? '').trim();
+    const check_in   = String(body.check_in   ?? '').trim();
+    const check_out  = String(body.check_out  ?? '').trim();
+    if (!guest_name)                             return err(400, 'guest_name is required');
+    if (!check_in || !check_out)                 return err(400, 'check_in and check_out are required');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(check_in))  return err(400, 'check_in must be YYYY-MM-DD');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(check_out)) return err(400, 'check_out must be YYYY-MM-DD');
+    if (check_out <= check_in)                   return err(400, 'check_out must be after check_in');
+
+    const total_guests = Number(body.total_guests ?? 1);
+    const adults       = Number(body.adults       ?? 1);
+    const children     = Number(body.children     ?? 0);
+    const nights       = Number(body.nights       ?? 0);
+    if (!Number.isInteger(total_guests) || total_guests < 1) return err(400, 'Invalid total_guests');
+    if (!Number.isInteger(adults)       || adults < 0)       return err(400, 'Invalid adults');
+    if (!Number.isInteger(children)     || children < 0)     return err(400, 'Invalid children');
+    if (!Number.isInteger(nights)       || nights < 1)       return err(400, 'Invalid nights');
+
+    const id = crypto.randomUUID();
+    await insertCleaningGuest(env.DB, {
+      id,
+      guest_name,
+      booking_number: String(body.booking_number ?? '').trim() || null,
+      country:        String(body.country        ?? '').trim() || null,
+      check_in,
+      check_out,
+      booking_date:   String(body.booking_date   ?? '').trim() || null,
+      total_guests,
+      adults,
+      children,
+      children_ages:  String(body.children_ages  ?? '').trim() || null,
+      nights,
+      email:          String(body.email          ?? '').trim() || null,
+      phone:          String(body.phone          ?? '').trim() || null,
+      notes:          String(body.notes          ?? '').trim() || null,
+      checkin_hour:   String(body.checkin_hour   ?? '').trim() || null,
+      checkout_hour:  String(body.checkout_hour  ?? '').trim() || null,
+    });
+    return ok({ id });
+  }
+
+  const cleaningGuestMatch = path.match(/^cleaning-guests\/([^/]+)$/);
+
+  if (cleaningGuestMatch && request.method === 'PUT') {
+    const id = cleaningGuestMatch[1];
+    const body = await readJson(request);
+    if (!body) return err(400, 'Invalid JSON');
+
+    const guest_name = String(body.guest_name ?? '').trim();
+    const check_in   = String(body.check_in   ?? '').trim();
+    const check_out  = String(body.check_out  ?? '').trim();
+    if (!guest_name)                             return err(400, 'guest_name is required');
+    if (!check_in || !check_out)                 return err(400, 'check_in and check_out are required');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(check_in))  return err(400, 'check_in must be YYYY-MM-DD');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(check_out)) return err(400, 'check_out must be YYYY-MM-DD');
+    if (check_out <= check_in)                   return err(400, 'check_out must be after check_in');
+
+    const total_guests = Number(body.total_guests ?? 1);
+    const adults       = Number(body.adults       ?? 1);
+    const children     = Number(body.children     ?? 0);
+    const nights       = Number(body.nights       ?? 0);
+    if (!Number.isInteger(total_guests) || total_guests < 1) return err(400, 'Invalid total_guests');
+    if (!Number.isInteger(adults)       || adults < 0)       return err(400, 'Invalid adults');
+    if (!Number.isInteger(children)     || children < 0)     return err(400, 'Invalid children');
+    if (!Number.isInteger(nights)       || nights < 1)       return err(400, 'Invalid nights');
+
+    await updateCleaningGuest(env.DB, id, {
+      guest_name,
+      booking_number: String(body.booking_number ?? '').trim() || null,
+      country:        String(body.country        ?? '').trim() || null,
+      check_in,
+      check_out,
+      booking_date:   String(body.booking_date   ?? '').trim() || null,
+      total_guests,
+      adults,
+      children,
+      children_ages:  String(body.children_ages  ?? '').trim() || null,
+      nights,
+      email:          String(body.email          ?? '').trim() || null,
+      phone:          String(body.phone          ?? '').trim() || null,
+      notes:          String(body.notes          ?? '').trim() || null,
+      checkin_hour:   String(body.checkin_hour   ?? '').trim() || null,
+      checkout_hour:  String(body.checkout_hour  ?? '').trim() || null,
+    });
+    return ok();
+  }
+
+  if (cleaningGuestMatch && request.method === 'DELETE') {
+    await deleteCleaningGuest(env.DB, cleaningGuestMatch[1]);
+    return ok();
   }
 
   return err(404, 'Not found');

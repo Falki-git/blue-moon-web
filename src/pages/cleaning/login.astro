@@ -1,0 +1,141 @@
+---
+import '../../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+  <title>Cleaning Crew | Blue Moon Apartment</title>
+</head>
+<body class="adm-body">
+  <main class="adm-login">
+    <div class="adm-login-card">
+      <a href="/" class="adm-login__brand">
+        <img src="/images/nav-logo.svg" alt="Blue Moon Apartment" width="100" height="50" />
+      </a>
+      <h1>Cleaning crew sign-in</h1>
+      <p class="adm-login__sub">View upcoming guest details.</p>
+
+      <form id="loginForm" class="adm-login__form" novalidate>
+        <div class="form-group">
+          <label for="crew-pw">Password</label>
+          <input type="password" id="crew-pw" name="password" autocomplete="current-password" required />
+        </div>
+        <p class="adm-login__error" id="loginError" hidden></p>
+        <button type="submit" class="btn btn-primary adm-login__btn" id="loginBtn">
+          <span class="btn-label">Sign in</span>
+          <span class="btn-loading" style="display:none;">Signing in…</span>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <style>
+    .adm-body {
+      background: var(--soft-sky);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 1rem;
+    }
+    .adm-login-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 2.5rem;
+      max-width: 420px;
+      width: 100%;
+    }
+    .adm-login__brand {
+      display: block;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .adm-login__brand img { display: inline-block; }
+    .adm-login-card h1 {
+      font-size: 1.4rem;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .adm-login__sub {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+    .adm-login__form { display: flex; flex-direction: column; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .adm-login__form input {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      background: var(--soft-sky);
+      border: 2px solid transparent;
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .adm-login__form input:focus { border-color: var(--sky-blue); background: var(--white); }
+    .adm-login__error {
+      font-size: 0.82rem;
+      color: #e05c5c;
+      font-weight: 700;
+      text-align: center;
+      margin: 0;
+    }
+    .adm-login__btn { width: 100%; justify-content: center; padding: 0.85rem; }
+  </style>
+
+  <script>
+    const form  = document.getElementById('loginForm') as HTMLFormElement;
+    const errEl = document.getElementById('loginError') as HTMLElement;
+    const btn   = document.getElementById('loginBtn') as HTMLButtonElement;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pw = (document.getElementById('crew-pw') as HTMLInputElement).value;
+      const label   = btn.querySelector('.btn-label') as HTMLElement;
+      const loading = btn.querySelector('.btn-loading') as HTMLElement;
+      label.style.display = 'none';
+      loading.style.display = 'inline';
+      btn.disabled = true;
+      errEl.hidden = true;
+
+      try {
+        const res = await fetch('/api/crew/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw }),
+        });
+        const data = await res.json() as { ok: boolean; error?: string };
+        if (data.ok) {
+          window.location.href = '/cleaning';
+          return;
+        }
+        throw new Error(data.error ?? 'Sign-in failed');
+      } catch (err: unknown) {
+        label.style.display = 'inline';
+        loading.style.display = 'none';
+        btn.disabled = false;
+        errEl.textContent = err instanceof Error ? err.message : 'Sign-in failed';
+        errEl.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>
