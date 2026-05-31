@@ -171,7 +171,7 @@ const prefix = lang === 'en' ? '' : `/${lang}`;
           <div class="price-card__badge">{T.home.earlySummer}</div>
           <div class="price-card__icon">🌿</div>
           <div class="price-card__dates">{T.pricelist.earlySummerDates}</div>
-          <div class="price-card__amount"><span class="price-card__currency">€</span><span data-rate-month="6">199</span></div>
+          <div class="price-card__amount" data-rate-month="6"><span class="price-card__currency">€</span>199</div>
           <div class="price-card__unit">{T.home.perNight}</div>
           <a href={`${prefix}/booking?month=6`} class="btn btn-sky btn-sm">{T.home.priceRequestBooking}</a>
         </div>
@@ -179,7 +179,7 @@ const prefix = lang === 'en' ? '' : `/${lang}`;
           <div class="price-card__badge">{T.home.peakSeason}</div>
           <div class="price-card__icon">☀️</div>
           <div class="price-card__dates">{T.pricelist.peakSeasonDates}</div>
-          <div class="price-card__amount"><span class="price-card__currency">€</span><span data-rate-month="7">279</span></div>
+          <div class="price-card__amount" data-rate-month="7"><span class="price-card__currency">€</span>279</div>
           <div class="price-card__unit">{T.home.perNight}</div>
           <a href={`${prefix}/booking?month=7`} class="btn btn-gold btn-sm">{T.home.priceRequestBooking}</a>
         </div>
@@ -187,7 +187,7 @@ const prefix = lang === 'en' ? '' : `/${lang}`;
           <div class="price-card__badge">{T.home.goldenSep}</div>
           <div class="price-card__icon">🍂</div>
           <div class="price-card__dates">{T.pricelist.goldenSepDates}</div>
-          <div class="price-card__amount"><span class="price-card__currency">€</span><span data-rate-month="9">199</span></div>
+          <div class="price-card__amount" data-rate-month="9"><span class="price-card__currency">€</span>199</div>
           <div class="price-card__unit">{T.home.perNight}</div>
           <a href={`${prefix}/booking?month=8`} class="btn btn-primary btn-sm">{T.home.priceRequestBooking}</a>
         </div>
@@ -325,12 +325,20 @@ const prefix = lang === 'en' ? '' : `/${lang}`;
 
 <script>
   fetch('/api/availability')
-    .then(r => r.json() as Promise<{ ok: boolean; pricing: Record<string, number> }>)
+    .then(r => r.json() as Promise<{ ok: boolean; pricing: Record<string, { full: number; discount: number }> }>)
     .then(data => {
       if (!data.ok) return;
       document.querySelectorAll<HTMLElement>('[data-rate-month]').forEach(el => {
-        const rate = data.pricing[el.getAttribute('data-rate-month')!];
-        if (typeof rate === 'number') el.textContent = String(rate);
+        const p = data.pricing[el.getAttribute('data-rate-month')!];
+        if (!p) return;
+        const { full, discount } = p;
+        if (discount < full) {
+          const pct = Math.round((1 - discount / full) * 100);
+          el.closest('.price-card')?.insertAdjacentHTML('afterbegin', `<span class="price-badge price-disc-badge">-${pct}%</span>`);
+          el.innerHTML = `<span class="price-was">€${full}</span><span class="price-card__currency">€</span>${discount}`;
+        } else {
+          el.innerHTML = `<span class="price-card__currency">€</span>${discount}`;
+        }
       });
     })
     .catch(() => { /* keep static fallback */ });

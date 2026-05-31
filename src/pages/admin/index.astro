@@ -457,6 +457,15 @@ import '../../styles/global.css';
     .adm-pricing-row:last-child { border-bottom: none; }
     .adm-pricing-row__month { font-weight: 800; color: var(--ocean-blue); }
     .adm-pricing-row__updated { color: var(--text-muted); font-size: 0.78rem; }
+    .adm-pricing-row__inputs { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .adm-pricing-row__field { display: flex; align-items: center; gap: 0.3rem; }
+    .adm-pricing-row__field-label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
     .adm-pricing-row__input {
       font-family: 'Nunito', sans-serif;
       font-size: 0.95rem;
@@ -466,10 +475,18 @@ import '../../styles/global.css';
       border-radius: var(--radius);
       padding: 0.5rem 0.85rem;
       outline: none;
-      width: 110px;
+      width: 100px;
       text-align: right;
     }
     .adm-pricing-row__input:focus { border-color: var(--sky-blue); background: var(--white); }
+    .adm-pricing-row__disc-badge {
+      background: var(--sunset-gold);
+      color: var(--white);
+      border-radius: 4px;
+      padding: 0.15rem 0.45rem;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
     .adm-pricing-row__btn {
       background: var(--ocean-blue);
       color: var(--white);
@@ -514,8 +531,9 @@ import '../../styles/global.css';
       .adm-tabnav__inner { padding: 0 1rem; }
       .adm-section { padding: 1rem; }
       .adm-form-row { flex-direction: column; align-items: stretch; }
-      .adm-pricing-row { grid-template-columns: 1fr 1fr; }
+      .adm-pricing-row { grid-template-columns: 1fr auto; }
       .adm-pricing-row__updated { display: none; }
+      .adm-pricing-row__inputs { gap: 0.5rem; }
       .adm-table { font-size: 0.78rem; }
       .adm-table th, .adm-table td { padding: 0.4rem 0.45rem; }
     }
@@ -531,10 +549,11 @@ import '../../styles/global.css';
       address: string | null; source: string | null;
       guests: number; children_ages: string | null;
       check_in: string; check_out: string; nights: number; total_eur: number;
+      full_total_eur: number | null; discount_pct: number | null;
       message: string | null; decided_at: number | null; deposit_confirmation_sent_at: number | null;
     };
     type ManualBlock = { id: string; created_at: number; from_date: string; to_date: string; note: string | null };
-    type PricingRule = { month: number; rate_eur: number; updated_at: number };
+    type PricingRule = { month: number; rate_eur: number; discount_rate_eur: number | null; updated_at: number };
     type CleaningGuest = {
       id: string; guest_name: string; booking_number: string | null; country: string | null;
       check_in: string; check_out: string; booking_date: string | null;
@@ -727,7 +746,10 @@ import '../../styles/global.css';
         <tr>
           <td><strong>${esc(r.full_name)}</strong><br><a href="mailto:${esc(r.email)}">${esc(r.email)}</a>${r.phone ? `<br>${esc(r.phone)}` : ''}</td>
           <td>${fmtDate(r.check_in)} → ${fmtDate(r.check_out)}<br><span style="color:var(--text-muted);font-size:0.78rem;">${r.nights} night${r.nights !== 1 ? 's' : ''}, ${r.guests} guest${r.guests !== 1 ? 's' : ''}</span></td>
-          <td><strong>${fmtEur(r.total_eur)}</strong><br><span style="color:var(--text-muted);font-size:0.72rem;">Dep: ${fmtEur(depositEur(r.total_eur))} &middot; Arr: ${fmtEur(r.total_eur - depositEur(r.total_eur))}</span></td>
+          <td>${r.full_total_eur && r.full_total_eur > r.total_eur
+            ? `<span style="text-decoration:line-through;color:var(--text-muted);font-size:0.85rem;">${fmtEur(r.full_total_eur)}</span> <strong>${fmtEur(r.total_eur)}</strong> <span class="price-badge" style="font-size:0.7rem;">-${r.discount_pct}%</span>`
+            : `<strong>${fmtEur(r.total_eur)}</strong>`
+          }<br><span style="color:var(--text-muted);font-size:0.72rem;">Dep: ${fmtEur(depositEur(r.total_eur))} &middot; Arr: ${fmtEur(r.total_eur - depositEur(r.total_eur))}</span></td>
           <td><span class="adm-status adm-status--${r.status}">${r.status}</span><br><span style="color:var(--text-muted);font-size:0.72rem;">${fmtTs(r.created_at)}</span></td>
           <td><div class="adm-actions">${actions(r)}</div></td>
         </tr>
@@ -880,14 +902,18 @@ import '../../styles/global.css';
     (window as any).__saveMinAdvanceDays = saveMinAdvanceDays;
 
     async function savePricing(month: number) {
-      const input = document.getElementById(`pr-rate-${month}`) as HTMLInputElement;
-      const btn   = document.getElementById(`pr-btn-${month}`) as HTMLButtonElement;
-      const rate  = Number(input.value);
+      const rateInput     = document.getElementById(`pr-rate-${month}`) as HTMLInputElement;
+      const discountInput = document.getElementById(`pr-discount-${month}`) as HTMLInputElement;
+      const btn           = document.getElementById(`pr-btn-${month}`) as HTMLButtonElement;
+      const rate     = Number(rateInput.value);
+      const discount = discountInput.value.trim() !== '' ? Number(discountInput.value) : rate;
       if (!Number.isFinite(rate) || rate < 0) { alert('Enter a valid rate'); return; }
+      if (!Number.isFinite(discount) || discount < 0) { alert('Enter a valid discount rate'); return; }
+      if (discount > rate) { alert('Discount rate cannot exceed the full rate'); return; }
       try {
         await api('/api/admin/pricing', {
           method: 'POST',
-          body: JSON.stringify({ month, rate_eur: rate }),
+          body: JSON.stringify({ month, rate_eur: rate, discount_rate_eur: discount }),
         });
         btn.classList.add('adm-pricing-row__btn--saved');
         btn.textContent = 'Saved ✓';
@@ -901,6 +927,23 @@ import '../../styles/global.css';
       }
     }
     (window as any).__savePricing = savePricing;
+
+    function updateDiscountHint(month: number) {
+      const rateEl    = document.getElementById(`pr-rate-${month}`) as HTMLInputElement | null;
+      const discountEl = document.getElementById(`pr-discount-${month}`) as HTMLInputElement | null;
+      const badge      = document.getElementById(`pr-badge-${month}`) as HTMLElement | null;
+      if (!rateEl || !discountEl || !badge) return;
+      const rate = Number(rateEl.value);
+      const disc = Number(discountEl.value);
+      if (rate > 0 && Number.isFinite(disc) && disc >= 0 && disc < rate) {
+        const pct = Math.round((1 - disc / rate) * 100);
+        badge.textContent = `-${pct}%`;
+        badge.style.display = '';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+    (window as any).__updateDiscountHint = updateDiscountHint;
 
     async function refresh() {
       const [resData, blockData, priceData, settingsData, cleaningData] = await Promise.all([
@@ -955,13 +998,25 @@ import '../../styles/global.css';
       for (const p of priceData.pricing) pricingByMonth.set(p.month, p);
       const pricingHtml = [6, 7, 8, 9].map(m => {
         const p = pricingByMonth.get(m);
-        const rate = p?.rate_eur ?? 0;
-        const updated = p ? fmtTs(p.updated_at) : '—';
+        const rate     = p?.rate_eur ?? 0;
+        const discount = p?.discount_rate_eur != null ? p.discount_rate_eur : rate;
+        const pct      = rate > 0 && discount < rate ? Math.round((1 - discount / rate) * 100) : 0;
+        const updated  = p ? fmtTs(p.updated_at) : '—';
         return `
           <div class="adm-pricing-row">
             <div class="adm-pricing-row__month">${monthName(m)}</div>
             <div class="adm-pricing-row__updated">Last updated: ${updated}</div>
-            <div style="display:flex;align-items:center;gap:0.4rem;">€<input type="number" id="pr-rate-${m}" class="adm-pricing-row__input" value="${rate}" min="0" max="10000" /></div>
+            <div class="adm-pricing-row__inputs">
+              <div class="adm-pricing-row__field">
+                <span class="adm-pricing-row__field-label">Full</span>
+                <span>€</span><input type="number" id="pr-rate-${m}" class="adm-pricing-row__input" value="${rate}" min="0" max="10000" oninput="__updateDiscountHint(${m})" />
+              </div>
+              <div class="adm-pricing-row__field">
+                <span class="adm-pricing-row__field-label">Discounted</span>
+                <span>€</span><input type="number" id="pr-discount-${m}" class="adm-pricing-row__input" value="${discount}" min="0" max="10000" oninput="__updateDiscountHint(${m})" />
+                <span class="adm-pricing-row__disc-badge" id="pr-badge-${m}"${pct > 0 ? '' : ' style="display:none"'}>-${pct}%</span>
+              </div>
+            </div>
             <button class="adm-pricing-row__btn" id="pr-btn-${m}" onclick="__savePricing(${m})">Save</button>
           </div>
         `;

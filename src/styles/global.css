@@ -284,6 +284,28 @@ a:hover { color: var(--ocean-blue); }
   border-radius: 4px;
 }
 
+/* ─── Discount Price Display ────────────────────────────────────────────────── */
+.price-was {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+.price-card__amount .price-was            { font-size: 1.4rem; font-weight: 400; }
+.price-card__amount .price-card__currency { font-size: 1.8rem; font-weight: 700; vertical-align: middle; }
+.bk-price-card__amount .price-was        { font-size: 1rem; font-weight: 400; }
+.price-disc-badge { position: absolute; top: 0.75rem; left: 0.75rem; }
+.price-badge {
+  display: inline-block;
+  background: var(--sunset-gold);
+  color: var(--white);
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.15rem 0.55rem;
+  border-radius: 50px;
+  vertical-align: middle;
+  font-family: 'Nunito', sans-serif;
+  letter-spacing: 0.02em;
+}
+
 /* ─── Animations ────────────────────────────────────────────────────────────── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }

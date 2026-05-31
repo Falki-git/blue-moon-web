@@ -17,6 +17,9 @@ export interface ReservationRow {
   check_out: string;
   nights: number;
   total_eur: number;
+  full_total_eur: number | null;
+  discount_pct: number | null;
+  pricing_snapshot: string | null;
   message: string | null;
   decision_token: string;
   decided_at: number | null;
@@ -34,6 +37,7 @@ export interface ManualBlockRow {
 export interface PricingRuleRow {
   month: number;
   rate_eur: number;
+  discount_rate_eur: number | null;
   updated_at: number;
 }
 
@@ -205,6 +209,9 @@ export interface InsertReservationInput {
   check_out: string;
   nights: number;
   total_eur: number;
+  full_total_eur: number;
+  discount_pct: number;
+  pricing_snapshot: string;
   message: string | null;
   decision_token: string;
 }
@@ -213,13 +220,15 @@ export async function insertReservation(db: D1Database, row: InsertReservationIn
   await db.prepare(
     `INSERT INTO reservations
       (id, created_at, status, full_name, email, phone, language, country, address, source,
-       guests, children_ages, check_in, check_out, nights, total_eur, message, decision_token)
+       guests, children_ages, check_in, check_out, nights, total_eur, message, decision_token,
+       full_total_eur, discount_pct, pricing_snapshot)
      VALUES
-      (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)`
+      (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20)`
   ).bind(
     row.id, row.status, row.full_name, row.email, row.phone, row.language, row.country, row.address, row.source,
     row.guests, row.children_ages, row.check_in, row.check_out, row.nights, row.total_eur,
     row.message, row.decision_token,
+    row.full_total_eur, row.discount_pct, row.pricing_snapshot,
   ).run();
 }
 
@@ -276,12 +285,12 @@ export async function listPricing(db: D1Database): Promise<PricingRuleRow[]> {
 }
 
 export async function upsertPricingRule(
-  db: D1Database, month: number, rateEur: number,
+  db: D1Database, month: number, rateEur: number, discountRateEur: number,
 ): Promise<void> {
   await db.prepare(
-    `INSERT INTO pricing_rules (month, rate_eur, updated_at) VALUES (?1, ?2, unixepoch())
-       ON CONFLICT(month) DO UPDATE SET rate_eur = excluded.rate_eur, updated_at = excluded.updated_at`
-  ).bind(month, rateEur).run();
+    `INSERT INTO pricing_rules (month, rate_eur, discount_rate_eur, updated_at) VALUES (?1, ?2, ?3, unixepoch())
+       ON CONFLICT(month) DO UPDATE SET rate_eur = excluded.rate_eur, discount_rate_eur = excluded.discount_rate_eur, updated_at = excluded.updated_at`
+  ).bind(month, rateEur, discountRateEur).run();
 }
 
 export async function getSetting(db: D1Database, key: string): Promise<string | null> {

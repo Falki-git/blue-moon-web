@@ -103,7 +103,7 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
     checkinOnly: string[];
     pendingCheckoutOnly: string[];
     pendingCheckinOnly: string[];
-    pricing: Record<string, number>;
+    pricing: Record<string, { full: number; discount: number }>;
     season: { start: string; end: string };
     minNights: number;
     depositPct: number;
@@ -152,7 +152,7 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
   let checkinOnly = new Set<string>();
   let pendingCheckoutOnly = new Set<string>();
   let pendingCheckinOnly = new Set<string>();
-  let pricing: Record<number, number> = {};
+  let pricing: Record<number, { full: number; discount: number }> = {};
   let minNights = 5;
   let seasonStart = '2026-06-01';
   let seasonEnd   = '2026-09-30';
@@ -311,19 +311,24 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
       document.dispatchEvent(new CustomEvent('booking-range-change', { detail: null }));
       return;
     }
-    const breakdown: { date: string; eur: number }[] = [];
+    const breakdown: { date: string; fullEur: number; eur: number }[] = [];
     let total = 0;
+    let fullTotal = 0;
     for (const d of eachDay(checkIn, checkOut)) {
       const month = Number(d.split('-')[1]);
-      const eur = pricing[month] ?? 0;
-      breakdown.push({ date: d, eur });
-      total += eur;
+      const rates = pricing[month] ?? { full: 0, discount: 0 };
+      breakdown.push({ date: d, fullEur: rates.full, eur: rates.discount });
+      total += rates.discount;
+      fullTotal += rates.full;
     }
+    const discountPct = fullTotal > 0 ? Math.round((1 - total / fullTotal) * 100) : 0;
     document.dispatchEvent(new CustomEvent('booking-range-change', {
       detail: {
         checkIn, checkOut,
         nights: breakdown.length,
         totalEur: total,
+        fullTotalEur: fullTotal,
+        discountPct,
         breakdown,
       },
     }));
@@ -421,7 +426,7 @@ const grids = SEASON_MONTHS.map(m => ({ ...m, cells: buildMonthGrid(m.year, m.mo
       checkinOnly = new Set(data.checkinOnly);
       pendingCheckoutOnly = new Set(data.pendingCheckoutOnly);
       pendingCheckinOnly = new Set(data.pendingCheckinOnly);
-      pricing = data.pricing as unknown as Record<number, number>;
+      pricing = data.pricing as unknown as Record<number, { full: number; discount: number }>;
       minNights = data.minNights;
       seasonStart = data.season.start;
       seasonEnd   = data.season.end;
