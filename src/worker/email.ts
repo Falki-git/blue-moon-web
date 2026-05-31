@@ -142,6 +142,24 @@ ${content}
 </html>`;
 }
 
+// ─── Discount helpers ─────────────────────────────────────────────────────────
+
+function totalHtml(r: ReservationRow): string {
+  if (r.full_total_eur != null && r.full_total_eur > r.total_eur) {
+    const pct = r.discount_pct ?? Math.round((1 - r.total_eur / r.full_total_eur) * 100);
+    return `<s style="color:#8a9db0;font-size:0.88em;">€${r.full_total_eur.toLocaleString('en-GB')}</s> <strong style="color:#E8A82A;font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong> <span style="background:#E8A82A;color:#fff;border-radius:50px;padding:2px 8px;font-size:11px;font-weight:800;">-${pct}%</span>`;
+  }
+  return `<strong style="color:#081628;font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong>`;
+}
+
+function totalText(r: ReservationRow): string {
+  if (r.full_total_eur != null && r.full_total_eur > r.total_eur) {
+    const pct = r.discount_pct ?? Math.round((1 - r.total_eur / r.full_total_eur) * 100);
+    return `~~€${r.full_total_eur}~~ €${r.total_eur} (-${pct}%)`;
+  }
+  return `€${r.total_eur}`;
+}
+
 // ─── Booking summary rows ─────────────────────────────────────────────────────
 
 function summaryRowsHtml(r: ReservationRow, locale: string, labels: { checkin: string; checkout: string; nights: string; guests: string; total: string }): string {
@@ -150,7 +168,7 @@ function summaryRowsHtml(r: ReservationRow, locale: string, labels: { checkin: s
     detailRow(labels.checkout, `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_out, locale)}</strong>`),
     detailRow(labels.nights,   String(r.nights)),
     detailRow(labels.guests,   r.guests + (r.children_ages ? ` <span style="color:#5a7080;font-size:13px;">(${esc(r.children_ages)})</span>` : '')),
-    detailRow(labels.total,    `<strong style="color:#081628;font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong>`),
+    detailRow(labels.total,    totalHtml(r)),
   ].join('\n');
 }
 
@@ -190,7 +208,7 @@ export function buildOwnerBookingNotification(
     detailRow('Check-out', `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_out)}</strong>`),
     detailRow('Nights',    String(r.nights)),
     detailRow('Guests',    r.guests + (r.children_ages ? ` (children: ${esc(r.children_ages)})` : '')),
-    detailRow('Total',          `<strong style="font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong>`),
+    detailRow('Total',          totalHtml(r)),
     detailRow('Deposit (30%)',  `<strong style="color:#1A5FAD;">€${deposit.toLocaleString('en-GB')}</strong>`),
     detailRow('Pay within',     '<strong>3 days</strong> of approval'),
     r.message  ? detailRow('Message', `<em>${esc(r.message)}</em>`) : null,
@@ -234,7 +252,7 @@ ${detailTable(bookingRows)}
     `Check-out: ${r.check_out}`,
     `Nights:    ${r.nights}`,
     `Guests:    ${r.guests}${r.children_ages ? ` (children: ${r.children_ages})` : ''}`,
-    `Total:     €${r.total_eur}`,
+    `Total:     ${totalText(r)}`,
     `Deposit:   €${deposit} (due within 3 days of approval)`,
     r.message  ? `Message: ${r.message}`   : null,
     '',
@@ -276,7 +294,7 @@ ${detailTable(summaryRowsHtml(r, locale, labels))}
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
     `${e.tableGuests}:   ${r.guests}`,
-    `${e.tableTotal}:    €${r.total_eur}`,
+    `${e.tableTotal}:    ${totalText(r)}`,
     TEXT_SIG,
   ].join('\n');
 
@@ -319,7 +337,7 @@ ${sectionHeading(e.depositCheckinSection)}
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
     `${e.tableGuests}:   ${r.guests}`,
-    `${e.tableTotal}:    €${r.total_eur}`,
+    `${e.tableTotal}:    ${totalText(r)}`,
     '',
     tpl(e.depositBalanceBody, { remainder: String(remainder) }),
     '',
@@ -391,7 +409,7 @@ ${sectionHeading(e.approvedCheckinSection)}
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
     `${e.tableGuests}:   ${r.guests}`,
-    `${e.tableTotal}:    €${r.total_eur}`,
+    `${e.tableTotal}:    ${totalText(r)}`,
     '',
     tpl(e.approvedPaymentBody, { deposit: String(deposit), remainder: String(remainder) }),
     `IBAN: ${BANK_IBAN}`,

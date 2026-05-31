@@ -33,8 +33,8 @@ export async function handleAvailability(_request: Request, env: Env): Promise<R
   const minAdvanceDaysStr = await getSetting(env.DB, 'min_advance_days');
   const minAdvanceDays = minAdvanceDaysStr !== null ? (parseInt(minAdvanceDaysStr, 10) || 0) : 3;
 
-  const pricingByMonth: Record<number, number> = {};
-  for (const m of SEASON_MONTHS) pricingByMonth[m] = pricing[m] ?? 0;
+  const pricingByMonth: Record<number, { full: number; discount: number }> = {};
+  for (const m of SEASON_MONTHS) pricingByMonth[m] = { full: pricing[m]?.full ?? 0, discount: pricing[m]?.discount ?? 0 };
 
   return Response.json({
     ok: true,
@@ -131,7 +131,11 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
     country: country || null, address: address || null, source: source || null,
     guests, children_ages: children || null,
     check_in: checkin, check_out: checkout, nights,
-    total_eur: total.totalEur, message: message || null,
+    total_eur: total.totalEur,
+    full_total_eur: total.fullTotalEur,
+    discount_pct: total.discountPct,
+    pricing_snapshot: JSON.stringify(total.monthly),
+    message: message || null,
     decision_token: decisionToken,
   });
 

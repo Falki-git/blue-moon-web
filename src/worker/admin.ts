@@ -166,16 +166,26 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
   if (path === 'pricing' && request.method === 'POST') {
     const body = await readJson(request);
     if (!body) return err(400, 'Invalid JSON');
-    const month = Number(body.month);
-    const rate  = Number(body.rate_eur);
+    const month   = Number(body.month);
+    const rate    = Number(body.rate_eur);
+    const rawDisc = body.discount_rate_eur;
+    const discount = (rawDisc != null && String(rawDisc).trim() !== '') ? Number(rawDisc) : rate;
     if (!SEASON_MONTHS.includes(month as 6 | 7 | 8 | 9)) {
       return err(400, 'Month must be 6, 7, 8, or 9');
     }
     if (!Number.isFinite(rate) || rate < 0 || rate > 10_000) {
       return err(400, 'Rate must be between 0 and 10000');
     }
-    await upsertPricingRule(env.DB, month, Math.round(rate));
-    return ok({ month, rate_eur: Math.round(rate) });
+    if (!Number.isFinite(discount) || discount < 0 || discount > 10_000) {
+      return err(400, 'Discount rate must be between 0 and 10000');
+    }
+    if (discount > rate) {
+      return err(400, 'Discount rate cannot exceed the full rate');
+    }
+    const roundedRate = Math.round(rate);
+    const roundedDisc = Math.round(discount);
+    await upsertPricingRule(env.DB, month, roundedRate, roundedDisc);
+    return ok({ month, rate_eur: roundedRate, discount_rate_eur: roundedDisc });
   }
 
   if (path === 'settings' && request.method === 'GET') {
