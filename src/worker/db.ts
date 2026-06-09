@@ -311,7 +311,54 @@ export async function upsertSetting(db: D1Database, key: string, value: string):
 
 // ── Cleaning crew guests ─────────────────────────────────────────────────────
 
+export interface GuestStayRange {
+  id: string;
+  guest_id: string;
+  sort_order: number;
+  start_date: string;
+  end_date: string;
+  full_price: number;
+  discounted_price: number;
+  nights: number;
+  range_total: number;
+}
+
 export interface CleaningGuestRow {
+  id: string;
+  created_at: number;
+  guest_name: string;
+  booking_number: string | null;
+  country: string | null;
+  check_in: string;
+  check_out: string;
+  booking_date: string | null;
+  total_guests: number;
+  adults: number;
+  children: number;
+  children_ages: string | null;
+  nights: number;
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
+  checkin_hour: string | null;
+  checkout_hour: string | null;
+  channel: string;
+  commission: number | null;
+  commission_pct: number | null;
+  vat: number;
+  vat_amount: number | null;
+  cleaning_fee: number | null;
+  final_price: number | null;
+  payout: number | null;
+  net_gain: number | null;
+}
+
+export interface CleaningGuestWithRanges extends CleaningGuestRow {
+  ranges: GuestStayRange[];
+}
+
+/** Operational-fields-only row returned to the cleaning crew — no financials. */
+export interface CrewGuestRow {
   id: string;
   created_at: number;
   guest_name: string;
@@ -332,59 +379,108 @@ export interface CleaningGuestRow {
   checkout_hour: string | null;
 }
 
-export async function listCleaningGuests(db: D1Database): Promise<CleaningGuestRow[]> {
+export async function listCrewGuests(db: D1Database): Promise<CrewGuestRow[]> {
   const rs = await db
+    .prepare(
+      `SELECT id, created_at, guest_name, booking_number, country,
+              check_in, check_out, booking_date, total_guests, adults, children,
+              children_ages, nights, email, phone, notes, checkin_hour, checkout_hour
+         FROM cleaning_guests ORDER BY check_in ASC`,
+    )
+    .all<CrewGuestRow>();
+  return rs.results ?? [];
+}
+
+export async function listCleaningGuests(db: D1Database): Promise<CleaningGuestWithRanges[]> {
+  const guestRs = await db
     .prepare('SELECT * FROM cleaning_guests ORDER BY check_in ASC')
     .all<CleaningGuestRow>();
-  return rs.results ?? [];
+  const guests = guestRs.results ?? [];
+  if (guests.length === 0) return [];
+
+  const rangeRs = await db
+    .prepare('SELECT * FROM guest_stay_ranges ORDER BY guest_id, sort_order ASC')
+    .all<GuestStayRange>();
+  const byGuest = new Map<string, GuestStayRange[]>();
+  for (const r of rangeRs.results ?? []) {
+    const arr = byGuest.get(r.guest_id) ?? [];
+    arr.push(r);
+    byGuest.set(r.guest_id, arr);
+  }
+  return guests.map(g => ({ ...g, ranges: byGuest.get(g.id) ?? [] }));
 }
 
 export async function insertCleaningGuest(
   db: D1Database,
   row: Omit<CleaningGuestRow, 'created_at'>,
+  ranges: GuestStayRange[],
 ): Promise<void> {
-  await db
-    .prepare(
+  await db.batch([
+    db.prepare(
       `INSERT INTO cleaning_guests
         (id, created_at, guest_name, booking_number, country,
          check_in, check_out, booking_date, total_guests, adults, children,
-         children_ages, nights, email, phone, notes, checkin_hour, checkout_hour)
-       VALUES (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)`,
-    )
-    .bind(
+         children_ages, nights, email, phone, notes, checkin_hour, checkout_hour,
+         channel, commission, commission_pct, vat, vat_amount, cleaning_fee,
+         final_price, payout, net_gain)
+       VALUES (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17,
+               ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26)`,
+    ).bind(
       row.id, row.guest_name, row.booking_number, row.country,
       row.check_in, row.check_out, row.booking_date, row.total_guests,
       row.adults, row.children, row.children_ages, row.nights,
       row.email, row.phone, row.notes, row.checkin_hour, row.checkout_hour,
-    )
-    .run();
+      row.channel, row.commission, row.commission_pct, row.vat, row.vat_amount,
+      row.cleaning_fee, row.final_price, row.payout, row.net_gain,
+    ),
+    ...ranges.map(r => db.prepare(
+      `INSERT INTO guest_stay_ranges
+         (id, guest_id, sort_order, start_date, end_date, full_price, discounted_price, nights, range_total)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`,
+    ).bind(r.id, r.guest_id, r.sort_order, r.start_date, r.end_date, r.full_price, r.discounted_price, r.nights, r.range_total)),
+  ]);
 }
 
 export async function updateCleaningGuest(
   db: D1Database,
   id: string,
   fields: Omit<CleaningGuestRow, 'id' | 'created_at'>,
+  ranges: GuestStayRange[],
 ): Promise<void> {
-  await db
-    .prepare(
+  await db.batch([
+    db.prepare(
       `UPDATE cleaning_guests SET
         guest_name = ?1, booking_number = ?2, country = ?3,
         check_in = ?4, check_out = ?5, booking_date = ?6,
         total_guests = ?7, adults = ?8, children = ?9,
         children_ages = ?10, nights = ?11, email = ?12,
-        phone = ?13, notes = ?14, checkin_hour = ?15, checkout_hour = ?16
-       WHERE id = ?17`,
-    )
-    .bind(
+        phone = ?13, notes = ?14, checkin_hour = ?15, checkout_hour = ?16,
+        channel = ?17, commission = ?18, commission_pct = ?19,
+        vat = ?20, vat_amount = ?21, cleaning_fee = ?22,
+        final_price = ?23, payout = ?24, net_gain = ?25
+       WHERE id = ?26`,
+    ).bind(
       fields.guest_name, fields.booking_number, fields.country,
       fields.check_in, fields.check_out, fields.booking_date,
       fields.total_guests, fields.adults, fields.children,
       fields.children_ages, fields.nights, fields.email,
-      fields.phone, fields.notes, fields.checkin_hour, fields.checkout_hour, id,
-    )
-    .run();
+      fields.phone, fields.notes, fields.checkin_hour, fields.checkout_hour,
+      fields.channel, fields.commission, fields.commission_pct,
+      fields.vat, fields.vat_amount, fields.cleaning_fee,
+      fields.final_price, fields.payout, fields.net_gain, id,
+    ),
+    db.prepare('DELETE FROM guest_stay_ranges WHERE guest_id = ?1').bind(id),
+    ...ranges.map(r => db.prepare(
+      `INSERT INTO guest_stay_ranges
+         (id, guest_id, sort_order, start_date, end_date, full_price, discounted_price, nights, range_total)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`,
+    ).bind(r.id, r.guest_id, r.sort_order, r.start_date, r.end_date, r.full_price, r.discounted_price, r.nights, r.range_total)),
+  ]);
 }
 
 export async function deleteCleaningGuest(db: D1Database, id: string): Promise<void> {
-  await db.prepare('DELETE FROM cleaning_guests WHERE id = ?1').bind(id).run();
+  await db.batch([
+    db.prepare('DELETE FROM guest_stay_ranges WHERE guest_id = ?1').bind(id),
+    db.prepare('DELETE FROM cleaning_guests WHERE id = ?1').bind(id),
+  ]);
 }
