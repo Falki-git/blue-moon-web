@@ -353,8 +353,19 @@ export interface CleaningGuestRow {
   net_gain: number | null;
 }
 
+export interface InvoiceRow {
+  guest_id: string;
+  invoice_number: string;
+  invoice_year: number;
+  invoice_seq: number;
+  r2_key: string;
+  sent_at: number;
+  created_at: number;
+}
+
 export interface CleaningGuestWithRanges extends CleaningGuestRow {
   ranges: GuestStayRange[];
+  invoice: { invoice_number: string; sent_at: number } | null;
 }
 
 /** Operational-fields-only row returned to the cleaning crew — no financials. */
@@ -407,7 +418,38 @@ export async function listCleaningGuests(db: D1Database): Promise<CleaningGuestW
     arr.push(r);
     byGuest.set(r.guest_id, arr);
   }
-  return guests.map(g => ({ ...g, ranges: byGuest.get(g.id) ?? [] }));
+
+  const invoiceRs = await db
+    .prepare('SELECT guest_id, invoice_number, sent_at FROM invoices')
+    .all<{ guest_id: string; invoice_number: string; sent_at: number }>();
+  const invoiceByGuest = new Map<string, { invoice_number: string; sent_at: number }>();
+  for (const inv of invoiceRs.results ?? []) {
+    invoiceByGuest.set(inv.guest_id, { invoice_number: inv.invoice_number, sent_at: inv.sent_at });
+  }
+
+  return guests.map(g => ({
+    ...g,
+    ranges: byGuest.get(g.id) ?? [],
+    invoice: invoiceByGuest.get(g.id) ?? null,
+  }));
+}
+
+export async function getCleaningGuestWithRanges(
+  db: D1Database, id: string,
+): Promise<CleaningGuestWithRanges | null> {
+  const guest = await db
+    .prepare('SELECT * FROM cleaning_guests WHERE id = ?1').bind(id)
+    .first<CleaningGuestRow>();
+  if (!guest) return null;
+  const rangeRs = await db
+    .prepare('SELECT * FROM guest_stay_ranges WHERE guest_id = ?1 ORDER BY sort_order ASC').bind(id)
+    .all<GuestStayRange>();
+  const invoice = await getInvoice(db, id);
+  return {
+    ...guest,
+    ranges: rangeRs.results ?? [],
+    invoice: invoice ? { invoice_number: invoice.invoice_number, sent_at: invoice.sent_at } : null,
+  };
 }
 
 export async function insertCleaningGuest(
@@ -481,6 +523,38 @@ export async function updateCleaningGuest(
 export async function deleteCleaningGuest(db: D1Database, id: string): Promise<void> {
   await db.batch([
     db.prepare('DELETE FROM guest_stay_ranges WHERE guest_id = ?1').bind(id),
+    db.prepare('DELETE FROM invoices WHERE guest_id = ?1').bind(id),
     db.prepare('DELETE FROM cleaning_guests WHERE id = ?1').bind(id),
   ]);
+}
+
+// ── Invoices ─────────────────────────────────────────────────────────────────
+
+export async function getInvoice(db: D1Database, guestId: string): Promise<InvoiceRow | null> {
+  const r = await db.prepare('SELECT * FROM invoices WHERE guest_id = ?1').bind(guestId).first<InvoiceRow>();
+  return r ?? null;
+}
+
+/** Next sequence number ("no") for a given year — resets per year. */
+export async function getNextInvoiceSeq(db: D1Database, year: number): Promise<number> {
+  const r = await db
+    .prepare('SELECT MAX(invoice_seq) AS max_seq FROM invoices WHERE invoice_year = ?1').bind(year)
+    .first<{ max_seq: number | null }>();
+  return (r?.max_seq ?? 0) + 1;
+}
+
+export async function upsertInvoice(
+  db: D1Database,
+  row: { guest_id: string; invoice_number: string; invoice_year: number; invoice_seq: number; r2_key: string },
+): Promise<void> {
+  await db.prepare(
+    `INSERT INTO invoices (guest_id, invoice_number, invoice_year, invoice_seq, r2_key, sent_at, created_at)
+       VALUES (?1, ?2, ?3, ?4, ?5, unixepoch(), unixepoch())
+     ON CONFLICT(guest_id) DO UPDATE SET
+       invoice_number = excluded.invoice_number,
+       invoice_year   = excluded.invoice_year,
+       invoice_seq    = excluded.invoice_seq,
+       r2_key         = excluded.r2_key,
+       sent_at        = excluded.sent_at`
+  ).bind(row.guest_id, row.invoice_number, row.invoice_year, row.invoice_seq, row.r2_key).run();
 }
