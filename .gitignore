@@ -193,6 +193,7 @@ dist
 
 ### Wrangler ###
 .wrangler/
+.wrangler-dryrun/
 .env*
 !.env.example
 .dev.vars*

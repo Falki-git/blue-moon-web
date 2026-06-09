@@ -6,6 +6,7 @@ import { handleCrew } from './crew';
 export interface Env {
   ASSETS: { fetch(request: Request | string, init?: RequestInit): Promise<Response> };
   DB: D1Database;
+  INVOICES: R2Bucket;
   RESEND_API_KEY: string;
   TURNSTILE_SECRET_KEY: string;
   CONTACT_TO_EMAIL: string;

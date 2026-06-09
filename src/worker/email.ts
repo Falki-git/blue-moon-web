@@ -30,13 +30,20 @@ export function esc(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
+export interface EmailAttachment {
+  filename: string;
+  content: string; // base64-encoded
+}
+
 export interface SendEmailInput {
   from?: string;
   to: string;
+  bcc?: string;
   replyTo?: string;
   subject: string;
   html: string;
   text: string;
+  attachments?: EmailAttachment[];
 }
 
 export async function sendEmail(env: Env, m: SendEmailInput): Promise<Response> {
@@ -49,10 +56,12 @@ export async function sendEmail(env: Env, m: SendEmailInput): Promise<Response> 
     body: JSON.stringify({
       from: m.from ?? FROM,
       to: m.to,
+      bcc: m.bcc,
       reply_to: m.replyTo,
       subject: m.subject,
       html: m.html,
       text: m.text,
+      attachments: m.attachments,
     }),
   });
 }
@@ -118,7 +127,7 @@ ${content}
   <td style="background-color:#F7EDD8;padding:20px 40px;border-top:1px solid #e0d5c0;">
     <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;line-height:1.8;">
       <strong style="font-size:15px;color:#081628;">Goran Falkoni</strong><br>
-      <span style="color:#5a7080;">Apartment Blue Moon</span><br>
+      <span style="color:#5a7080;">Blue Moon Apartment</span><br>
       E:&nbsp;<a href="mailto:bluemoon.mandre@gmail.com" style="color:#1A5FAD;text-decoration:none;">bluemoon.mandre@gmail.com</a><br>
       T:&nbsp;<a href="https://wa.me/385914691204" style="color:#1A5FAD;text-decoration:none;">+385 91 469 1204</a>
     </div>
@@ -178,7 +187,7 @@ const TEXT_SIG = [
   '',
   '--',
   'Goran Falkoni',
-  'Apartment Blue Moon',
+  'Blue Moon Apartment',
   'E: bluemoon.mandre@gmail.com',
   'T: +385 91 469 1204',
 ].join('\n');
@@ -419,6 +428,32 @@ ${sectionHeading(e.approvedCheckinSection)}
     '',
     tpl(e.approvedCheckinBody, { checkin: r.check_in, checkout: r.check_out }),
     'Address: Riječka ulica 30, Mandre, Island of Pag.',
+    TEXT_SIG,
+  ].join('\n');
+
+  return { subject, html, text };
+}
+
+// ─── Guest invoice (bilingual cover note; PDF sent as attachment) ──────────────
+
+export function buildGuestInvoiceEmail(
+  guestName: string, invoiceNumber: string,
+): { subject: string; html: string; text: string } {
+  const firstName = guestName.split(' ')[0] || guestName;
+  const subject = `Račun / Invoice ${invoiceNumber} — Blue Moon Apartment`;
+
+  const content = `
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:bold;color:#081628;margin:0 0 12px;">Poštovani ${esc(firstName)}, / Dear ${esc(firstName)},</div>
+<p style="margin:0 0 18px;font-size:15px;color:#1a2a3a;line-height:1.6;">U privitku se nalazi vaš račun (broj <strong>${esc(invoiceNumber)}</strong>) za boravak u apartmanu Blue Moon. Hvala vam i nadamo se da ste uživali u svom boravku.</p>
+<p style="margin:0 0 6px;font-size:15px;color:#1a2a3a;line-height:1.6;">Please find your invoice (no. <strong>${esc(invoiceNumber)}</strong>) for your stay at Blue Moon Apartment attached. Thank you, and we hope you enjoyed your stay.</p>`;
+
+  const html = emailShell(content);
+
+  const text = [
+    `Poštovani ${firstName}, / Dear ${firstName},`,
+    '',
+    `U privitku se nalazi vaš račun (broj ${invoiceNumber}) za boravak u apartmanu Blue Moon.`,
+    `Please find your invoice (no. ${invoiceNumber}) for your stay at Blue Moon Apartment attached.`,
     TEXT_SIG,
   ].join('\n');
 

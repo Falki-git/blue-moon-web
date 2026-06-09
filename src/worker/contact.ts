@@ -165,7 +165,7 @@ ${guestSummaryRows ? `${sectionHeading(em.contactAckSection)}${detailTable(guest
     '',
     '--',
     'Goran Falkoni',
-    'Apartment Blue Moon',
+    'Blue Moon Apartment',
     'E: bluemoon.mandre@gmail.com',
     'T: +385 91 469 1204',
   ].filter((s): s is string => s !== null).join('\n');

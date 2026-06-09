@@ -736,6 +736,7 @@ import '../../styles/global.css';
       vat: number; vat_amount: number | null; cleaning_fee: number | null;
       final_price: number | null; payout: number | null; net_gain: number | null;
       ranges: GuestStayRange[];
+      invoice: { invoice_number: string; sent_at: number } | null;
     };
 
     const loading = document.getElementById('loading')!;
@@ -784,6 +785,19 @@ import '../../styles/global.css';
         const rangeRowsHtml = g.ranges.length > 0
           ? g.ranges.map(r => renderRangeRow(r, rcId)).join('')
           : renderRangeRow(null, rcId);
+
+        const inv = g.invoice;
+        const hasPrice = g.final_price !== null || g.ranges.length > 0;
+        const invoiceBtn = inv
+          ? `<button class="adm-btn adm-btn--sm adm-btn--deposit-resend" onclick="__sendInvoice('${id}')">Resend invoice</button>`
+          : `<button class="adm-btn adm-btn--sm adm-btn--deposit" onclick="__sendInvoice('${id}')"${g.email ? '' : ' disabled title="Add an email address to send an invoice"'}>Send invoice</button>`;
+        const invoiceLink = inv
+          ? `<a href="#" onclick="__viewInvoice('${id}');return false;" style="color:var(--ocean-blue);">View sent PDF</a>`
+          : (hasPrice ? `<a href="#" onclick="__previewInvoice('${id}');return false;" style="color:var(--ocean-blue);">Preview PDF</a>` : '');
+        const sentNote = inv ? `&#10003; sent ${fmtTs(inv.sent_at)} &middot; ` : '';
+        const invoiceMeta = (sentNote || invoiceLink)
+          ? `<div style="margin-top:4px;white-space:nowrap;font-size:0.68rem;color:var(--text-muted);">${sentNote}${invoiceLink}</div>`
+          : '';
 
         const editRow = isEditing ? `
           <tr class="adm-guest-edit-row">
@@ -937,8 +951,12 @@ import '../../styles/global.css';
             <td>${g.total_guests}${g.children > 0 ? ` (${g.children} ch.)` : ''}</td>
             <td>${fp}<br><span style="font-size:0.75rem;color:#2e7d32;">${ng}</span></td>
             <td style="white-space:nowrap;">
-              <button class="adm-btn adm-btn--sm${isEditing ? '' : ''}" style="${isEditing ? 'background:var(--soft-sky);color:var(--ocean-blue);border-color:rgba(74,159,212,0.3);border:1px solid rgba(74,159,212,0.3);' : ''}" onclick="__editGuest('${id}')">Edit</button>
-              <button class="adm-btn adm-btn--sm adm-btn--remove" onclick="__removeGuest('${id}')">Remove</button>
+              <div style="display:inline-block;text-align:right;">
+                <button class="adm-btn adm-btn--sm${isEditing ? '' : ''}" style="${isEditing ? 'background:var(--soft-sky);color:var(--ocean-blue);border-color:rgba(74,159,212,0.3);border:1px solid rgba(74,159,212,0.3);' : ''}" onclick="__editGuest('${id}')">Edit</button>
+                <button class="adm-btn adm-btn--sm adm-btn--remove" onclick="__removeGuest('${id}')">Remove</button>
+                ${invoiceBtn}
+                ${invoiceMeta}
+              </div>
             </td>
           </tr>
           ${editRow}`;
@@ -1040,6 +1058,99 @@ import '../../styles/global.css';
       }
     }
     (window as any).__sendDepositConfirmation = sendDepositConfirmation;
+
+    function invoiceModal(email: string, defaultNumber: string): Promise<string | null> {
+      return new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(8,22,40,0.55);display:flex;align-items:center;justify-content:center;z-index:1000;';
+        overlay.innerHTML = `
+          <div style="background:var(--white);border-radius:12px;padding:1.75rem;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);font-family:'Nunito',sans-serif;">
+            <h3 style="margin:0 0 0.75rem;font-family:'Playfair Display',serif;color:var(--deep-navy);">Send invoice to guest?</h3>
+            <p style="margin:0 0 1rem;font-size:0.9rem;color:var(--text-muted);">To: <strong style="color:var(--deep-navy);">${esc(email)}</strong></p>
+            <label style="display:block;font-size:0.8rem;font-weight:700;margin-bottom:0.3rem;color:var(--deep-navy);">Invoice number</label>
+            <input id="__invNum" type="text" value="${esc(defaultNumber)}" style="width:100%;padding:0.5rem 0.7rem;border:1px solid #d4d9de;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.95rem;box-sizing:border-box;" />
+            <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1.25rem;">
+              <button id="__invCancel" class="adm-btn" style="background:var(--white);border:1px solid #d4d9de;">Cancel</button>
+              <button id="__invSend" class="btn btn-primary" style="font-size:0.85rem;padding:0.5rem 1.1rem;">Send</button>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        const input = overlay.querySelector('#__invNum') as HTMLInputElement;
+        input.focus(); input.select();
+        const close = (val: string | null) => { document.body.removeChild(overlay); resolve(val); };
+        (overlay.querySelector('#__invCancel') as HTMLButtonElement).onclick = () => close(null);
+        (overlay.querySelector('#__invSend') as HTMLButtonElement).onclick = () => close(input.value.trim());
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(null); });
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') close(input.value.trim());
+          else if (e.key === 'Escape') close(null);
+        });
+      });
+    }
+
+    async function sendInvoice(id: string) {
+      const g = currentGuests.find(x => x.id === id);
+      if (!g) return;
+      if (!g.email) { alert('This guest has no email address. Add one before sending an invoice.'); return; }
+      let pre = '';
+      try {
+        const r = await api<{ invoiceNumber: string }>(`/api/admin/cleaning-guests/${id}/invoice/next-number`);
+        pre = r.invoiceNumber;
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to load invoice number');
+        return;
+      }
+      const number = await invoiceModal(g.email, pre);
+      if (number === null) return;
+      if (!/^\d{4}-\d+$/.test(number)) {
+        alert('Invoice number must be in the format yyyy-no (e.g. 2026-1).');
+        return;
+      }
+      try {
+        await api(`/api/admin/cleaning-guests/${id}/invoice`, {
+          method: 'POST',
+          body: JSON.stringify({ invoiceNumber: number }),
+        });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to send invoice');
+      }
+    }
+    (window as any).__sendInvoice = sendInvoice;
+
+    // Fetch the PDF via XHR (a direct navigation to /api/* is intercepted by the
+    // static-assets 404 handler and never reaches the Worker) and open the blob.
+    async function openPdf(path: string) {
+      const win = window.open('', '_blank'); // opened within the user gesture to avoid popup blocking
+      try {
+        const res = await fetch(path, { credentials: 'same-origin' });
+        if (res.status === 401) { if (win) win.close(); window.location.href = '/admin/login'; return; }
+        const ct = res.headers.get('content-type') ?? '';
+        if (!res.ok || !ct.includes('application/pdf')) {
+          let msg = 'Failed to load PDF';
+          try { const j = await res.json() as { error?: string }; if (j.error) msg = j.error; } catch {}
+          if (win) win.close();
+          alert(msg);
+          return;
+        }
+        const url = URL.createObjectURL(await res.blob());
+        if (win) win.location.href = url; else window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      } catch (e) {
+        if (win) win.close();
+        alert(e instanceof Error ? e.message : 'Failed to load PDF');
+      }
+    }
+
+    function previewInvoice(id: string) {
+      openPdf(`/api/admin/cleaning-guests/${id}/invoice/preview`);
+    }
+    (window as any).__previewInvoice = previewInvoice;
+
+    function viewInvoice(id: string) {
+      openPdf(`/api/admin/cleaning-guests/${id}/invoice/pdf`);
+    }
+    (window as any).__viewInvoice = viewInvoice;
 
     async function removeBlock(id: string) {
       if (!confirm('Remove this manual block?')) return;

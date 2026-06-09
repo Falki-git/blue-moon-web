@@ -3,6 +3,12 @@ main = "src/worker/index.ts"
 compatibility_date = "2025-10-08"
 compatibility_flags = ["nodejs_compat"]
 
+# Bundle font + logo files as raw bytes (ArrayBuffer) for PDF generation.
+[[rules]]
+type = "Data"
+globs = ["**/*.ttf", "**/logo-email.png"]
+fallthrough = true
+
 [assets]
 directory = "./dist"
 not_found_handling = "404-page"
@@ -39,6 +45,11 @@ binding       = "DB"
 database_name = "blue-moon-prod"
 database_id   = "fbc557df-f86e-445e-a710-002cc732d4f4"
 
+# Stored guest invoice PDFs. Create once with:  wrangler r2 bucket create blue-moon-invoices
+[[env.production.r2_buckets]]
+binding     = "INVOICES"
+bucket_name = "blue-moon-invoices"
+
 [env.development]
 name = "dev-blue-moon-web"
 main = "src/worker/index.ts"
@@ -62,3 +73,9 @@ CONTACT_TO_EMAIL = "bluemoon.mandre@gmail.com"
 binding       = "DB"
 database_name = "blue-moon-dev"
 database_id   = "b46207a8-3c3b-41d4-b2b0-ec1f11fbbf14"
+
+# Stored guest invoice PDFs (local emulation needs no bucket creation).
+# For remote dev create once with:  wrangler r2 bucket create blue-moon-invoices-dev
+[[env.development.r2_buckets]]
+binding     = "INVOICES"
+bucket_name = "blue-moon-invoices-dev"

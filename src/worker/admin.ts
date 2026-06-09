@@ -9,12 +9,35 @@ import {
   insertManualBlock, deleteManualBlock,
   upsertPricingRule, getSetting, upsertSetting,
   listCleaningGuests, insertCleaningGuest, updateCleaningGuest, deleteCleaningGuest,
+  getCleaningGuestWithRanges, getInvoice, getNextInvoiceSeq, upsertInvoice,
   type ReservationStatus, type GuestStayRange,
 } from './db';
 import { isInSeason, SEASON_MONTHS } from './pricing';
 import {
-  sendEmail, buildGuestBookingApproved, buildGuestDepositReceived,
+  sendEmail, buildGuestBookingApproved, buildGuestDepositReceived, buildGuestInvoiceEmail,
 } from './email';
+import { buildInvoicePdf } from './invoice';
+
+const INVOICE_BCC = 'bluemoon.mandre@gmail.com';
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+function pdfResponse(body: BodyInit, number: string): Response {
+  return new Response(body, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="invoice-${number}.pdf"`,
+      'Cache-Control': 'no-store',
+    },
+  });
+}
 
 function err(status: number, error: string): Response {
   return Response.json({ ok: false, error }, { status });
@@ -225,6 +248,101 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     const rangesWithIds: GuestStayRange[] = ranges.map(r => ({ ...r, id: crypto.randomUUID(), guest_id: id }));
     await insertCleaningGuest(env.DB, { id, guest_name, ...fields }, rangesWithIds);
     return ok({ id });
+  }
+
+  // ── Invoices ─────────────────────────────────────────────────────────────
+  const invoiceNextMatch = path.match(/^cleaning-guests\/([^/]+)\/invoice\/next-number$/);
+  if (invoiceNextMatch && request.method === 'GET') {
+    const guest = await getCleaningGuestWithRanges(env.DB, invoiceNextMatch[1]);
+    if (!guest) return err(404, 'Guest not found');
+    if (guest.invoice) {
+      return ok({ invoiceNumber: guest.invoice.invoice_number, exists: true, sentAt: guest.invoice.sent_at });
+    }
+    const year = Number(guest.check_in.slice(0, 4));
+    const seq = await getNextInvoiceSeq(env.DB, year);
+    return ok({ invoiceNumber: `${year}-${seq}`, exists: false, sentAt: null });
+  }
+
+  // View the sent invoice: serve the stored R2 copy, regenerating as a fallback
+  // (e.g. local dev where the R2 object isn't present). Served inline so it
+  // displays in the browser.
+  const invoicePdfMatch = path.match(/^cleaning-guests\/([^/]+)\/invoice\/pdf$/);
+  if (invoicePdfMatch && request.method === 'GET') {
+    const id = invoicePdfMatch[1];
+    const inv = await getInvoice(env.DB, id);
+    if (!inv) return err(404, 'No invoice has been sent for this guest yet');
+    const obj = await env.INVOICES.get(inv.r2_key);
+    if (obj) return pdfResponse(obj.body, inv.invoice_number);
+    const guest = await getCleaningGuestWithRanges(env.DB, id);
+    if (!guest) return err(404, 'Guest not found');
+    const dateISO = new Date().toISOString().slice(0, 10);
+    const bytes = await buildInvoicePdf(guest, { invoiceNumber: inv.invoice_number, dateISO });
+    return pdfResponse(bytes, inv.invoice_number);
+  }
+
+  // Preview an invoice without sending or storing it — regenerated on the fly.
+  const invoicePreviewMatch = path.match(/^cleaning-guests\/([^/]+)\/invoice\/preview$/);
+  if (invoicePreviewMatch && request.method === 'GET') {
+    const id = invoicePreviewMatch[1];
+    const guest = await getCleaningGuestWithRanges(env.DB, id);
+    if (!guest) return err(404, 'Guest not found');
+    if (guest.final_price === null && guest.ranges.length === 0) {
+      return err(409, 'Guest has no price data to invoice');
+    }
+    const year = Number(guest.check_in.slice(0, 4));
+    let number = (url.searchParams.get('number') ?? '').trim();
+    if (!/^\d{4}-\d+$/.test(number)) {
+      number = guest.invoice?.invoice_number ?? `${year}-${await getNextInvoiceSeq(env.DB, year)}`;
+    }
+    const dateISO = new Date().toISOString().slice(0, 10);
+    const bytes = await buildInvoicePdf(guest, { invoiceNumber: number, dateISO });
+    return pdfResponse(bytes, number);
+  }
+
+  const invoiceSendMatch = path.match(/^cleaning-guests\/([^/]+)\/invoice$/);
+  if (invoiceSendMatch && request.method === 'POST') {
+    const id = invoiceSendMatch[1];
+    const body = await readJson(request);
+    if (!body) return err(400, 'Invalid JSON');
+    const invoiceNumber = String(body.invoiceNumber ?? '').trim();
+    const numMatch = invoiceNumber.match(/^(\d{4})-(\d+)$/);
+    if (!numMatch) return err(400, 'Invoice number must be in the format yyyy-no (e.g. 2026-1)');
+    const year = Number(numMatch[1]);
+    const seq = Number(numMatch[2]);
+
+    const guest = await getCleaningGuestWithRanges(env.DB, id);
+    if (!guest) return err(404, 'Guest not found');
+    if (!guest.email) return err(409, 'Guest has no email address');
+    if (guest.final_price === null && guest.ranges.length === 0) {
+      return err(409, 'Guest has no price data to invoice');
+    }
+
+    const dateISO = new Date().toISOString().slice(0, 10);
+    const pdfBytes = await buildInvoicePdf(guest, { invoiceNumber, dateISO });
+
+    const r2Key = `invoices/${invoiceNumber}.pdf`;
+    // On resend with an edited number, drop the previous object.
+    if (guest.invoice && guest.invoice.invoice_number !== invoiceNumber) {
+      const old = await getInvoice(env.DB, id);
+      if (old && old.r2_key !== r2Key) await env.INVOICES.delete(old.r2_key);
+    }
+    await env.INVOICES.put(r2Key, pdfBytes, { httpMetadata: { contentType: 'application/pdf' } });
+    await upsertInvoice(env.DB, {
+      guest_id: id, invoice_number: invoiceNumber, invoice_year: year, invoice_seq: seq, r2_key: r2Key,
+    });
+
+    const msg = buildGuestInvoiceEmail(guest.guest_name, invoiceNumber);
+    const attachment = { filename: `invoice-${invoiceNumber}.pdf`, content: bytesToBase64(pdfBytes) };
+    ctx.waitUntil(
+      sendEmail(env, {
+        to: guest.email, bcc: INVOICE_BCC, replyTo: env.CONTACT_TO_EMAIL,
+        subject: msg.subject, html: msg.html, text: msg.text,
+        attachments: [attachment],
+      }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend invoice failed:', r.status, t)); })
+        .catch(e => console.error('Resend invoice failed:', e))
+    );
+
+    return ok({ invoiceNumber, sentAt: Math.floor(Date.now() / 1000) });
   }
 
   const cleaningGuestMatch = path.match(/^cleaning-guests\/([^/]+)$/);
