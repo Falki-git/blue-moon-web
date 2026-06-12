@@ -523,7 +523,6 @@ export async function updateCleaningGuest(
 export async function deleteCleaningGuest(db: D1Database, id: string): Promise<void> {
   await db.batch([
     db.prepare('DELETE FROM guest_stay_ranges WHERE guest_id = ?1').bind(id),
-    db.prepare('DELETE FROM invoices WHERE guest_id = ?1').bind(id),
     db.prepare('DELETE FROM cleaning_guests WHERE id = ?1').bind(id),
   ]);
 }

@@ -11,6 +11,7 @@ const OWNER = {
   oib: '60043516852',
   address: 'Potočka 10, 10040 Zagreb',
   iban: 'LT713250078671574572',
+  revolut: 'revolut.me/gfalkoni',
 };
 const PLACE = 'Riječka ulica 30, Mandre';
 const ACCOMM_UNIT = 'Blue Moon Apartment';
@@ -96,6 +97,8 @@ export async function buildInvoicePdf(
   let logo: PDFImage | null = null;
   try { logo = await doc.embedPng(logoBytes); } catch { logo = null; }
 
+  const annots: ReturnType<typeof doc.context.register>[] = [];
+
   // text helpers ----------------------------------------------------------------
   const text = (s: string, x: number, y: number, size: number, f: PDFFont = font, color = TEXT) =>
     page.drawText(s, { x, y, size, font: f, color });
@@ -134,13 +137,12 @@ export async function buildInvoicePdf(
     const ly = PAGE_H - 16 - size;
     page.drawImage(logo, { x: lx, y: ly, width: size, height: size });
     // Clickable link over the logo → website.
-    const link = doc.context.register(doc.context.obj({
+    annots.push(doc.context.register(doc.context.obj({
       Type: 'Annot', Subtype: 'Link',
       Rect: [lx, ly, lx + size, ly + size],
       Border: [0, 0, 0],
       A: { Type: 'Action', S: 'URI', URI: PDFString.of(SITE) },
-    }));
-    page.node.set(PDFName.of('Annots'), doc.context.obj([link]));
+    })));
   }
   textCenter('Blue Moon Apartment', PAGE_H - 132, 18, bold, WHITE);
   textCenter('Mandre  •  Island of Pag  •  Croatia', PAGE_H - 147, 8, font, SKY);
@@ -157,7 +159,16 @@ export async function buildInvoicePdf(
   textRight(OWNER.name, rightX, oy, 9, bold, TEXT); oy -= 12;
   textRight(`OIB: ${OWNER.oib}`, rightX, oy, 9, font, TEXT); oy -= 12;
   textRight(OWNER.address, rightX, oy, 9, font, TEXT); oy -= 12;
-  textRight(`IBAN: ${OWNER.iban}`, rightX, oy, 9, font, TEXT);
+  textRight(`IBAN: ${OWNER.iban}`, rightX, oy, 9, font, TEXT); oy -= 12;
+  const revolutStr = `Revolut: ${OWNER.revolut}`;
+  textRight(revolutStr, rightX, oy, 9, font, OCEAN);
+  const revolutW = font.widthOfTextAtSize(revolutStr, 9);
+  annots.push(doc.context.register(doc.context.obj({
+    Type: 'Annot', Subtype: 'Link',
+    Rect: [rightX - revolutW, oy - 2, rightX, oy + 9],
+    Border: [0, 0, 0],
+    A: { Type: 'Action', S: 'URI', URI: PDFString.of(`https://${OWNER.revolut}`) },
+  })));
 
   const meta = (eng: string, cro: string, value: string, yy: number, valueFont: PDFFont = font) => {
     biLeft(MARGIN, yy, eng, cro, 7.5);
@@ -167,7 +178,7 @@ export async function buildInvoicePdf(
   meta('NO.', 'Broj', opts.invoiceNumber, my, bold); my -= 24;
   meta('DATE', 'Datum', fmtDate(opts.dateISO), my); my -= 24;
   meta('PLACE', 'Mjesto', PLACE, my); my -= 24;
-  meta('GUEST', 'Gost', guest.guest_name + (guest.country ? ` (${guest.country})` : ''), my, bold);
+  meta('GUEST', 'Gost', guest.guest_name, my, bold);
 
   // ── Line-item table ────────────────────────────────────────────────────────
   let ty = my - 42;
@@ -252,10 +263,23 @@ export async function buildInvoicePdf(
   text('Goran Falkoni', MARGIN, 22 + creamH - 22, 11, bold, NAVY);
   text('Blue Moon Apartment', MARGIN, 22 + creamH - 36, 9, font, MUTED);
   textRight('bluemoon.mandre@gmail.com', PAGE_W - MARGIN, 22 + creamH - 22, 9, font, OCEAN);
-  textRight('+385 91 469 1204', PAGE_W - MARGIN, 22 + creamH - 36, 9, font, OCEAN);
+  const phoneStr = '+385 91 469 1204';
+  const phoneY = 22 + creamH - 36;
+  textRight(phoneStr, PAGE_W - MARGIN, phoneY, 9, font, OCEAN);
+  const phoneW = font.widthOfTextAtSize(phoneStr, 9);
+  annots.push(doc.context.register(doc.context.obj({
+    Type: 'Annot', Subtype: 'Link',
+    Rect: [PAGE_W - MARGIN - phoneW, phoneY - 2, PAGE_W - MARGIN, phoneY + 9],
+    Border: [0, 0, 0],
+    A: { Type: 'Action', S: 'URI', URI: PDFString.of('https://wa.me/385914691204') },
+  })));
 
   page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: 22, color: NAVY_DARK });
   textCenter('© 2026 Blue Moon Apartment  •  bluemoonmandre.eu', 8, 8, font, SKY);
+
+  if (annots.length > 0) {
+    page.node.set(PDFName.of('Annots'), doc.context.obj(annots));
+  }
 
   return await doc.save();
 }
