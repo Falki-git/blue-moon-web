@@ -29,7 +29,7 @@ import '../../styles/global.css';
         <span class="adm-tabnav__badge" id="tabPendingBadge" hidden>0</span>
       </button>
       <button class="adm-tabnav__tab" data-tab="settings" type="button">Settings</button>
-      <button class="adm-tabnav__tab" data-tab="cleaning" type="button">Guest Data</button>
+      <button class="adm-tabnav__tab" data-tab="guest-data" type="button">Guest Data</button>
     </div>
   </nav>
 
@@ -114,7 +114,7 @@ import '../../styles/global.css';
 
       </div><!-- /panel-settings -->
 
-      <div id="panel-cleaning" class="adm-panel" hidden>
+      <div id="panel-guest-data" class="adm-panel" hidden>
 
         <section class="adm-section">
           <div class="adm-section__head">
@@ -284,7 +284,7 @@ import '../../styles/global.css';
           <div id="guestsList"></div>
         </section>
 
-      </div><!-- /panel-cleaning -->
+      </div><!-- /panel-guest-data -->
 
     </div>
   </main>
@@ -968,19 +968,19 @@ import '../../styles/global.css';
     }
 
     // ── Tabs ────────────────────────────────────────────────────────────────
-    type TabName = 'booking' | 'settings' | 'cleaning';
+    type TabName = 'booking' | 'settings' | 'guest-data';
     const tabBtns = document.querySelectorAll<HTMLButtonElement>('.adm-tabnav__tab');
     const panels  = {
-      booking:  document.getElementById('panel-booking')!,
-      settings: document.getElementById('panel-settings')!,
-      cleaning: document.getElementById('panel-cleaning')!,
+      booking:     document.getElementById('panel-booking')!,
+      settings:    document.getElementById('panel-settings')!,
+      'guest-data': document.getElementById('panel-guest-data')!,
     };
     const tabPendingBadge = document.getElementById('tabPendingBadge')!;
 
     function switchTab(name: TabName) {
       tabBtns.forEach(b => b.classList.toggle('adm-tabnav__tab--active', b.dataset.tab === name));
       (Object.keys(panels) as TabName[]).forEach(k => { panels[k].hidden = k !== name; });
-      const hash = name === 'settings' ? '#settings' : name === 'cleaning' ? '#cleaning' : location.pathname;
+      const hash = name === 'settings' ? '#settings' : name === 'guest-data' ? '#guest-data' : location.pathname;
       history.replaceState(null, '', hash);
     }
 
@@ -988,7 +988,7 @@ import '../../styles/global.css';
 
     const initialTab: TabName =
       location.hash === '#settings' ? 'settings' :
-      location.hash === '#cleaning' ? 'cleaning' : 'booking';
+      location.hash === '#guest-data' ? 'guest-data' : 'booking';
     switchTab(initialTab);
     // ────────────────────────────────────────────────────────────────────────
 
