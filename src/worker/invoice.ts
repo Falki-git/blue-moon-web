@@ -178,7 +178,7 @@ export async function buildInvoicePdf(
   meta('NO.', 'Broj', opts.invoiceNumber, my, bold); my -= 24;
   meta('DATE', 'Datum', fmtDate(opts.dateISO), my); my -= 24;
   meta('PLACE', 'Mjesto', PLACE, my); my -= 24;
-  meta('GUEST', 'Gost', guest.guest_name + (guest.country ? ` (${guest.country})` : ''), my, bold);
+  meta('GUEST', 'Gost', guest.guest_name, my, bold);
 
   // ── Line-item table ────────────────────────────────────────────────────────
   let ty = my - 42;
