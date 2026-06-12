@@ -20,6 +20,7 @@ const BANK_IBAN   = 'LT71 3250 0786 7157 4572';
 const BANK_HOLDER = 'Goran Falkoni';
 const BANK_NAME   = 'Revolut';
 const BANK_BIC    = 'REVOLT21';
+const REVOLUT_URL = 'https://revolut.me/gfalkoni';
 export const BANK_DETAILS_PLACEHOLDER = `IBAN: ${BANK_IBAN} (${BANK_HOLDER}, ${BANK_NAME}, BIC/SWIFT ${BANK_BIC})`;
 
 export function esc(s: string): string {
@@ -125,12 +126,21 @@ ${content}
 
 <tr>
   <td style="background-color:#F7EDD8;padding:20px 40px;border-top:1px solid #e0d5c0;">
-    <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;line-height:1.8;">
-      <strong style="font-size:15px;color:#081628;">Goran Falkoni</strong><br>
-      <span style="color:#5a7080;">Blue Moon Apartment</span><br>
-      E:&nbsp;<a href="mailto:bluemoon.mandre@gmail.com" style="color:#1A5FAD;text-decoration:none;">bluemoon.mandre@gmail.com</a><br>
-      T:&nbsp;<a href="https://wa.me/385914691204" style="color:#1A5FAD;text-decoration:none;">+385 91 469 1204</a>
-    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;line-height:1.8;vertical-align:top;">
+          <strong style="font-size:15px;color:#081628;">Goran Falkoni</strong><br>
+          <span style="color:#5a7080;">Blue Moon Apartment</span><br>
+          E:&nbsp;<a href="mailto:bluemoon.mandre@gmail.com" style="color:#1A5FAD;text-decoration:none;">bluemoon.mandre@gmail.com</a><br>
+          T:&nbsp;<a href="https://wa.me/385914691204" style="color:#1A5FAD;text-decoration:none;">+385 91 469 1204</a>
+        </td>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#1a2a3a;line-height:1.8;vertical-align:top;text-align:right;">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#5a7080;">IBAN</span><br>
+          <span style="font-family:'Courier New',Courier,monospace;font-weight:bold;color:#081628;letter-spacing:1px;">${BANK_IBAN}</span><br>
+          <a href="${REVOLUT_URL}" style="color:#1A5FAD;text-decoration:none;">revolut.me/gfalkoni</a>
+        </td>
+      </tr>
+    </table>
   </td>
 </tr>
 
@@ -190,6 +200,8 @@ const TEXT_SIG = [
   'Blue Moon Apartment',
   'E: bluemoon.mandre@gmail.com',
   'T: +385 91 469 1204',
+  `IBAN: ${BANK_IBAN}`,
+  `Revolut: ${REVOLUT_URL}`,
 ].join('\n');
 
 // ─── Email builders ───────────────────────────────────────────────────────────
