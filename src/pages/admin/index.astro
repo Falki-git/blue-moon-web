@@ -790,7 +790,7 @@ import '../../styles/global.css';
         const hasPrice = g.final_price !== null || g.ranges.length > 0;
         const invoiceBtn = inv
           ? `<button class="adm-btn adm-btn--sm adm-btn--deposit-resend" onclick="__sendInvoice('${id}')">Resend invoice</button>`
-          : `<button class="adm-btn adm-btn--sm adm-btn--deposit" onclick="__sendInvoice('${id}')"${g.email ? '' : ' disabled title="Add an email address to send an invoice"'}>Send invoice</button>`;
+          : `<button class="adm-btn adm-btn--sm adm-btn--deposit" onclick="__sendInvoice('${id}')">Send invoice</button>`;
         const invoiceLink = inv
           ? `<a href="#" onclick="__viewInvoice('${id}');return false;" style="color:var(--ocean-blue);">View sent PDF</a>`
           : (hasPrice ? `<a href="#" onclick="__previewInvoice('${id}');return false;" style="color:var(--ocean-blue);">Preview PDF</a>` : '');

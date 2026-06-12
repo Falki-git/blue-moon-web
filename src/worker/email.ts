@@ -458,17 +458,18 @@ export function buildGuestInvoiceEmail(
   const subject = `Račun / Invoice ${invoiceNumber} — Blue Moon Apartment`;
 
   const content = `
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:bold;color:#081628;margin:0 0 12px;">Poštovani ${esc(firstName)}, / Dear ${esc(firstName)},</div>
-<p style="margin:0 0 18px;font-size:15px;color:#1a2a3a;line-height:1.6;">U privitku se nalazi vaš račun (broj <strong>${esc(invoiceNumber)}</strong>) za boravak u apartmanu Blue Moon. Hvala vam i nadamo se da ste uživali u svom boravku.</p>
-<p style="margin:0 0 6px;font-size:15px;color:#1a2a3a;line-height:1.6;">Please find your invoice (no. <strong>${esc(invoiceNumber)}</strong>) for your stay at Blue Moon Apartment attached. Thank you, and we hope you enjoyed your stay.</p>`;
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 4px;">Invoice ${esc(invoiceNumber)}</div>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:16px;color:#5a7080;margin:0 0 20px;">Račun ${esc(invoiceNumber)}</div>
+<p style="margin:0 0 8px;font-size:15px;color:#1a2a3a;line-height:1.6;">Dear ${esc(firstName)}, please find your invoice for your stay at Blue Moon Apartment attached.</p>
+<p style="margin:0 0 6px;font-size:13px;color:#5a7080;line-height:1.6;">Poštovani/a ${esc(firstName)}, u privitku se nalazi vaš račun (br. <strong>${esc(invoiceNumber)}</strong>) za boravak u apartmanu Blue Moon.</p>`;
 
   const html = emailShell(content);
 
   const text = [
-    `Poštovani ${firstName}, / Dear ${firstName},`,
+    `Invoice ${invoiceNumber} / Račun ${invoiceNumber}`,
     '',
-    `U privitku se nalazi vaš račun (broj ${invoiceNumber}) za boravak u apartmanu Blue Moon.`,
-    `Please find your invoice (no. ${invoiceNumber}) for your stay at Blue Moon Apartment attached.`,
+    `Dear ${firstName}, please find your invoice for your stay at Blue Moon Apartment attached.`,
+    `Poštovani/a ${firstName}, u privitku se nalazi vaš račun (br. ${invoiceNumber}) za boravak u apartmanu Blue Moon.`,
     TEXT_SIG,
   ].join('\n');
 
