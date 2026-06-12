@@ -453,28 +453,25 @@ ${sectionHeading(e.approvedCheckinSection)}
   return { subject, html, text };
 }
 
-// ─── Guest invoice (bilingual cover note; PDF sent as attachment) ──────────────
+// ─── Guest invoice (cover note; PDF sent as attachment) ───────────────────────
 
 export function buildGuestInvoiceEmail(
   guestName: string, invoiceNumber: string,
 ): { subject: string; html: string; text: string } {
   const firstName = guestName.split(' ')[0] || guestName;
-  const subject = `Račun / Invoice ${invoiceNumber} — Blue Moon Apartment`;
+  const subject = `Invoice ${invoiceNumber} — Blue Moon Apartment`;
 
   const content = `
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 4px;">Invoice <span style="color:#1A5FAD;">${esc(invoiceNumber)}</span></div>
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:16px;color:#5a7080;margin:0 0 16px;">Račun ${esc(invoiceNumber)}</div>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 16px;">Invoice <span style="color:#1A5FAD;">${esc(invoiceNumber)}</span></div>
 <hr style="border:none;border-top:1px solid #e0e8f0;margin:0 0 22px;">
-<p style="margin:0 0 12px;font-size:16px;color:#1a2a3a;line-height:1.8;">Dear ${esc(firstName)}, please find your invoice for your stay at Blue Moon Apartment attached.</p>
-<p style="margin:0 0 20px;font-size:13px;color:#5a7080;line-height:1.8;">Poštovani/a ${esc(firstName)}, u privitku se nalazi vaš račun za boravak u apartmanu Blue Moon.</p>`;
+<p style="margin:0 0 20px;font-size:16px;color:#1a2a3a;line-height:1.8;">Dear ${esc(firstName)}, attached is your invoice for your stay at Blue Moon Apartment. Thank you for choosing us.</p>`;
 
   const html = emailShell(content);
 
   const text = [
-    `Invoice ${invoiceNumber} / Račun ${invoiceNumber}`,
+    `Invoice ${invoiceNumber} — Blue Moon Apartment`,
     '',
-    `Dear ${firstName}, please find your invoice for your stay at Blue Moon Apartment attached.`,
-    `Poštovani/a ${firstName}, u privitku se nalazi vaš račun za boravak u apartmanu Blue Moon.`,
+    `Dear ${firstName}, attached is your invoice for your stay at Blue Moon Apartment. Thank you for choosing us.`,
     TEXT_SIG,
   ].join('\n');
 
