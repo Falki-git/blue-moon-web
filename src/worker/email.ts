@@ -128,16 +128,20 @@ ${content}
   <td style="background-color:#F7EDD8;padding:20px 40px;border-top:1px solid #e0d5c0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
       <tr>
-        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;line-height:1.8;vertical-align:top;">
-          <strong style="font-size:15px;color:#081628;">Goran Falkoni</strong><br>
-          <span style="color:#5a7080;">Blue Moon Apartment</span><br>
-          E:&nbsp;<a href="mailto:bluemoon.mandre@gmail.com" style="color:#1A5FAD;text-decoration:none;">bluemoon.mandre@gmail.com</a><br>
-          T:&nbsp;<a href="https://wa.me/385914691204" style="color:#1A5FAD;text-decoration:none;">+385 91 469 1204</a>
-        </td>
-        <td style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#1a2a3a;line-height:1.8;vertical-align:bottom;text-align:right;padding-left:24px;">
-          <span style="color:#5a7080;">IBAN:</span>&nbsp;<span style="font-weight:bold;color:#081628;white-space:nowrap;">${BANK_IBAN}</span><br>
-          <a href="${REVOLUT_URL}" style="color:#1A5FAD;text-decoration:none;">revolut.me/gfalkoni</a>
-        </td>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#081628;padding-bottom:2px;"><strong>Goran Falkoni</strong></td>
+        <td style="text-align:right;padding-left:24px;padding-bottom:2px;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#5a7080;padding-bottom:2px;">Blue Moon Apartment</td>
+        <td style="text-align:right;padding-left:24px;padding-bottom:2px;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;padding-bottom:2px;">E:&nbsp;<a href="mailto:bluemoon.mandre@gmail.com" style="color:#1A5FAD;text-decoration:none;">bluemoon.mandre@gmail.com</a></td>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;text-align:right;padding-left:24px;padding-bottom:2px;white-space:nowrap;"><span style="color:#5a7080;">IBAN:</span>&nbsp;<span style="font-weight:bold;color:#081628;">${BANK_IBAN}</span></td>
+      </tr>
+      <tr>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;">T:&nbsp;<a href="https://wa.me/385914691204" style="color:#1A5FAD;text-decoration:none;">+385 91 469 1204</a></td>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;text-align:right;padding-left:24px;"><a href="${REVOLUT_URL}" style="color:#1A5FAD;text-decoration:none;">revolut.me/gfalkoni</a></td>
       </tr>
     </table>
   </td>
