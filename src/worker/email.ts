@@ -134,7 +134,7 @@ ${content}
           E:&nbsp;<a href="mailto:bluemoon.mandre@gmail.com" style="color:#1A5FAD;text-decoration:none;">bluemoon.mandre@gmail.com</a><br>
           T:&nbsp;<a href="https://wa.me/385914691204" style="color:#1A5FAD;text-decoration:none;">+385 91 469 1204</a>
         </td>
-        <td style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#1a2a3a;line-height:1.8;vertical-align:bottom;text-align:right;">
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#1a2a3a;line-height:1.8;vertical-align:bottom;text-align:right;padding-left:24px;">
           <span style="color:#5a7080;">IBAN:</span>&nbsp;<span style="font-weight:bold;color:#081628;white-space:nowrap;">${BANK_IBAN}</span><br>
           <a href="${REVOLUT_URL}" style="color:#1A5FAD;text-decoration:none;">revolut.me/gfalkoni</a>
         </td>
@@ -458,10 +458,11 @@ export function buildGuestInvoiceEmail(
   const subject = `Račun / Invoice ${invoiceNumber} — Blue Moon Apartment`;
 
   const content = `
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 4px;">Invoice ${esc(invoiceNumber)}</div>
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:16px;color:#5a7080;margin:0 0 20px;">Račun ${esc(invoiceNumber)}</div>
-<p style="margin:0 0 8px;font-size:15px;color:#1a2a3a;line-height:1.6;">Dear ${esc(firstName)}, please find your invoice for your stay at Blue Moon Apartment attached.</p>
-<p style="margin:0 0 6px;font-size:13px;color:#5a7080;line-height:1.6;">Poštovani/a ${esc(firstName)}, u privitku se nalazi vaš račun (br. <strong>${esc(invoiceNumber)}</strong>) za boravak u apartmanu Blue Moon.</p>`;
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 4px;">Invoice <span style="color:#1A5FAD;">${esc(invoiceNumber)}</span></div>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:16px;color:#5a7080;margin:0 0 16px;">Račun ${esc(invoiceNumber)}</div>
+<hr style="border:none;border-top:1px solid #e0e8f0;margin:0 0 22px;">
+<p style="margin:0 0 12px;font-size:16px;color:#1a2a3a;line-height:1.8;">Dear ${esc(firstName)}, please find your invoice for your stay at Blue Moon Apartment attached.</p>
+<p style="margin:0 0 20px;font-size:13px;color:#5a7080;line-height:1.8;">Poštovani/a ${esc(firstName)}, u privitku se nalazi vaš račun za boravak u apartmanu Blue Moon.</p>`;
 
   const html = emailShell(content);
 
@@ -469,7 +470,7 @@ export function buildGuestInvoiceEmail(
     `Invoice ${invoiceNumber} / Račun ${invoiceNumber}`,
     '',
     `Dear ${firstName}, please find your invoice for your stay at Blue Moon Apartment attached.`,
-    `Poštovani/a ${firstName}, u privitku se nalazi vaš račun (br. ${invoiceNumber}) za boravak u apartmanu Blue Moon.`,
+    `Poštovani/a ${firstName}, u privitku se nalazi vaš račun za boravak u apartmanu Blue Moon.`,
     TEXT_SIG,
   ].join('\n');
 
