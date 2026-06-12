@@ -340,7 +340,7 @@ ${sectionHeading(e.depositStaySection)}
 ${detailTable(summaryRowsHtml(r, locale, labels))}
 
 ${sectionHeading(e.depositBalanceSection)}
-<p style="margin:12px 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositBalanceBody, { remainder: remainder.toLocaleString('en-GB') }))}</p>
+<p style="margin:12px 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.depositBalanceBody).replace('€{{remainder}}', `<strong style="color:#081628;">€${remainder.toLocaleString('en-GB')}</strong>`)}</p>
 
 ${sectionHeading(e.depositCheckinSection)}
 <p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositCheckinBody, { checkin: fmtDateLong(r.check_in, locale), checkout: fmtDateLong(r.check_out, locale) }))}</p>
@@ -388,7 +388,7 @@ ${sectionHeading(e.approvedStaySection)}
 ${detailTable(summaryRowsHtml(r, locale, labels))}
 
 ${sectionHeading(e.approvedPaymentSection)}
-<p style="margin:12px 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.approvedPaymentBody, { deposit: deposit.toLocaleString('en-GB'), remainder: remainder.toLocaleString('en-GB') }))}</p>
+<p style="margin:12px 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.approvedPaymentBody).replace('€{{deposit}}', `<strong style="color:#081628;">€${deposit.toLocaleString('en-GB')}</strong>`).replace('{{remainder}}', remainder.toLocaleString('en-GB'))}</p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px;background-color:#EAF6FC;border-radius:8px;border-left:4px solid #E8A82A;">
   <tr><td style="padding:16px 20px;">
     <div style="font-size:11px;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#5a7080;margin-bottom:4px;">IBAN</div>
@@ -403,9 +403,13 @@ ${sectionHeading(e.approvedPaymentSection)}
           <div style="font-size:11px;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#5a7080;margin-bottom:3px;">Bank</div>
           <div style="font-size:14px;font-family:Arial,Helvetica,sans-serif;font-weight:bold;color:#1a2a3a;">${BANK_NAME}</div>
         </td>
-        <td style="vertical-align:top;">
+        <td style="padding-right:28px;vertical-align:top;">
           <div style="font-size:11px;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#5a7080;margin-bottom:3px;">BIC / SWIFT</div>
           <div style="font-size:14px;font-family:Arial,Helvetica,sans-serif;font-weight:bold;color:#1a2a3a;">${BANK_BIC}</div>
+        </td>
+        <td style="vertical-align:top;">
+          <div style="font-size:11px;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#5a7080;margin-bottom:3px;">Revolut</div>
+          <div style="font-size:14px;font-family:Arial,Helvetica,sans-serif;font-weight:bold;"><a href="${REVOLUT_URL}" style="color:#1A5FAD;text-decoration:none;">revolut.me/gfalkoni</a></div>
         </td>
       </tr>
     </table>
