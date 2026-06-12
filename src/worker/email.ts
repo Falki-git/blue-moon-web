@@ -135,8 +135,7 @@ ${content}
           T:&nbsp;<a href="https://wa.me/385914691204" style="color:#1A5FAD;text-decoration:none;">+385 91 469 1204</a>
         </td>
         <td style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#1a2a3a;line-height:1.8;vertical-align:top;text-align:right;">
-          <span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#5a7080;">IBAN</span><br>
-          <span style="font-family:'Courier New',Courier,monospace;font-weight:bold;color:#081628;letter-spacing:1px;">${BANK_IBAN}</span><br>
+          <span style="color:#5a7080;">IBAN:</span>&nbsp;<span style="font-weight:bold;color:#081628;white-space:nowrap;">${BANK_IBAN}</span><br>
           <a href="${REVOLUT_URL}" style="color:#1A5FAD;text-decoration:none;">revolut.me/gfalkoni</a>
         </td>
       </tr>
