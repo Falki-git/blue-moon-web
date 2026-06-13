@@ -53,13 +53,17 @@ function escHtml(s: string): string {
 }
 
 function inlineMarkdown(raw: string): string {
-  let s = escHtml(raw);
-  // Inline code — must run before bold/italic so content inside isn't processed
-  s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+  let s = raw;
+  // Inline code — escape HTML inside backticks so tags show literally
+  s = s.replace(/`([^`]+)`/g, (_, code) => `<code>${escHtml(code)}</code>`);
   // Images before links so ![...](...) doesn't get partially caught by link pattern
-  s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
-    if (!/^https?:\/\//.test(src)) return alt || '';
-    return `<img src="${src}" alt="${alt}" style="max-width:100%;height:auto;border-radius:4px;margin:0.25rem 0;">`;
+  // Optional width hint via pipe in alt: ![alt|50%](url) or ![alt|200px](url)
+  s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, altAndHint, src) => {
+    if (!/^https?:\/\//.test(src)) return altAndHint.split('|')[0] || '';
+    const [alt, hint] = altAndHint.split('|');
+    const w = hint?.trim();
+    const maxWidth = w ? (/^\d+$/.test(w) ? `${w}px` : w) : '100%';
+    return `<img src="${src}" alt="${alt ?? ''}" style="display:block;max-width:${maxWidth};height:auto;border-radius:4px;margin:0.25rem 0;">`;
   });
   s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
     if (!/^https?:\/\//.test(href) && !href.startsWith('/')) return label;
@@ -73,20 +77,18 @@ function inlineMarkdown(raw: string): string {
 function markdownToHtml(md: string): string {
   const lines = md.replace(/\r\n/g, '\n').split('\n');
   const out: string[] = [];
-  let inUl = false;
-  let inOl = false;
   let para: string[] = [];
   let inFence = false;
   let fenceLines: string[] = [];
   let tableRows: string[][] = [];
   let tableAligns: string[] = [];
+  const listStack: { type: 'ul' | 'ol'; indent: number }[] = [];
 
   const flushPara = () => {
     if (para.length) { out.push(`<p>${inlineMarkdown(para.join(' '))}</p>`); para = []; }
   };
   const closeLists = () => {
-    if (inUl) { out.push('</ul>'); inUl = false; }
-    if (inOl) { out.push('</ol>'); inOl = false; }
+    while (listStack.length) { const t = listStack.pop()!; out.push(`</${t.type}>`); }
   };
   const flushTable = () => {
     if (!tableRows.length) return;
@@ -144,22 +146,37 @@ function markdownToHtml(md: string): string {
       out.push(`<h${hMatch[1].length}>${inlineMarkdown(hMatch[2])}</h${hMatch[1].length}>`);
       continue;
     }
-    const ulMatch = line.match(/^[-*]\s+(.+)$/);
-    if (ulMatch) {
-      flushPara();
-      if (inOl) { out.push('</ol>'); inOl = false; }
-      if (!inUl) { out.push('<ul>'); inUl = true; }
-      out.push(`<li>${inlineMarkdown(ulMatch[1])}</li>`);
+
+    // Horizontal rule
+    if (/^(\*{3,}|_{3,}|-{3,})\s*$/.test(line.trim())) {
+      flushPara(); closeLists();
+      out.push('<hr>');
       continue;
     }
-    const olMatch = line.match(/^\d+\.\s+(.+)$/);
-    if (olMatch) {
+
+    // Nested list item — leading spaces define depth (2 spaces per level)
+    const listMatch = line.match(/^(\s*)([-*]|\d+\.)\s+(.+)$/);
+    if (listMatch) {
       flushPara();
-      if (inUl) { out.push('</ul>'); inUl = false; }
-      if (!inOl) { out.push('<ol>'); inOl = true; }
-      out.push(`<li>${inlineMarkdown(olMatch[1])}</li>`);
+      const indent = Math.floor(listMatch[1].length / 2);
+      const type = /\d+\./.test(listMatch[2]) ? 'ol' : 'ul';
+      // Pop levels deeper than current indent
+      while (listStack.length && listStack[listStack.length - 1].indent > indent) {
+        out.push(`</${listStack.pop()!.type}>`);
+      }
+      const top = listStack[listStack.length - 1];
+      if (!top || top.indent < indent) {
+        out.push(`<${type}>`);
+        listStack.push({ type, indent });
+      } else if (top.type !== type) {
+        out.push(`</${listStack.pop()!.type}>`);
+        out.push(`<${type}>`);
+        listStack.push({ type, indent });
+      }
+      out.push(`<li>${inlineMarkdown(listMatch[3])}</li>`);
       continue;
     }
+
     if (line.trim() === '') { flushPara(); closeLists(); continue; }
     closeLists();
     para.push(line.trim());
