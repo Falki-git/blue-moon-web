@@ -20,6 +20,7 @@ const BANK_IBAN   = 'LT71 3250 0786 7157 4572';
 const BANK_HOLDER = 'Goran Falkoni';
 const BANK_NAME   = 'Revolut';
 const BANK_BIC    = 'REVOLT21';
+const REVOLUT_URL = 'https://revolut.me/gfalkoni';
 export const BANK_DETAILS_PLACEHOLDER = `IBAN: ${BANK_IBAN} (${BANK_HOLDER}, ${BANK_NAME}, BIC/SWIFT ${BANK_BIC})`;
 
 export function esc(s: string): string {
@@ -30,13 +31,20 @@ export function esc(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
+export interface EmailAttachment {
+  filename: string;
+  content: string; // base64-encoded
+}
+
 export interface SendEmailInput {
   from?: string;
   to: string;
+  bcc?: string;
   replyTo?: string;
   subject: string;
   html: string;
   text: string;
+  attachments?: EmailAttachment[];
 }
 
 export async function sendEmail(env: Env, m: SendEmailInput): Promise<Response> {
@@ -49,10 +57,12 @@ export async function sendEmail(env: Env, m: SendEmailInput): Promise<Response> 
     body: JSON.stringify({
       from: m.from ?? FROM,
       to: m.to,
+      bcc: m.bcc,
       reply_to: m.replyTo,
       subject: m.subject,
       html: m.html,
       text: m.text,
+      attachments: m.attachments,
     }),
   });
 }
@@ -116,12 +126,24 @@ ${content}
 
 <tr>
   <td style="background-color:#F7EDD8;padding:20px 40px;border-top:1px solid #e0d5c0;">
-    <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;line-height:1.8;">
-      <strong style="font-size:15px;color:#081628;">Goran Falkoni</strong><br>
-      <span style="color:#5a7080;">Apartment Blue Moon</span><br>
-      E:&nbsp;<a href="mailto:bluemoon.mandre@gmail.com" style="color:#1A5FAD;text-decoration:none;">bluemoon.mandre@gmail.com</a><br>
-      T:&nbsp;<a href="https://wa.me/385914691204" style="color:#1A5FAD;text-decoration:none;">+385 91 469 1204</a>
-    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#081628;padding-bottom:2px;"><strong>Goran Falkoni</strong></td>
+        <td style="text-align:right;padding-left:24px;padding-bottom:2px;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#5a7080;padding-bottom:2px;">Blue Moon Apartment</td>
+        <td style="text-align:right;padding-left:24px;padding-bottom:2px;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;padding-bottom:2px;">E:&nbsp;<a href="mailto:bluemoon.mandre@gmail.com" style="color:#1A5FAD;text-decoration:none;">bluemoon.mandre@gmail.com</a></td>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;text-align:right;padding-left:24px;padding-bottom:2px;white-space:nowrap;"><span style="color:#5a7080;">IBAN:</span>&nbsp;<span style="font-weight:bold;color:#081628;">${BANK_IBAN}</span></td>
+      </tr>
+      <tr>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;">T:&nbsp;<a href="https://wa.me/385914691204" style="color:#1A5FAD;text-decoration:none;">+385 91 469 1204</a></td>
+        <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;text-align:right;padding-left:24px;"><a href="${REVOLUT_URL}" style="color:#1A5FAD;text-decoration:none;">revolut.me/gfalkoni</a></td>
+      </tr>
+    </table>
   </td>
 </tr>
 
@@ -142,6 +164,24 @@ ${content}
 </html>`;
 }
 
+// ─── Discount helpers ─────────────────────────────────────────────────────────
+
+function totalHtml(r: ReservationRow): string {
+  if (r.full_total_eur != null && r.full_total_eur > r.total_eur) {
+    const pct = r.discount_pct ?? Math.round((1 - r.total_eur / r.full_total_eur) * 100);
+    return `<s style="color:#8a9db0;font-size:0.88em;">€${r.full_total_eur.toLocaleString('en-GB')}</s> <strong style="color:#E8A82A;font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong> <span style="background:#E8A82A;color:#fff;border-radius:50px;padding:2px 8px;font-size:11px;font-weight:800;">-${pct}%</span>`;
+  }
+  return `<strong style="color:#081628;font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong>`;
+}
+
+function totalText(r: ReservationRow): string {
+  if (r.full_total_eur != null && r.full_total_eur > r.total_eur) {
+    const pct = r.discount_pct ?? Math.round((1 - r.total_eur / r.full_total_eur) * 100);
+    return `~~€${r.full_total_eur}~~ €${r.total_eur} (-${pct}%)`;
+  }
+  return `€${r.total_eur}`;
+}
+
 // ─── Booking summary rows ─────────────────────────────────────────────────────
 
 function summaryRowsHtml(r: ReservationRow, locale: string, labels: { checkin: string; checkout: string; nights: string; guests: string; total: string }): string {
@@ -150,7 +190,7 @@ function summaryRowsHtml(r: ReservationRow, locale: string, labels: { checkin: s
     detailRow(labels.checkout, `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_out, locale)}</strong>`),
     detailRow(labels.nights,   String(r.nights)),
     detailRow(labels.guests,   r.guests + (r.children_ages ? ` <span style="color:#5a7080;font-size:13px;">(${esc(r.children_ages)})</span>` : '')),
-    detailRow(labels.total,    `<strong style="color:#081628;font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong>`),
+    detailRow(labels.total,    totalHtml(r)),
   ].join('\n');
 }
 
@@ -160,9 +200,11 @@ const TEXT_SIG = [
   '',
   '--',
   'Goran Falkoni',
-  'Apartment Blue Moon',
+  'Blue Moon Apartment',
   'E: bluemoon.mandre@gmail.com',
   'T: +385 91 469 1204',
+  `IBAN: ${BANK_IBAN}`,
+  `Revolut: ${REVOLUT_URL}`,
 ].join('\n');
 
 // ─── Email builders ───────────────────────────────────────────────────────────
@@ -190,7 +232,7 @@ export function buildOwnerBookingNotification(
     detailRow('Check-out', `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_out)}</strong>`),
     detailRow('Nights',    String(r.nights)),
     detailRow('Guests',    r.guests + (r.children_ages ? ` (children: ${esc(r.children_ages)})` : '')),
-    detailRow('Total',          `<strong style="font-size:15px;">€${r.total_eur.toLocaleString('en-GB')}</strong>`),
+    detailRow('Total',          totalHtml(r)),
     detailRow('Deposit (30%)',  `<strong style="color:#1A5FAD;">€${deposit.toLocaleString('en-GB')}</strong>`),
     detailRow('Pay within',     '<strong>3 days</strong> of approval'),
     r.message  ? detailRow('Message', `<em>${esc(r.message)}</em>`) : null,
@@ -234,7 +276,7 @@ ${detailTable(bookingRows)}
     `Check-out: ${r.check_out}`,
     `Nights:    ${r.nights}`,
     `Guests:    ${r.guests}${r.children_ages ? ` (children: ${r.children_ages})` : ''}`,
-    `Total:     €${r.total_eur}`,
+    `Total:     ${totalText(r)}`,
     `Deposit:   €${deposit} (due within 3 days of approval)`,
     r.message  ? `Message: ${r.message}`   : null,
     '',
@@ -276,7 +318,7 @@ ${detailTable(summaryRowsHtml(r, locale, labels))}
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
     `${e.tableGuests}:   ${r.guests}`,
-    `${e.tableTotal}:    €${r.total_eur}`,
+    `${e.tableTotal}:    ${totalText(r)}`,
     TEXT_SIG,
   ].join('\n');
 
@@ -302,7 +344,7 @@ ${sectionHeading(e.depositStaySection)}
 ${detailTable(summaryRowsHtml(r, locale, labels))}
 
 ${sectionHeading(e.depositBalanceSection)}
-<p style="margin:12px 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositBalanceBody, { remainder: remainder.toLocaleString('en-GB') }))}</p>
+<p style="margin:12px 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.depositBalanceBody).replace('€{{remainder}}', `<strong style="color:#081628;">€${remainder.toLocaleString('en-GB')}</strong>`)}</p>
 
 ${sectionHeading(e.depositCheckinSection)}
 <p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositCheckinBody, { checkin: fmtDateLong(r.check_in, locale), checkout: fmtDateLong(r.check_out, locale) }))}</p>
@@ -319,7 +361,7 @@ ${sectionHeading(e.depositCheckinSection)}
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
     `${e.tableGuests}:   ${r.guests}`,
-    `${e.tableTotal}:    €${r.total_eur}`,
+    `${e.tableTotal}:    ${totalText(r)}`,
     '',
     tpl(e.depositBalanceBody, { remainder: String(remainder) }),
     '',
@@ -350,7 +392,7 @@ ${sectionHeading(e.approvedStaySection)}
 ${detailTable(summaryRowsHtml(r, locale, labels))}
 
 ${sectionHeading(e.approvedPaymentSection)}
-<p style="margin:12px 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.approvedPaymentBody, { deposit: deposit.toLocaleString('en-GB'), remainder: remainder.toLocaleString('en-GB') }))}</p>
+<p style="margin:12px 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.approvedPaymentBody).replace('€{{deposit}}', `<strong style="color:#081628;">€${deposit.toLocaleString('en-GB')}</strong>`).replace('{{remainder}}', remainder.toLocaleString('en-GB'))}</p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px;background-color:#EAF6FC;border-radius:8px;border-left:4px solid #E8A82A;">
   <tr><td style="padding:16px 20px;">
     <div style="font-size:11px;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#5a7080;margin-bottom:4px;">IBAN</div>
@@ -365,9 +407,13 @@ ${sectionHeading(e.approvedPaymentSection)}
           <div style="font-size:11px;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#5a7080;margin-bottom:3px;">Bank</div>
           <div style="font-size:14px;font-family:Arial,Helvetica,sans-serif;font-weight:bold;color:#1a2a3a;">${BANK_NAME}</div>
         </td>
-        <td style="vertical-align:top;">
+        <td style="padding-right:28px;vertical-align:top;">
           <div style="font-size:11px;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#5a7080;margin-bottom:3px;">BIC / SWIFT</div>
           <div style="font-size:14px;font-family:Arial,Helvetica,sans-serif;font-weight:bold;color:#1a2a3a;">${BANK_BIC}</div>
+        </td>
+        <td style="vertical-align:top;">
+          <div style="font-size:11px;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#5a7080;margin-bottom:3px;">Revolut</div>
+          <div style="font-size:14px;font-family:Arial,Helvetica,sans-serif;font-weight:bold;"><a href="${REVOLUT_URL}" style="color:#1A5FAD;text-decoration:none;">revolut.me/gfalkoni</a></div>
         </td>
       </tr>
     </table>
@@ -391,7 +437,7 @@ ${sectionHeading(e.approvedCheckinSection)}
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
     `${e.tableGuests}:   ${r.guests}`,
-    `${e.tableTotal}:    €${r.total_eur}`,
+    `${e.tableTotal}:    ${totalText(r)}`,
     '',
     tpl(e.approvedPaymentBody, { deposit: String(deposit), remainder: String(remainder) }),
     `IBAN: ${BANK_IBAN}`,
@@ -401,6 +447,31 @@ ${sectionHeading(e.approvedCheckinSection)}
     '',
     tpl(e.approvedCheckinBody, { checkin: r.check_in, checkout: r.check_out }),
     'Address: Riječka ulica 30, Mandre, Island of Pag.',
+    TEXT_SIG,
+  ].join('\n');
+
+  return { subject, html, text };
+}
+
+// ─── Guest invoice (cover note; PDF sent as attachment) ───────────────────────
+
+export function buildGuestInvoiceEmail(
+  guestName: string, invoiceNumber: string,
+): { subject: string; html: string; text: string } {
+  const firstName = guestName.split(' ')[0] || guestName;
+  const subject = `Invoice ${invoiceNumber} — Blue Moon Apartment`;
+
+  const content = `
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 16px;">Invoice <span style="color:#1A5FAD;">${esc(invoiceNumber)}</span></div>
+<hr style="border:none;border-top:1px solid #e0e8f0;margin:0 0 22px;">
+<p style="margin:0 0 20px;font-size:16px;color:#1a2a3a;line-height:1.8;">Dear ${esc(firstName)}, attached is your invoice for your stay at Blue Moon Apartment. Thank you for choosing us.</p>`;
+
+  const html = emailShell(content);
+
+  const text = [
+    `Invoice ${invoiceNumber} — Blue Moon Apartment`,
+    '',
+    `Dear ${firstName}, attached is your invoice for your stay at Blue Moon Apartment. Thank you for choosing us.`,
     TEXT_SIG,
   ].join('\n');
 

@@ -347,6 +347,7 @@ const locale = INTL_LOCALE_MAP[lang as SupportedLang] ?? 'en-GB';
     margin: 0 auto;
   }
   .bk-price-card {
+    position: relative;
     background: var(--white);
     border-radius: var(--radius-lg);
     padding: 1.25rem 1rem;
@@ -661,8 +662,9 @@ const locale = INTL_LOCALE_MAP[lang as SupportedLang] ?? 'en-GB';
 
 <script>
   type RangeDetail = {
-    checkIn: string; checkOut: string; nights: number; totalEur: number;
-    breakdown: { date: string; eur: number }[];
+    checkIn: string; checkOut: string; nights: number;
+    totalEur: number; fullTotalEur: number; discountPct: number;
+    breakdown: { date: string; fullEur: number; eur: number }[];
   } | null;
 
   const i18nEl   = document.getElementById('bookingI18n')!;
@@ -721,9 +723,17 @@ const locale = INTL_LOCALE_MAP[lang as SupportedLang] ?? 'en-GB';
     outEl.textContent = fmtDate(d.checkOut);
     const nightWord = d.nights === 1 ? nightsSingular : nightsPlural;
     nightsEl.textContent = `${d.nights} ${nightWord}`;
-    breakdownEl.innerHTML = d.breakdown
-      .map(b => `<li><span>${fmtDate(b.date)}</span><strong>${fmtEur(b.eur)}</strong></li>`).join('');
-    totalEl.textContent = fmtEur(d.totalEur);
+    breakdownEl.innerHTML = d.breakdown.map(b => {
+      if (b.fullEur > b.eur) {
+        return `<li><span>${fmtDate(b.date)}</span><span><span class="price-was">${fmtEur(b.fullEur)}</span> <strong style="color:var(--sunset-gold)">${fmtEur(b.eur)}</strong></span></li>`;
+      }
+      return `<li><span>${fmtDate(b.date)}</span><strong>${fmtEur(b.eur)}</strong></li>`;
+    }).join('');
+    if (d.fullTotalEur > d.totalEur) {
+      totalEl.innerHTML = `<span class="price-was">${fmtEur(d.fullTotalEur)}</span> <span style="color:var(--sunset-gold)">${fmtEur(d.totalEur)}</span> <span class="price-badge" style="font-size:0.75rem">-${d.discountPct}%</span>`;
+    } else {
+      totalEl.textContent = fmtEur(d.totalEur);
+    }
     const deposit = Math.round(d.totalEur * 0.3);
     depositEl.textContent = fmtEur(deposit);
     remainderEl.textContent = fmtEur(d.totalEur - deposit);
@@ -735,13 +745,21 @@ const locale = INTL_LOCALE_MAP[lang as SupportedLang] ?? 'en-GB';
 
   // Update price strip from /api/availability
   fetch('/api/availability')
-    .then(r => r.json() as Promise<{ ok: boolean; pricing: Record<string, number> }>)
+    .then(r => r.json() as Promise<{ ok: boolean; pricing: Record<string, { full: number; discount: number }> }>)
     .then(data => {
       if (!data.ok) return;
       document.querySelectorAll<HTMLElement>('[data-rate-month]').forEach(el => {
         const m = el.getAttribute('data-rate-month')!;
-        const rate = data.pricing[m];
-        if (typeof rate === 'number') el.innerHTML = `<span class="bk-price-card__currency">€</span>${rate}`;
+        const p = data.pricing[m];
+        if (!p) return;
+        const { full, discount } = p;
+        if (discount < full) {
+          const pct = Math.round((1 - discount / full) * 100);
+          el.closest('.bk-price-card')?.insertAdjacentHTML('afterbegin', `<span class="price-badge price-disc-badge">-${pct}%</span>`);
+          el.innerHTML = `<span class="price-was">€${full}</span><span class="bk-price-card__currency">€</span>${discount}`;
+        } else {
+          el.innerHTML = `<span class="bk-price-card__currency">€</span>${discount}`;
+        }
       });
     })
     .catch(() => { /* keep static fallback */ });

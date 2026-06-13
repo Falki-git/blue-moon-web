@@ -190,12 +190,23 @@ const prefix = lang === 'en' ? '' : `/${lang}`;
 
 <script>
   fetch('/api/availability')
-    .then(r => r.json() as Promise<{ ok: boolean; pricing: Record<string, number> }>)
+    .then(r => r.json() as Promise<{ ok: boolean; pricing: Record<string, { full: number; discount: number }> }>)
     .then(data => {
       if (!data.ok) return;
       document.querySelectorAll<HTMLElement>('[data-rate-month]').forEach(el => {
-        const rate = data.pricing[el.getAttribute('data-rate-month')!];
-        if (typeof rate === 'number') el.textContent = String(rate);
+        const p = data.pricing[el.getAttribute('data-rate-month')!];
+        if (!p) return;
+        const { full, discount } = p;
+        if (discount < full) {
+          const pct = Math.round((1 - discount / full) * 100);
+          // Insert struck-through full price before the € sibling, badge after amount
+          el.closest('.season-card')?.insertAdjacentHTML('afterbegin', `<span class="price-badge price-disc-badge">-${pct}%</span>`);
+          el.previousElementSibling!.insertAdjacentHTML('beforebegin',
+            `<span class="price-was season-card__was">€${full}</span>`);
+          el.textContent = String(discount);
+        } else {
+          el.textContent = String(discount);
+        }
       });
     })
     .catch(() => { /* keep static fallback */ });
@@ -262,6 +273,7 @@ const prefix = lang === 'en' ? '' : `/${lang}`;
   .season-card__currency { font-size: 1.8rem; font-weight: 700; font-family: 'Playfair Display', serif; }
   .season-card__amount   { font-size: 4rem; font-weight: 700; line-height: 1; font-family: 'Playfair Display', serif; }
   .season-card__per      { font-size: 0.9rem; font-weight: 700; color: var(--text-muted); }
+  .season-card__was      { font-size: 1.4rem; font-family: 'Playfair Display', serif; }
 
   .season-card--early  .season-card__currency,
   .season-card--early  .season-card__amount   { color: var(--sky-blue); }
@@ -383,31 +395,16 @@ const prefix = lang === 'en' ? '' : `/${lang}`;
 
     .season-card { padding: 1.5rem 1.25rem; }
     .season-card__header {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      grid-template-rows: auto auto;
-      column-gap: 0.75rem;
-      align-items: start;
-      justify-items: start;
-      text-align: left;
+      text-align: center;
       margin-bottom: 1rem;
     }
     .season-card__icon {
-      grid-column: 1;
-      grid-row: 1 / 3;
       font-size: 1.75rem;
-      margin-bottom: 0;
-      align-self: center;
+      margin-bottom: 0.25rem;
     }
     .season-card__header h3 {
-      grid-column: 2;
-      grid-row: 1;
       font-size: 1.1rem;
       margin-bottom: 0;
-    }
-    .season-card__dates {
-      grid-column: 2;
-      grid-row: 2;
     }
     .season-card__price { margin-bottom: 1.25rem; padding-bottom: 1.25rem; }
     .season-card__amount { font-size: 3rem; }

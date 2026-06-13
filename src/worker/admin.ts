@@ -9,12 +9,35 @@ import {
   insertManualBlock, deleteManualBlock,
   upsertPricingRule, getSetting, upsertSetting,
   listCleaningGuests, insertCleaningGuest, updateCleaningGuest, deleteCleaningGuest,
-  type ReservationStatus,
+  getCleaningGuestWithRanges, getInvoice, getNextInvoiceSeq, upsertInvoice,
+  type ReservationStatus, type GuestStayRange,
 } from './db';
 import { isInSeason, SEASON_MONTHS } from './pricing';
 import {
-  sendEmail, buildGuestBookingApproved, buildGuestDepositReceived,
+  sendEmail, buildGuestBookingApproved, buildGuestDepositReceived, buildGuestInvoiceEmail,
 } from './email';
+import { buildInvoicePdf } from './invoice';
+
+const INVOICE_BCC = 'bluemoon.mandre@gmail.com';
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+function pdfResponse(body: BodyInit, number: string): Response {
+  return new Response(body, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="invoice-${number}.pdf"`,
+      'Cache-Control': 'no-store',
+    },
+  });
+}
 
 function err(status: number, error: string): Response {
   return Response.json({ ok: false, error }, { status });
@@ -166,16 +189,26 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
   if (path === 'pricing' && request.method === 'POST') {
     const body = await readJson(request);
     if (!body) return err(400, 'Invalid JSON');
-    const month = Number(body.month);
-    const rate  = Number(body.rate_eur);
+    const month   = Number(body.month);
+    const rate    = Number(body.rate_eur);
+    const rawDisc = body.discount_rate_eur;
+    const discount = (rawDisc != null && String(rawDisc).trim() !== '') ? Number(rawDisc) : rate;
     if (!SEASON_MONTHS.includes(month as 6 | 7 | 8 | 9)) {
       return err(400, 'Month must be 6, 7, 8, or 9');
     }
     if (!Number.isFinite(rate) || rate < 0 || rate > 10_000) {
       return err(400, 'Rate must be between 0 and 10000');
     }
-    await upsertPricingRule(env.DB, month, Math.round(rate));
-    return ok({ month, rate_eur: Math.round(rate) });
+    if (!Number.isFinite(discount) || discount < 0 || discount > 10_000) {
+      return err(400, 'Discount rate must be between 0 and 10000');
+    }
+    if (discount > rate) {
+      return err(400, 'Discount rate cannot exceed the full rate');
+    }
+    const roundedRate = Math.round(rate);
+    const roundedDisc = Math.round(discount);
+    await upsertPricingRule(env.DB, month, roundedRate, roundedDisc);
+    return ok({ month, rate_eur: roundedRate, discount_rate_eur: roundedDisc });
   }
 
   if (path === 'settings' && request.method === 'GET') {
@@ -205,44 +238,111 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     if (!body) return err(400, 'Invalid JSON');
 
     const guest_name = String(body.guest_name ?? '').trim();
-    const check_in   = String(body.check_in   ?? '').trim();
-    const check_out  = String(body.check_out  ?? '').trim();
-    if (!guest_name)                             return err(400, 'guest_name is required');
-    if (!check_in || !check_out)                 return err(400, 'check_in and check_out are required');
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(check_in))  return err(400, 'check_in must be YYYY-MM-DD');
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(check_out)) return err(400, 'check_out must be YYYY-MM-DD');
-    if (check_out <= check_in)                   return err(400, 'check_out must be after check_in');
+    if (!guest_name) return err(400, 'guest_name is required');
 
-    const total_guests = Number(body.total_guests ?? 1);
-    const adults       = Number(body.adults       ?? 1);
-    const children     = Number(body.children     ?? 0);
-    const nights       = Number(body.nights       ?? 0);
-    if (!Number.isInteger(total_guests) || total_guests < 1) return err(400, 'Invalid total_guests');
-    if (!Number.isInteger(adults)       || adults < 0)       return err(400, 'Invalid adults');
-    if (!Number.isInteger(children)     || children < 0)     return err(400, 'Invalid children');
-    if (!Number.isInteger(nights)       || nights < 1)       return err(400, 'Invalid nights');
+    const guestResult = parseGuestBody(body);
+    if ('error' in guestResult) return err(400, guestResult.error);
 
+    const { fields, ranges } = guestResult;
     const id = crypto.randomUUID();
-    await insertCleaningGuest(env.DB, {
-      id,
-      guest_name,
-      booking_number: String(body.booking_number ?? '').trim() || null,
-      country:        String(body.country        ?? '').trim() || null,
-      check_in,
-      check_out,
-      booking_date:   String(body.booking_date   ?? '').trim() || null,
-      total_guests,
-      adults,
-      children,
-      children_ages:  String(body.children_ages  ?? '').trim() || null,
-      nights,
-      email:          String(body.email          ?? '').trim() || null,
-      phone:          String(body.phone          ?? '').trim() || null,
-      notes:          String(body.notes          ?? '').trim() || null,
-      checkin_hour:   String(body.checkin_hour   ?? '').trim() || null,
-      checkout_hour:  String(body.checkout_hour  ?? '').trim() || null,
-    });
+    const rangesWithIds: GuestStayRange[] = ranges.map(r => ({ ...r, id: crypto.randomUUID(), guest_id: id }));
+    await insertCleaningGuest(env.DB, { id, guest_name, ...fields }, rangesWithIds);
     return ok({ id });
+  }
+
+  // ── Invoices ─────────────────────────────────────────────────────────────
+  const invoiceNextMatch = path.match(/^cleaning-guests\/([^/]+)\/invoice\/next-number$/);
+  if (invoiceNextMatch && request.method === 'GET') {
+    const guest = await getCleaningGuestWithRanges(env.DB, invoiceNextMatch[1]);
+    if (!guest) return err(404, 'Guest not found');
+    if (guest.invoice) {
+      return ok({ invoiceNumber: guest.invoice.invoice_number, exists: true, sentAt: guest.invoice.sent_at });
+    }
+    const year = Number(guest.check_in.slice(0, 4));
+    const seq = await getNextInvoiceSeq(env.DB, year);
+    return ok({ invoiceNumber: `${year}-${seq}`, exists: false, sentAt: null });
+  }
+
+  // View the sent invoice: serve the stored R2 copy, regenerating as a fallback
+  // (e.g. local dev where the R2 object isn't present). Served inline so it
+  // displays in the browser.
+  const invoicePdfMatch = path.match(/^cleaning-guests\/([^/]+)\/invoice\/pdf$/);
+  if (invoicePdfMatch && request.method === 'GET') {
+    const id = invoicePdfMatch[1];
+    const inv = await getInvoice(env.DB, id);
+    if (!inv) return err(404, 'No invoice has been sent for this guest yet');
+    const obj = await env.INVOICES.get(inv.r2_key);
+    if (obj) return pdfResponse(obj.body, inv.invoice_number);
+    const guest = await getCleaningGuestWithRanges(env.DB, id);
+    if (!guest) return err(404, 'Guest not found');
+    const dateISO = new Date().toISOString().slice(0, 10);
+    const bytes = await buildInvoicePdf(guest, { invoiceNumber: inv.invoice_number, dateISO });
+    return pdfResponse(bytes, inv.invoice_number);
+  }
+
+  // Preview an invoice without sending or storing it — regenerated on the fly.
+  const invoicePreviewMatch = path.match(/^cleaning-guests\/([^/]+)\/invoice\/preview$/);
+  if (invoicePreviewMatch && request.method === 'GET') {
+    const id = invoicePreviewMatch[1];
+    const guest = await getCleaningGuestWithRanges(env.DB, id);
+    if (!guest) return err(404, 'Guest not found');
+    if (guest.final_price === null && guest.ranges.length === 0) {
+      return err(409, 'Guest has no price data to invoice');
+    }
+    const year = Number(guest.check_in.slice(0, 4));
+    let number = (url.searchParams.get('number') ?? '').trim();
+    if (!/^\d{4}-\d+$/.test(number)) {
+      number = guest.invoice?.invoice_number ?? `${year}-${await getNextInvoiceSeq(env.DB, year)}`;
+    }
+    const dateISO = new Date().toISOString().slice(0, 10);
+    const bytes = await buildInvoicePdf(guest, { invoiceNumber: number, dateISO });
+    return pdfResponse(bytes, number);
+  }
+
+  const invoiceSendMatch = path.match(/^cleaning-guests\/([^/]+)\/invoice$/);
+  if (invoiceSendMatch && request.method === 'POST') {
+    const id = invoiceSendMatch[1];
+    const body = await readJson(request);
+    if (!body) return err(400, 'Invalid JSON');
+    const invoiceNumber = String(body.invoiceNumber ?? '').trim();
+    const numMatch = invoiceNumber.match(/^(\d{4})-(\d+)$/);
+    if (!numMatch) return err(400, 'Invoice number must be in the format yyyy-no (e.g. 2026-1)');
+    const year = Number(numMatch[1]);
+    const seq = Number(numMatch[2]);
+
+    const guest = await getCleaningGuestWithRanges(env.DB, id);
+    if (!guest) return err(404, 'Guest not found');
+    if (!guest.email) return err(409, 'Guest has no email address');
+    if (guest.final_price === null && guest.ranges.length === 0) {
+      return err(409, 'Guest has no price data to invoice');
+    }
+
+    const dateISO = new Date().toISOString().slice(0, 10);
+    const pdfBytes = await buildInvoicePdf(guest, { invoiceNumber, dateISO });
+
+    const r2Key = `invoices/${invoiceNumber}.pdf`;
+    // On resend with an edited number, drop the previous object.
+    if (guest.invoice && guest.invoice.invoice_number !== invoiceNumber) {
+      const old = await getInvoice(env.DB, id);
+      if (old && old.r2_key !== r2Key) await env.INVOICES.delete(old.r2_key);
+    }
+    await env.INVOICES.put(r2Key, pdfBytes, { httpMetadata: { contentType: 'application/pdf' } });
+    await upsertInvoice(env.DB, {
+      guest_id: id, invoice_number: invoiceNumber, invoice_year: year, invoice_seq: seq, r2_key: r2Key,
+    });
+
+    const msg = buildGuestInvoiceEmail(guest.guest_name, invoiceNumber);
+    const attachment = { filename: `invoice-${invoiceNumber}.pdf`, content: bytesToBase64(pdfBytes) };
+    ctx.waitUntil(
+      sendEmail(env, {
+        to: guest.email, bcc: INVOICE_BCC, replyTo: env.CONTACT_TO_EMAIL,
+        subject: msg.subject, html: msg.html, text: msg.text,
+        attachments: [attachment],
+      }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend invoice failed:', r.status, t)); })
+        .catch(e => console.error('Resend invoice failed:', e))
+    );
+
+    return ok({ invoiceNumber, sentAt: Math.floor(Date.now() / 1000) });
   }
 
   const cleaningGuestMatch = path.match(/^cleaning-guests\/([^/]+)$/);
@@ -253,41 +353,14 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     if (!body) return err(400, 'Invalid JSON');
 
     const guest_name = String(body.guest_name ?? '').trim();
-    const check_in   = String(body.check_in   ?? '').trim();
-    const check_out  = String(body.check_out  ?? '').trim();
-    if (!guest_name)                             return err(400, 'guest_name is required');
-    if (!check_in || !check_out)                 return err(400, 'check_in and check_out are required');
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(check_in))  return err(400, 'check_in must be YYYY-MM-DD');
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(check_out)) return err(400, 'check_out must be YYYY-MM-DD');
-    if (check_out <= check_in)                   return err(400, 'check_out must be after check_in');
+    if (!guest_name) return err(400, 'guest_name is required');
 
-    const total_guests = Number(body.total_guests ?? 1);
-    const adults       = Number(body.adults       ?? 1);
-    const children     = Number(body.children     ?? 0);
-    const nights       = Number(body.nights       ?? 0);
-    if (!Number.isInteger(total_guests) || total_guests < 1) return err(400, 'Invalid total_guests');
-    if (!Number.isInteger(adults)       || adults < 0)       return err(400, 'Invalid adults');
-    if (!Number.isInteger(children)     || children < 0)     return err(400, 'Invalid children');
-    if (!Number.isInteger(nights)       || nights < 1)       return err(400, 'Invalid nights');
+    const guestResult = parseGuestBody(body);
+    if ('error' in guestResult) return err(400, guestResult.error);
 
-    await updateCleaningGuest(env.DB, id, {
-      guest_name,
-      booking_number: String(body.booking_number ?? '').trim() || null,
-      country:        String(body.country        ?? '').trim() || null,
-      check_in,
-      check_out,
-      booking_date:   String(body.booking_date   ?? '').trim() || null,
-      total_guests,
-      adults,
-      children,
-      children_ages:  String(body.children_ages  ?? '').trim() || null,
-      nights,
-      email:          String(body.email          ?? '').trim() || null,
-      phone:          String(body.phone          ?? '').trim() || null,
-      notes:          String(body.notes          ?? '').trim() || null,
-      checkin_hour:   String(body.checkin_hour   ?? '').trim() || null,
-      checkout_hour:  String(body.checkout_hour  ?? '').trim() || null,
-    });
+    const { fields, ranges } = guestResult;
+    const rangesWithIds: GuestStayRange[] = ranges.map(r => ({ ...r, id: crypto.randomUUID(), guest_id: id }));
+    await updateCleaningGuest(env.DB, id, { guest_name, ...fields }, rangesWithIds);
     return ok();
   }
 
@@ -297,4 +370,103 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
   }
 
   return err(404, 'Not found');
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
+const round1 = (n: number) => Math.round(n * 10) / 10;
+
+type ParsedGuestFields = {
+  booking_number: string | null; country: string | null;
+  check_in: string; check_out: string; booking_date: string | null;
+  total_guests: number; adults: number; children: number;
+  children_ages: string | null; nights: number;
+  email: string | null; phone: string | null; notes: string | null;
+  checkin_hour: string | null; checkout_hour: string | null;
+  channel: string; commission: number | null; commission_pct: number | null;
+  vat: number; vat_amount: number | null; cleaning_fee: number | null;
+  final_price: number | null; payout: number | null; net_gain: number | null;
+};
+
+type RangeInput = Omit<GuestStayRange, 'id' | 'guest_id'>;
+
+function parseGuestBody(
+  body: Record<string, unknown>,
+): { error: string } | { fields: ParsedGuestFields; ranges: RangeInput[] } {
+  // Ranges
+  const rawRanges = Array.isArray(body.ranges) ? body.ranges : [];
+  if (rawRanges.length === 0) return { error: 'At least one pricing range is required' };
+
+  const ranges: RangeInput[] = [];
+  for (let i = 0; i < rawRanges.length; i++) {
+    const r = rawRanges[i] as Record<string, unknown>;
+    const start = String(r.start_date ?? '').trim();
+    const end   = String(r.end_date   ?? '').trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(start)) return { error: `Range ${i + 1}: invalid start_date` };
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(end))   return { error: `Range ${i + 1}: invalid end_date` };
+    if (end <= start) return { error: `Range ${i + 1}: end_date must be after start_date` };
+    const full_price       = Number(r.full_price       ?? 0);
+    const discounted_price = Number(r.discounted_price ?? 0);
+    if (!Number.isFinite(full_price)       || full_price < 0)       return { error: `Range ${i + 1}: invalid full_price` };
+    if (!Number.isFinite(discounted_price) || discounted_price < 0) return { error: `Range ${i + 1}: invalid discounted_price` };
+    if (full_price > 0 && discounted_price > full_price)            return { error: `Range ${i + 1}: discounted price cannot exceed full price` };
+    const nights     = Math.round((new Date(end).getTime() - new Date(start).getTime()) / 86400000);
+    const range_total = round2(discounted_price * nights);
+    ranges.push({ sort_order: i, start_date: start, end_date: end, full_price, discounted_price, nights, range_total });
+  }
+
+  // Contiguity check
+  for (let i = 1; i < ranges.length; i++) {
+    if (ranges[i].start_date !== ranges[i - 1].end_date)
+      return { error: `Range ${i + 1} start must equal range ${i} end (ranges must be contiguous)` };
+  }
+
+  const total_nights = ranges.reduce((s, r) => s + r.nights, 0);
+  const final_price  = round2(ranges.reduce((s, r) => s + r.range_total, 0));
+  const check_in  = ranges[0].start_date;
+  const check_out = ranges[ranges.length - 1].end_date;
+  const nights    = total_nights;
+
+  // Guest counts
+  const total_guests = Number(body.total_guests ?? 1);
+  const adults       = Number(body.adults       ?? 1);
+  const children     = Number(body.children     ?? 0);
+  if (!Number.isInteger(total_guests) || total_guests < 1) return { error: 'Invalid total_guests' };
+  if (!Number.isInteger(adults)       || adults < 0)       return { error: 'Invalid adults' };
+  if (!Number.isInteger(children)     || children < 0)     return { error: 'Invalid children' };
+
+  // Financial
+  const channel         = String(body.channel ?? 'booking.com').trim() || 'booking.com';
+  const comm_raw        = body.commission !== undefined && body.commission !== null && body.commission !== ''
+                          ? Number(body.commission) : null;
+  const commission      = comm_raw !== null && Number.isFinite(comm_raw) ? round2(comm_raw) : null;
+  const vat             = body.vat ? 1 : 0;
+  const commission_pct  = commission !== null && final_price > 0 ? round1(commission / final_price * 100) : null;
+  const payout          = commission !== null ? round2(final_price - commission) : null;
+  const vat_amount      = commission !== null ? (vat ? round2(commission * 0.25) : 0) : null;
+  const cf_raw          = body.cleaning_fee !== undefined && body.cleaning_fee !== null && body.cleaning_fee !== ''
+                          ? Number(body.cleaning_fee) : null;
+  const cleaning_fee    = cf_raw !== null && Number.isFinite(cf_raw) ? round2(cf_raw) : round2(140 + 7 * total_guests);
+  const net_gain        = commission !== null && vat_amount !== null
+                          ? round2(final_price - commission - vat_amount - cleaning_fee) : null;
+
+  return {
+    fields: {
+      booking_number: String(body.booking_number ?? '').trim() || null,
+      country:        String(body.country        ?? '').trim() || null,
+      check_in, check_out,
+      booking_date:   String(body.booking_date   ?? '').trim() || null,
+      total_guests, adults, children,
+      children_ages:  String(body.children_ages  ?? '').trim() || null,
+      nights,
+      email:          String(body.email          ?? '').trim() || null,
+      phone:          String(body.phone          ?? '').trim() || null,
+      notes:          String(body.notes          ?? '').trim() || null,
+      checkin_hour:   String(body.checkin_hour   ?? '').trim() || null,
+      checkout_hour:  String(body.checkout_hour  ?? '').trim() || null,
+      channel, commission, commission_pct, vat, vat_amount, cleaning_fee, final_price, payout, net_gain,
+    },
+    ranges,
+  };
 }

@@ -3,7 +3,7 @@ import {
   buildCrewSessionCookie, clearCrewSessionCookie,
   constantTimeEqual, requireCrewSession, signCrewSession,
 } from './auth';
-import { listCleaningGuests } from './db';
+import { listCrewGuests } from './db';
 
 function err(status: number, error: string): Response {
   return Response.json({ ok: false, error }, { status });
@@ -37,7 +37,7 @@ export async function handleCrew(request: Request, env: Env): Promise<Response> 
   if (guard) return guard;
 
   if (path === 'guests' && request.method === 'GET') {
-    const guests = await listCleaningGuests(env.DB);
+    const guests = await listCrewGuests(env.DB);
     return Response.json({ ok: true, guests });
   }
 

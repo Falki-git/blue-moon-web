@@ -29,7 +29,7 @@ import '../../styles/global.css';
         <span class="adm-tabnav__badge" id="tabPendingBadge" hidden>0</span>
       </button>
       <button class="adm-tabnav__tab" data-tab="settings" type="button">Settings</button>
-      <button class="adm-tabnav__tab" data-tab="cleaning" type="button">Cleaning Crew Data</button>
+      <button class="adm-tabnav__tab" data-tab="guest-data" type="button">Guest Data</button>
     </div>
   </nav>
 
@@ -114,13 +114,13 @@ import '../../styles/global.css';
 
       </div><!-- /panel-settings -->
 
-      <div id="panel-cleaning" class="adm-panel" hidden>
+      <div id="panel-guest-data" class="adm-panel" hidden>
 
         <section class="adm-section">
           <div class="adm-section__head">
             <h2>Add guest</h2>
           </div>
-          <p class="adm-section__hint">Enter guest details manually. Nights is calculated automatically from the dates you select.</p>
+          <p class="adm-section__hint">Enter guest details and pricing ranges. Nights, discount %, and totals are calculated automatically.</p>
 
           <form id="guestForm" class="adm-guest-form">
             <div class="adm-form-row">
@@ -132,34 +132,18 @@ import '../../styles/global.css';
                 <label for="gf-booking">Booking number</label>
                 <input type="text" id="gf-booking" name="booking_number" placeholder="e.g. 1234567890" />
               </div>
-            </div>
-            <div class="adm-form-row">
               <div class="form-group">
-                <label for="gf-checkin">Check-in *</label>
-                <input type="date" id="gf-checkin" name="check_in" required />
-              </div>
-              <div class="form-group">
-                <label for="gf-checkout">Check-out *</label>
-                <input type="date" id="gf-checkout" name="check_out" required />
-              </div>
-              <div class="form-group">
-                <label for="gf-nights">Nights</label>
-                <input type="number" id="gf-nights" name="nights" min="1" tabindex="-1" readonly
-                       style="background:transparent;color:var(--text-muted);cursor:default;" />
+                <label for="gf-channel">Channel *</label>
+                <input type="text" id="gf-channel" name="channel" list="gf-channel-list" value="booking.com"
+                       oninput="__onChannelChange('gf','')" />
+                <datalist id="gf-channel-list">
+                  <option value="booking.com"></option>
+                  <option value="web"></option>
+                </datalist>
               </div>
               <div class="form-group">
                 <label for="gf-bdate">Booking date</label>
                 <input type="date" id="gf-bdate" name="booking_date" />
-              </div>
-            </div>
-            <div class="adm-form-row">
-              <div class="form-group">
-                <label for="gf-checkin-hour">Check-in hour</label>
-                <input type="text" id="gf-checkin-hour" name="checkin_hour" placeholder="e.g. 15:00" />
-              </div>
-              <div class="form-group">
-                <label for="gf-checkout-hour">Check-out hour</label>
-                <input type="text" id="gf-checkout-hour" name="checkout_hour" placeholder="e.g. 10:00" />
               </div>
             </div>
             <div class="adm-form-row">
@@ -181,11 +165,13 @@ import '../../styles/global.css';
               </div>
               <div class="form-group">
                 <label for="gf-adults">Adults *</label>
-                <input type="number" id="gf-adults" name="adults" min="0" value="1" required />
+                <input type="number" id="gf-adults" name="adults" min="0" value="1" required
+                       oninput="__calcGuestTotal('gf','')" />
               </div>
               <div class="form-group">
                 <label for="gf-children">Children</label>
-                <input type="number" id="gf-children" name="children" min="0" value="0" />
+                <input type="number" id="gf-children" name="children" min="0" value="0"
+                       oninput="__calcGuestTotal('gf','')" />
               </div>
               <div class="form-group">
                 <label>Total guests</label>
@@ -194,10 +180,20 @@ import '../../styles/global.css';
               </div>
             </div>
             <div class="adm-form-row">
+              <div class="form-group">
+                <label for="gf-checkin-hour">Check-in hour</label>
+                <input type="text" id="gf-checkin-hour" name="checkin_hour" placeholder="e.g. 15:00" />
+              </div>
+              <div class="form-group">
+                <label for="gf-checkout-hour">Check-out hour</label>
+                <input type="text" id="gf-checkout-hour" name="checkout_hour" placeholder="e.g. 10:00" />
+              </div>
               <div class="form-group" style="flex:1;">
                 <label for="gf-cages">Children's ages</label>
                 <input type="text" id="gf-cages" name="children_ages" placeholder="e.g. 3, 7" />
               </div>
+            </div>
+            <div class="adm-form-row">
               <div class="form-group" style="flex:1;">
                 <label for="gf-email">Email</label>
                 <input type="email" id="gf-email" name="email" />
@@ -210,9 +206,69 @@ import '../../styles/global.css';
             <div class="adm-form-row">
               <div class="form-group" style="flex:1;">
                 <label for="gf-notes">Notes</label>
-                <textarea id="gf-notes" name="notes" placeholder="Any special notes for the cleaning crew" rows="3"></textarea>
+                <textarea id="gf-notes" name="notes" placeholder="Any special notes for the cleaning crew" rows="2"></textarea>
               </div>
             </div>
+
+            <!-- Pricing ranges -->
+            <div class="guest-ranges">
+              <div class="guest-ranges__header">
+                <span class="guest-ranges__title">Pricing ranges</span>
+                <button type="button" class="adm-btn adm-btn--sm" onclick="__addRange('gf-ranges')">+ Add range</button>
+              </div>
+              <div class="guest-ranges__labels">
+                <span>Start date</span><span>End date</span><span>Nights</span>
+                <span>Full €/night</span><span>Disc. €/night</span><span>Disc. %</span><span>Range total</span><span></span>
+              </div>
+              <div id="gf-ranges" class="guest-ranges__rows" data-prefix="gf" data-suffix=""></div>
+              <div class="guest-ranges__footer">
+                <span>Total nights: <strong id="gf-total-nights">—</strong></span>
+                <span>Final price: <strong id="gf-final-price">—</strong></span>
+              </div>
+            </div>
+
+            <!-- Financial summary -->
+            <div class="guest-financials">
+              <div class="adm-form-row">
+                <div class="form-group">
+                  <label for="gf-commission">Commission (€)</label>
+                  <input type="number" id="gf-commission" name="commission" min="0" step="0.01" placeholder="0.00"
+                         oninput="__calcRangesFor('gf-ranges')" />
+                </div>
+                <div class="form-group">
+                  <label>Commission %</label>
+                  <span id="gf-commission-pct" class="adm-derived-value">—</span>
+                </div>
+                <div class="form-group">
+                  <label>Payout</label>
+                  <span id="gf-payout" class="adm-derived-value">—</span>
+                </div>
+              </div>
+              <div class="adm-form-row" style="align-items:center;">
+                <div class="form-group">
+                  <label class="adm-checkbox-label">
+                    <input type="checkbox" id="gf-vat" name="vat" onchange="__calcRangesFor('gf-ranges')" />
+                    VAT (25% of commission)
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label>VAT amount</label>
+                  <span id="gf-vat-amount" class="adm-derived-value">—</span>
+                </div>
+              </div>
+              <div class="adm-form-row">
+                <div class="form-group">
+                  <label for="gf-cleaning-fee">Cleaning fee (€)</label>
+                  <input type="number" id="gf-cleaning-fee" name="cleaning_fee" min="0" step="0.01"
+                         oninput="__calcRangesFor('gf-ranges')" />
+                </div>
+                <div class="form-group">
+                  <label>Net gain</label>
+                  <span id="gf-net-gain" class="adm-derived-value adm-derived-value--highlight">—</span>
+                </div>
+              </div>
+            </div>
+
             <div class="adm-form-row" style="margin-top:0.5rem;">
               <button type="submit" class="btn btn-primary">Add guest</button>
             </div>
@@ -228,7 +284,7 @@ import '../../styles/global.css';
           <div id="guestsList"></div>
         </section>
 
-      </div><!-- /panel-cleaning -->
+      </div><!-- /panel-guest-data -->
 
     </div>
   </main>
@@ -457,6 +513,15 @@ import '../../styles/global.css';
     .adm-pricing-row:last-child { border-bottom: none; }
     .adm-pricing-row__month { font-weight: 800; color: var(--ocean-blue); }
     .adm-pricing-row__updated { color: var(--text-muted); font-size: 0.78rem; }
+    .adm-pricing-row__inputs { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .adm-pricing-row__field { display: flex; align-items: center; gap: 0.3rem; }
+    .adm-pricing-row__field-label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
     .adm-pricing-row__input {
       font-family: 'Nunito', sans-serif;
       font-size: 0.95rem;
@@ -466,10 +531,18 @@ import '../../styles/global.css';
       border-radius: var(--radius);
       padding: 0.5rem 0.85rem;
       outline: none;
-      width: 110px;
+      width: 100px;
       text-align: right;
     }
     .adm-pricing-row__input:focus { border-color: var(--sky-blue); background: var(--white); }
+    .adm-pricing-row__disc-badge {
+      background: var(--sunset-gold);
+      color: var(--white);
+      border-radius: 4px;
+      padding: 0.15rem 0.45rem;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
     .adm-pricing-row__btn {
       background: var(--ocean-blue);
       color: var(--white);
@@ -509,15 +582,127 @@ import '../../styles/global.css';
     }
     .adm-settings-row__input:focus { border-color: var(--sky-blue); background: var(--white); }
 
+    /* Ranges repeater */
+    .guest-ranges {
+      border: 1px solid rgba(74,159,212,0.2);
+      border-radius: var(--radius);
+      background: var(--soft-sky);
+      padding: 0.85rem 1rem;
+      margin: 0.75rem 0;
+    }
+    .guest-ranges__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+    }
+    .guest-ranges__title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .guest-ranges__labels {
+      display: grid;
+      grid-template-columns: 130px 130px 52px 100px 100px 62px 90px 28px;
+      gap: 0.4rem;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 0 0.3rem;
+      border-bottom: 1px solid rgba(74,159,212,0.15);
+      margin-bottom: 0.3rem;
+    }
+    .range-row {
+      display: grid;
+      grid-template-columns: 130px 130px 52px 100px 100px 62px 90px 28px;
+      gap: 0.4rem;
+      align-items: center;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid rgba(74,159,212,0.08);
+    }
+    .range-row:last-child { border-bottom: none; }
+    .range-row input[type="date"],
+    .range-row input[type="number"] {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.82rem;
+      background: var(--white);
+      border: 1px solid rgba(74,159,212,0.25);
+      border-radius: 6px;
+      padding: 0.35rem 0.5rem;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+      color: var(--text-dark);
+    }
+    .range-row input:focus { border-color: var(--sky-blue); }
+    .range-disc--error { border-color: #d32f2f !important; background: #fff5f5; }
+    .range-nights, .range-disc-pct, .range-total {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-align: right;
+    }
+    .range-nights { text-align: center; }
+    .range-total { color: var(--ocean-blue); font-weight: 700; }
+    .guest-ranges__footer {
+      display: flex;
+      gap: 2rem;
+      padding-top: 0.5rem;
+      margin-top: 0.4rem;
+      border-top: 1px solid rgba(74,159,212,0.15);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .guest-ranges__footer strong { color: var(--ocean-blue); }
+
+    /* Derived values display */
+    .adm-derived-value {
+      display: inline-block;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--ocean-blue);
+      min-height: 2rem;
+      line-height: 2rem;
+    }
+    .adm-derived-value--highlight { color: #2e7d32; }
+
+    /* Financial section */
+    .guest-financials {
+      border: 1px solid rgba(74,159,212,0.2);
+      border-radius: var(--radius);
+      background: rgba(74,159,212,0.03);
+      padding: 0.85rem 1rem;
+      margin: 0.35rem 0 0.75rem;
+    }
+    .guest-financials .adm-form-row + .adm-form-row { margin-top: 0.6rem; }
+    .adm-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+      line-height: 1.4;
+    }
+    .adm-checkbox-label input[type="checkbox"] { width: 1rem; height: 1rem; cursor: pointer; }
+
     @media (max-width: 720px) {
       .adm-main { padding: 1rem; }
       .adm-tabnav__inner { padding: 0 1rem; }
       .adm-section { padding: 1rem; }
       .adm-form-row { flex-direction: column; align-items: stretch; }
-      .adm-pricing-row { grid-template-columns: 1fr 1fr; }
+      .adm-pricing-row { grid-template-columns: 1fr auto; }
       .adm-pricing-row__updated { display: none; }
+      .adm-pricing-row__inputs { gap: 0.5rem; }
       .adm-table { font-size: 0.78rem; }
       .adm-table th, .adm-table td { padding: 0.4rem 0.45rem; }
+      .guest-ranges { overflow-x: auto; }
+      .guest-ranges__labels, .range-row { min-width: 700px; }
     }
   </style>
 
@@ -531,16 +716,27 @@ import '../../styles/global.css';
       address: string | null; source: string | null;
       guests: number; children_ages: string | null;
       check_in: string; check_out: string; nights: number; total_eur: number;
+      full_total_eur: number | null; discount_pct: number | null;
       message: string | null; decided_at: number | null; deposit_confirmation_sent_at: number | null;
     };
     type ManualBlock = { id: string; created_at: number; from_date: string; to_date: string; note: string | null };
-    type PricingRule = { month: number; rate_eur: number; updated_at: number };
+    type PricingRule = { month: number; rate_eur: number; discount_rate_eur: number | null; updated_at: number };
+    type GuestStayRange = {
+      id: string; guest_id: string; sort_order: number;
+      start_date: string; end_date: string;
+      full_price: number; discounted_price: number; nights: number; range_total: number;
+    };
     type CleaningGuest = {
       id: string; guest_name: string; booking_number: string | null; country: string | null;
       check_in: string; check_out: string; booking_date: string | null;
       total_guests: number; adults: number; children: number; children_ages: string | null;
       nights: number; email: string | null; phone: string | null; notes: string | null;
       checkin_hour: string | null; checkout_hour: string | null;
+      channel: string; commission: number | null; commission_pct: number | null;
+      vat: number; vat_amount: number | null; cleaning_fee: number | null;
+      final_price: number | null; payout: number | null; net_gain: number | null;
+      ranges: GuestStayRange[];
+      invoice: { invoice_number: string; sent_at: number } | null;
     };
 
     const loading = document.getElementById('loading')!;
@@ -557,134 +753,234 @@ import '../../styles/global.css';
         COUNTRIES.map(c => `<option${selected === c ? ' selected' : ''}>${esc(c)}</option>`).join('');
     }
 
+    function renderRangeRow(r: GuestStayRange | null, containerId: string): string {
+      const start   = r?.start_date ?? '';
+      const end     = r?.end_date ?? '';
+      const full    = r?.full_price ?? '';
+      const disc    = r?.discounted_price ?? '';
+      const nights  = r ? String(r.nights) : '—';
+      const discPct = r && r.full_price > 0 ? ((r.full_price - r.discounted_price) / r.full_price * 100).toFixed(1) + '%' : '—';
+      const total   = r ? '€' + r.range_total.toFixed(2) : '—';
+      return `<div class="range-row">
+        <input type="date" class="range-start" value="${start}" oninput="__calcRangesFor('${containerId}')" />
+        <input type="date" class="range-end" value="${end}" oninput="__calcRangesFor('${containerId}')" />
+        <span class="range-nights">${nights}</span>
+        <input type="number" class="range-full" value="${full}" min="0" step="0.01" placeholder="0.00" oninput="__calcRangesFor('${containerId}')" />
+        <input type="number" class="range-disc" value="${disc}" min="0" step="0.01" placeholder="0.00" oninput="__calcRangesFor('${containerId}')" />
+        <span class="range-disc-pct">${discPct}</span>
+        <span class="range-total">${total}</span>
+        <button type="button" class="adm-btn adm-btn--sm adm-btn--remove" onclick="__removeRangeRow(this,'${containerId}')">×</button>
+      </div>`;
+    }
+
     function renderGuestTable(guests: CleaningGuest[]): string {
       if (guests.length === 0) return '<p class="adm-empty">No guests entered yet.</p>';
       const rows = guests.map(g => {
-        const isEditing = editingGuestId === g.id;
+        const id = g.id;
+        const rcId = `ef-ranges-${id}`;
+        const isEditing = editingGuestId === id;
+        const fp = g.final_price !== null ? '€' + g.final_price.toFixed(2) : '—';
+        const ng = g.net_gain !== null ? '€' + g.net_gain.toFixed(2) : '—';
+        const totalNights = g.ranges.length > 0 ? g.ranges.reduce((s, r) => s + r.nights, 0) : g.nights;
+        const rangeRowsHtml = g.ranges.length > 0
+          ? g.ranges.map(r => renderRangeRow(r, rcId)).join('')
+          : renderRangeRow(null, rcId);
+
+        const inv = g.invoice;
+        const hasPrice = g.final_price !== null || g.ranges.length > 0;
+        const invoiceBtn = inv
+          ? `<button class="adm-btn adm-btn--sm adm-btn--deposit-resend" onclick="__sendInvoice('${id}')">Resend invoice</button>`
+          : `<button class="adm-btn adm-btn--sm adm-btn--deposit" onclick="__sendInvoice('${id}')">Send invoice</button>`;
+        const invoiceLink = inv
+          ? `<a href="#" onclick="__viewInvoice('${id}');return false;" style="color:var(--ocean-blue);">View sent PDF</a>`
+          : (hasPrice ? `<a href="#" onclick="__previewInvoice('${id}');return false;" style="color:var(--ocean-blue);">Preview PDF</a>` : '');
+        const sentNote = inv ? `&#10003; sent ${fmtTs(inv.sent_at)} &middot; ` : '';
+        const invoiceMeta = (sentNote || invoiceLink)
+          ? `<div style="margin-top:4px;white-space:nowrap;font-size:0.68rem;color:var(--text-muted);">${sentNote}${invoiceLink}</div>`
+          : '';
+
         const editRow = isEditing ? `
           <tr class="adm-guest-edit-row">
-            <td colspan="8">
+            <td colspan="7">
               <div class="adm-guest-edit-form">
                 <div class="adm-form-row">
                   <div class="form-group" style="flex:2;">
                     <label>Guest name *</label>
-                    <input type="text" id="ef-name-${g.id}" value="${esc(g.guest_name)}" />
+                    <input type="text" id="ef-name-${id}" value="${esc(g.guest_name)}" />
                   </div>
                   <div class="form-group" style="flex:1;">
                     <label>Booking number</label>
-                    <input type="text" id="ef-booking-${g.id}" value="${esc(g.booking_number ?? '')}" />
-                  </div>
-                </div>
-                <div class="adm-form-row">
-                  <div class="form-group">
-                    <label>Check-in *</label>
-                    <input type="date" id="ef-checkin-${g.id}" value="${g.check_in}" onchange="__calcEditNights('${g.id}')" />
+                    <input type="text" id="ef-booking-${id}" value="${esc(g.booking_number ?? '')}" />
                   </div>
                   <div class="form-group">
-                    <label>Check-out *</label>
-                    <input type="date" id="ef-checkout-${g.id}" value="${g.check_out}" onchange="__calcEditNights('${g.id}')" />
-                  </div>
-                  <div class="form-group">
-                    <label>Nights</label>
-                    <input type="number" id="ef-nights-${g.id}" value="${g.nights}" min="1" tabindex="-1" readonly style="background:transparent;color:var(--text-muted);cursor:default;" />
+                    <label>Channel *</label>
+                    <input type="text" id="ef-channel-${id}" list="ef-channel-list-${id}"
+                           value="${esc(g.channel)}" oninput="__onChannelChange('ef','-${id}')" />
+                    <datalist id="ef-channel-list-${id}">
+                      <option value="booking.com"></option><option value="web"></option>
+                    </datalist>
                   </div>
                   <div class="form-group">
                     <label>Booking date</label>
-                    <input type="date" id="ef-bdate-${g.id}" value="${g.booking_date ?? ''}" />
-                  </div>
-                </div>
-                <div class="adm-form-row">
-                  <div class="form-group">
-                    <label>Check-in hour</label>
-                    <input type="text" id="ef-checkin-hour-${g.id}" value="${esc(g.checkin_hour ?? '')}" placeholder="e.g. 15:00" />
-                  </div>
-                  <div class="form-group">
-                    <label>Check-out hour</label>
-                    <input type="text" id="ef-checkout-hour-${g.id}" value="${esc(g.checkout_hour ?? '')}" placeholder="e.g. 10:00" />
+                    <input type="date" id="ef-bdate-${id}" value="${g.booking_date ?? ''}" />
                   </div>
                 </div>
                 <div class="adm-form-row">
                   <div class="form-group">
                     <label>Country</label>
-                    <select id="ef-country-${g.id}">${countryOptions(g.country)}</select>
+                    <select id="ef-country-${id}">${countryOptions(g.country)}</select>
                   </div>
                   <div class="form-group">
                     <label>Adults *</label>
-                    <input type="number" id="ef-adults-${g.id}" value="${g.adults}" min="0" oninput="__calcEditTotal('${g.id}')" />
+                    <input type="number" id="ef-adults-${id}" value="${g.adults}" min="0"
+                           oninput="__calcGuestTotal('ef','-${id}')" />
                   </div>
                   <div class="form-group">
                     <label>Children</label>
-                    <input type="number" id="ef-children-${g.id}" value="${g.children}" min="0" oninput="__calcEditTotal('${g.id}')" />
+                    <input type="number" id="ef-children-${id}" value="${g.children}" min="0"
+                           oninput="__calcGuestTotal('ef','-${id}')" />
                   </div>
                   <div class="form-group">
                     <label>Total guests</label>
-                    <input type="number" id="ef-total-${g.id}" value="${g.total_guests}" min="1" tabindex="-1" readonly style="background:transparent;color:var(--text-muted);cursor:default;" />
+                    <input type="number" id="ef-total-${id}" value="${g.total_guests}" min="1" tabindex="-1" readonly
+                           style="background:transparent;color:var(--text-muted);cursor:default;" />
+                  </div>
+                </div>
+                <div class="adm-form-row">
+                  <div class="form-group">
+                    <label>Check-in hour</label>
+                    <input type="text" id="ef-checkin-hour-${id}" value="${esc(g.checkin_hour ?? '')}" placeholder="e.g. 15:00" />
+                  </div>
+                  <div class="form-group">
+                    <label>Check-out hour</label>
+                    <input type="text" id="ef-checkout-hour-${id}" value="${esc(g.checkout_hour ?? '')}" placeholder="e.g. 10:00" />
+                  </div>
+                  <div class="form-group" style="flex:1;">
+                    <label>Children's ages</label>
+                    <input type="text" id="ef-cages-${id}" value="${esc(g.children_ages ?? '')}" />
                   </div>
                 </div>
                 <div class="adm-form-row">
                   <div class="form-group" style="flex:1;">
-                    <label>Children's ages</label>
-                    <input type="text" id="ef-cages-${g.id}" value="${esc(g.children_ages ?? '')}" />
-                  </div>
-                  <div class="form-group" style="flex:1;">
                     <label>Email</label>
-                    <input type="email" id="ef-email-${g.id}" value="${esc(g.email ?? '')}" />
+                    <input type="email" id="ef-email-${id}" value="${esc(g.email ?? '')}" />
                   </div>
                   <div class="form-group" style="flex:1;">
                     <label>Phone</label>
-                    <input type="tel" id="ef-phone-${g.id}" value="${esc(g.phone ?? '')}" />
+                    <input type="tel" id="ef-phone-${id}" value="${esc(g.phone ?? '')}" />
                   </div>
                 </div>
                 <div class="adm-form-row">
                   <div class="form-group" style="flex:1;">
                     <label>Notes</label>
-                    <textarea id="ef-notes-${g.id}" rows="3">${esc(g.notes ?? '')}</textarea>
+                    <textarea id="ef-notes-${id}" rows="2">${esc(g.notes ?? '')}</textarea>
                   </div>
                 </div>
+
+                <div class="guest-ranges">
+                  <div class="guest-ranges__header">
+                    <span class="guest-ranges__title">Pricing ranges</span>
+                    <button type="button" class="adm-btn adm-btn--sm" onclick="__addRange('${rcId}')">+ Add range</button>
+                  </div>
+                  <div class="guest-ranges__labels">
+                    <span>Start date</span><span>End date</span><span>Nights</span>
+                    <span>Full €/night</span><span>Disc. €/night</span><span>Disc. %</span><span>Range total</span><span></span>
+                  </div>
+                  <div id="${rcId}" class="guest-ranges__rows" data-prefix="ef" data-suffix="-${id}">${rangeRowsHtml}</div>
+                  <div class="guest-ranges__footer">
+                    <span>Total nights: <strong id="ef-total-nights-${id}">${totalNights > 0 ? totalNights : '—'}</strong></span>
+                    <span>Final price: <strong id="ef-final-price-${id}">${g.final_price !== null ? '€' + g.final_price.toFixed(2) : '—'}</strong></span>
+                  </div>
+                </div>
+
+                <div class="guest-financials">
+                  <div class="adm-form-row">
+                    <div class="form-group">
+                      <label>Commission (€)</label>
+                      <input type="number" id="ef-commission-${id}" value="${g.commission ?? ''}" min="0" step="0.01" placeholder="0.00"
+                             oninput="__calcRangesFor('${rcId}')" />
+                    </div>
+                    <div class="form-group">
+                      <label>Commission %</label>
+                      <span id="ef-commission-pct-${id}" class="adm-derived-value">${g.commission_pct !== null ? g.commission_pct.toFixed(1) + '%' : '—'}</span>
+                    </div>
+                    <div class="form-group">
+                      <label>Payout</label>
+                      <span id="ef-payout-${id}" class="adm-derived-value">${g.payout !== null ? '€' + g.payout.toFixed(2) : '—'}</span>
+                    </div>
+                  </div>
+                  <div class="adm-form-row" style="align-items:center;">
+                    <div class="form-group">
+                      <label class="adm-checkbox-label">
+                        <input type="checkbox" id="ef-vat-${id}" ${g.vat ? 'checked' : ''} onchange="__calcRangesFor('${rcId}')" />
+                        VAT (25% of commission)
+                      </label>
+                    </div>
+                    <div class="form-group">
+                      <label>VAT amount</label>
+                      <span id="ef-vat-amount-${id}" class="adm-derived-value">${g.vat_amount !== null ? '€' + g.vat_amount.toFixed(2) : '—'}</span>
+                    </div>
+                  </div>
+                  <div class="adm-form-row">
+                    <div class="form-group">
+                      <label>Cleaning fee (€)</label>
+                      <input type="number" id="ef-cleaning-fee-${id}" value="${g.cleaning_fee ?? ''}" min="0" step="0.01"
+                             oninput="__calcRangesFor('${rcId}')" />
+                    </div>
+                    <div class="form-group">
+                      <label>Net gain</label>
+                      <span id="ef-net-gain-${id}" class="adm-derived-value adm-derived-value--highlight">${g.net_gain !== null ? '€' + g.net_gain.toFixed(2) : '—'}</span>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="adm-form-row" style="margin-top:0.5rem;gap:0.5rem;">
-                  <button class="btn btn-primary" style="font-size:0.85rem;padding:0.6rem 1.25rem;" onclick="__saveGuest('${g.id}')">Save changes</button>
+                  <button class="btn btn-primary" style="font-size:0.85rem;padding:0.6rem 1.25rem;" onclick="__saveGuest('${id}')">Save changes</button>
                   <button class="adm-btn" style="background:var(--white);border:1px solid #d4d9de;" onclick="__cancelEdit()">Cancel</button>
                 </div>
-                <p class="adm-form-error" id="ef-error-${g.id}" hidden></p>
+                <p class="adm-form-error" id="ef-error-${id}" hidden></p>
               </div>
             </td>
           </tr>` : '';
         return `
           <tr>
-            <td><strong>${esc(g.guest_name)}</strong></td>
+            <td><strong>${esc(g.guest_name)}</strong><br><span style="font-size:0.75rem;color:var(--text-muted);">${esc(g.channel)}</span></td>
             <td>${fmtDate(g.check_in)}</td>
             <td>${fmtDate(g.check_out)}</td>
             <td>${g.nights}</td>
             <td>${g.total_guests}${g.children > 0 ? ` (${g.children} ch.)` : ''}</td>
-            <td>${g.country ? esc(g.country) : '<span style="color:var(--text-light,#b0bec5);">—</span>'}</td>
-            <td>${g.check_in.substring(0, 4)}</td>
+            <td>${fp}<br><span style="font-size:0.75rem;color:#2e7d32;">${ng}</span></td>
             <td style="white-space:nowrap;">
-              <button class="adm-btn adm-btn--sm${isEditing ? '' : ' adm-btn--remove'}" style="${isEditing ? 'background:var(--soft-sky);color:var(--ocean-blue);border-color:rgba(74,159,212,0.3);' : ''}" onclick="__editGuest('${g.id}')">Edit</button>
-              <button class="adm-btn adm-btn--sm adm-btn--remove" onclick="__removeGuest('${g.id}')">Remove</button>
+              <div style="display:inline-block;text-align:right;">
+                <button class="adm-btn adm-btn--sm${isEditing ? '' : ''}" style="${isEditing ? 'background:var(--soft-sky);color:var(--ocean-blue);border-color:rgba(74,159,212,0.3);border:1px solid rgba(74,159,212,0.3);' : ''}" onclick="__editGuest('${id}')">Edit</button>
+                <button class="adm-btn adm-btn--sm adm-btn--remove" onclick="__removeGuest('${id}')">Remove</button>
+                ${invoiceBtn}
+                ${invoiceMeta}
+              </div>
             </td>
           </tr>
           ${editRow}`;
       }).join('');
       return `<table class="adm-table"><thead><tr>
-        <th>Guest</th><th>Check-in</th><th>Check-out</th>
-        <th>Nights</th><th>Guests</th><th>Country</th><th>Season</th><th></th>
+        <th>Guest / Channel</th><th>Check-in</th><th>Check-out</th>
+        <th>Nights</th><th>Guests</th><th>Final / Net</th><th></th>
       </tr></thead><tbody>${rows}</tbody></table>`;
     }
 
     // ── Tabs ────────────────────────────────────────────────────────────────
-    type TabName = 'booking' | 'settings' | 'cleaning';
+    type TabName = 'booking' | 'settings' | 'guest-data';
     const tabBtns = document.querySelectorAll<HTMLButtonElement>('.adm-tabnav__tab');
     const panels  = {
-      booking:  document.getElementById('panel-booking')!,
-      settings: document.getElementById('panel-settings')!,
-      cleaning: document.getElementById('panel-cleaning')!,
+      booking:     document.getElementById('panel-booking')!,
+      settings:    document.getElementById('panel-settings')!,
+      'guest-data': document.getElementById('panel-guest-data')!,
     };
     const tabPendingBadge = document.getElementById('tabPendingBadge')!;
 
     function switchTab(name: TabName) {
       tabBtns.forEach(b => b.classList.toggle('adm-tabnav__tab--active', b.dataset.tab === name));
       (Object.keys(panels) as TabName[]).forEach(k => { panels[k].hidden = k !== name; });
-      const hash = name === 'settings' ? '#settings' : name === 'cleaning' ? '#cleaning' : location.pathname;
+      const hash = name === 'settings' ? '#settings' : name === 'guest-data' ? '#guest-data' : location.pathname;
       history.replaceState(null, '', hash);
     }
 
@@ -692,7 +988,7 @@ import '../../styles/global.css';
 
     const initialTab: TabName =
       location.hash === '#settings' ? 'settings' :
-      location.hash === '#cleaning' ? 'cleaning' : 'booking';
+      location.hash === '#guest-data' ? 'guest-data' : 'booking';
     switchTab(initialTab);
     // ────────────────────────────────────────────────────────────────────────
 
@@ -727,7 +1023,10 @@ import '../../styles/global.css';
         <tr>
           <td><strong>${esc(r.full_name)}</strong><br><a href="mailto:${esc(r.email)}">${esc(r.email)}</a>${r.phone ? `<br>${esc(r.phone)}` : ''}</td>
           <td>${fmtDate(r.check_in)} → ${fmtDate(r.check_out)}<br><span style="color:var(--text-muted);font-size:0.78rem;">${r.nights} night${r.nights !== 1 ? 's' : ''}, ${r.guests} guest${r.guests !== 1 ? 's' : ''}</span></td>
-          <td><strong>${fmtEur(r.total_eur)}</strong><br><span style="color:var(--text-muted);font-size:0.72rem;">Dep: ${fmtEur(depositEur(r.total_eur))} &middot; Arr: ${fmtEur(r.total_eur - depositEur(r.total_eur))}</span></td>
+          <td>${r.full_total_eur && r.full_total_eur > r.total_eur
+            ? `<span style="text-decoration:line-through;color:var(--text-muted);font-size:0.85rem;">${fmtEur(r.full_total_eur)}</span> <strong>${fmtEur(r.total_eur)}</strong> <span class="price-badge" style="font-size:0.7rem;">-${r.discount_pct}%</span>`
+            : `<strong>${fmtEur(r.total_eur)}</strong>`
+          }<br><span style="color:var(--text-muted);font-size:0.72rem;">Dep: ${fmtEur(depositEur(r.total_eur))} &middot; Arr: ${fmtEur(r.total_eur - depositEur(r.total_eur))}</span></td>
           <td><span class="adm-status adm-status--${r.status}">${r.status}</span><br><span style="color:var(--text-muted);font-size:0.72rem;">${fmtTs(r.created_at)}</span></td>
           <td><div class="adm-actions">${actions(r)}</div></td>
         </tr>
@@ -759,6 +1058,99 @@ import '../../styles/global.css';
       }
     }
     (window as any).__sendDepositConfirmation = sendDepositConfirmation;
+
+    function invoiceModal(email: string, defaultNumber: string): Promise<string | null> {
+      return new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(8,22,40,0.55);display:flex;align-items:center;justify-content:center;z-index:1000;';
+        overlay.innerHTML = `
+          <div style="background:var(--white);border-radius:12px;padding:1.75rem;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);font-family:'Nunito',sans-serif;">
+            <h3 style="margin:0 0 0.75rem;font-family:'Playfair Display',serif;color:var(--deep-navy);">Send invoice to guest?</h3>
+            <p style="margin:0 0 1rem;font-size:0.9rem;color:var(--text-muted);">To: <strong style="color:var(--deep-navy);">${esc(email)}</strong></p>
+            <label style="display:block;font-size:0.8rem;font-weight:700;margin-bottom:0.3rem;color:var(--deep-navy);">Invoice number</label>
+            <input id="__invNum" type="text" value="${esc(defaultNumber)}" style="width:100%;padding:0.5rem 0.7rem;border:1px solid #d4d9de;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.95rem;box-sizing:border-box;" />
+            <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1.25rem;">
+              <button id="__invCancel" class="adm-btn" style="background:var(--white);border:1px solid #d4d9de;">Cancel</button>
+              <button id="__invSend" class="btn btn-primary" style="font-size:0.85rem;padding:0.5rem 1.1rem;">Send</button>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        const input = overlay.querySelector('#__invNum') as HTMLInputElement;
+        input.focus(); input.select();
+        const close = (val: string | null) => { document.body.removeChild(overlay); resolve(val); };
+        (overlay.querySelector('#__invCancel') as HTMLButtonElement).onclick = () => close(null);
+        (overlay.querySelector('#__invSend') as HTMLButtonElement).onclick = () => close(input.value.trim());
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(null); });
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') close(input.value.trim());
+          else if (e.key === 'Escape') close(null);
+        });
+      });
+    }
+
+    async function sendInvoice(id: string) {
+      const g = currentGuests.find(x => x.id === id);
+      if (!g) return;
+      if (!g.email) { alert('This guest has no email address. Add one before sending an invoice.'); return; }
+      let pre = '';
+      try {
+        const r = await api<{ invoiceNumber: string }>(`/api/admin/cleaning-guests/${id}/invoice/next-number`);
+        pre = r.invoiceNumber;
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to load invoice number');
+        return;
+      }
+      const number = await invoiceModal(g.email, pre);
+      if (number === null) return;
+      if (!/^\d{4}-\d+$/.test(number)) {
+        alert('Invoice number must be in the format yyyy-no (e.g. 2026-1).');
+        return;
+      }
+      try {
+        await api(`/api/admin/cleaning-guests/${id}/invoice`, {
+          method: 'POST',
+          body: JSON.stringify({ invoiceNumber: number }),
+        });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to send invoice');
+      }
+    }
+    (window as any).__sendInvoice = sendInvoice;
+
+    // Fetch the PDF via XHR (a direct navigation to /api/* is intercepted by the
+    // static-assets 404 handler and never reaches the Worker) and open the blob.
+    async function openPdf(path: string) {
+      const win = window.open('', '_blank'); // opened within the user gesture to avoid popup blocking
+      try {
+        const res = await fetch(path, { credentials: 'same-origin' });
+        if (res.status === 401) { if (win) win.close(); window.location.href = '/admin/login'; return; }
+        const ct = res.headers.get('content-type') ?? '';
+        if (!res.ok || !ct.includes('application/pdf')) {
+          let msg = 'Failed to load PDF';
+          try { const j = await res.json() as { error?: string }; if (j.error) msg = j.error; } catch {}
+          if (win) win.close();
+          alert(msg);
+          return;
+        }
+        const url = URL.createObjectURL(await res.blob());
+        if (win) win.location.href = url; else window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      } catch (e) {
+        if (win) win.close();
+        alert(e instanceof Error ? e.message : 'Failed to load PDF');
+      }
+    }
+
+    function previewInvoice(id: string) {
+      openPdf(`/api/admin/cleaning-guests/${id}/invoice/preview`);
+    }
+    (window as any).__previewInvoice = previewInvoice;
+
+    function viewInvoice(id: string) {
+      openPdf(`/api/admin/cleaning-guests/${id}/invoice/pdf`);
+    }
+    (window as any).__viewInvoice = viewInvoice;
 
     async function removeBlock(id: string) {
       if (!confirm('Remove this manual block?')) return;
@@ -795,63 +1187,178 @@ import '../../styles/global.css';
     }
     (window as any).__cancelEdit = cancelEdit;
 
-    function calcEditNights(id: string) {
-      const ci = (document.getElementById(`ef-checkin-${id}`) as HTMLInputElement)?.value;
-      const co = (document.getElementById(`ef-checkout-${id}`) as HTMLInputElement)?.value;
-      const nightsInput = document.getElementById(`ef-nights-${id}`) as HTMLInputElement;
-      if (ci && co && co > ci) {
-        nightsInput.value = String(Math.round((new Date(co).getTime() - new Date(ci).getTime()) / 86400000));
-      } else {
-        nightsInput.value = '';
+    // ── Range / financial helpers ────────────────────────────────────────────
+
+    function calcRangesFor(containerId: string) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const prefix = (container as HTMLElement).dataset.prefix ?? 'gf';
+      const suffix = (container as HTMLElement).dataset.suffix ?? '';
+      const id = (n: string) => document.getElementById(`${prefix}-${n}${suffix}`);
+
+      const rows = container.querySelectorAll('.range-row');
+      let totalNights = 0;
+      let finalPrice  = 0;
+      let firstStart  = '';
+      let lastEnd     = '';
+
+      rows.forEach(row => {
+        const start = (row.querySelector('.range-start') as HTMLInputElement)?.value ?? '';
+        const end   = (row.querySelector('.range-end')   as HTMLInputElement)?.value ?? '';
+        const full    = parseFloat((row.querySelector('.range-full') as HTMLInputElement)?.value ?? '') || 0;
+        const discEl  = row.querySelector('.range-disc') as HTMLInputElement | null;
+        const disc    = parseFloat(discEl?.value ?? '') || 0;
+        const discErr = full > 0 && disc > full;
+        discEl?.classList.toggle('range-disc--error', discErr);
+        if (discEl) discEl.title = discErr ? 'Discounted price cannot exceed full price' : '';
+
+        let nights = 0;
+        if (start && end && end > start) {
+          nights = Math.round((new Date(end).getTime() - new Date(start).getTime()) / 86400000);
+        }
+        const discPct  = discErr ? '—' : (full > 0 ? ((full - disc) / full * 100).toFixed(1) + '%' : '—');
+        const rangeTot = !discErr && nights > 0 ? disc * nights : 0;
+
+        (row.querySelector('.range-nights')   as HTMLElement).textContent = nights > 0 ? String(nights) : '—';
+        (row.querySelector('.range-disc-pct') as HTMLElement).textContent = discPct;
+        (row.querySelector('.range-total')    as HTMLElement).textContent = rangeTot > 0 ? '€' + rangeTot.toFixed(2) : '—';
+
+        if (nights > 0) {
+          if (!firstStart || start < firstStart) firstStart = start;
+          if (!lastEnd   || end   > lastEnd)     lastEnd   = end;
+          totalNights += nights;
+          finalPrice  += rangeTot;
+        }
+      });
+
+      // Footer totals (keyed by ID for reliability across add/edit forms)
+      const tnEl = id('total-nights');
+      const fpEl = id('final-price');
+      if (tnEl) tnEl.textContent = totalNights > 0 ? String(totalNights) : '—';
+      if (fpEl) fpEl.textContent = totalNights > 0 ? '€' + finalPrice.toFixed(2) : '—';
+
+      // Financial fields
+      const commission  = parseFloat((id('commission') as HTMLInputElement)?.value ?? '') || 0;
+      const vatChecked  = (id('vat') as HTMLInputElement)?.checked ?? false;
+      const totalEl     = id('total') as HTMLInputElement | null;
+      const totalGuests = parseInt(totalEl?.value ?? '1') || 1;
+      const feeEl       = id('cleaning-fee') as HTMLInputElement | null;
+      if (feeEl && !feeEl.value) feeEl.value = (140 + 7 * totalGuests).toFixed(2);
+      const cleaningFee = parseFloat(feeEl?.value ?? '') || 0;
+
+      const commPct  = finalPrice > 0 ? (commission / finalPrice * 100).toFixed(1) + '%' : '—';
+      const payout   = finalPrice - commission;
+      const vatAmt   = vatChecked ? commission * 0.25 : 0;
+      const netGain  = finalPrice - commission - vatAmt - cleaningFee;
+
+      const setText = (n: string, t: string) => { const el = id(n); if (el) el.textContent = t; };
+      setText('commission-pct', commPct);
+      setText('payout',     finalPrice > 0 ? '€' + payout.toFixed(2)  : '—');
+      setText('vat-amount', '€' + vatAmt.toFixed(2));
+      setText('net-gain',   finalPrice > 0 ? '€' + netGain.toFixed(2) : '—');
+    }
+    (window as any).__calcRangesFor = calcRangesFor;
+
+    function addRange(containerId: string) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const rows = container.querySelectorAll('.range-row');
+      let prefillStart = '';
+      if (rows.length > 0) {
+        const lastRow = rows[rows.length - 1];
+        prefillStart = (lastRow.querySelector('.range-end') as HTMLInputElement)?.value ?? '';
+      }
+      const div = document.createElement('div');
+      div.className = 'range-row';
+      div.innerHTML = `
+        <input type="date" class="range-start" value="${prefillStart}" oninput="__calcRangesFor('${containerId}')" />
+        <input type="date" class="range-end" oninput="__calcRangesFor('${containerId}')" />
+        <span class="range-nights">—</span>
+        <input type="number" class="range-full" min="0" step="0.01" placeholder="0.00" oninput="__calcRangesFor('${containerId}')" />
+        <input type="number" class="range-disc" min="0" step="0.01" placeholder="0.00" oninput="__calcRangesFor('${containerId}')" />
+        <span class="range-disc-pct">—</span>
+        <span class="range-total">—</span>
+        <button type="button" class="adm-btn adm-btn--sm adm-btn--remove" onclick="__removeRangeRow(this,'${containerId}')">×</button>
+      `;
+      container.appendChild(div);
+    }
+    (window as any).__addRange = addRange;
+
+    function removeRangeRow(btn: HTMLElement, containerId: string) {
+      const container = document.getElementById(containerId);
+      btn.closest('.range-row')?.remove();
+      calcRangesFor(containerId);
+    }
+    (window as any).__removeRangeRow = removeRangeRow;
+
+    function calcGuestTotal(prefix: string, suffix: string) {
+      const adults   = parseInt((document.getElementById(`${prefix}-adults${suffix}`)   as HTMLInputElement)?.value ?? '') || 0;
+      const children = parseInt((document.getElementById(`${prefix}-children${suffix}`) as HTMLInputElement)?.value ?? '') || 0;
+      const total    = adults + children;
+      const totalEl  = document.getElementById(`${prefix}-total${suffix}`) as HTMLInputElement | null;
+      if (totalEl) totalEl.value = String(total);
+      const feeEl    = document.getElementById(`${prefix}-cleaning-fee${suffix}`) as HTMLInputElement | null;
+      if (feeEl) feeEl.value = (140 + 7 * total).toFixed(2);
+      calcRangesFor(`${prefix}-ranges${suffix}`);
+    }
+    (window as any).__calcGuestTotal = calcGuestTotal;
+
+    function onChannelChange(prefix: string, suffix: string) {
+      const channel = (document.getElementById(`${prefix}-channel${suffix}`) as HTMLInputElement)?.value?.trim().toLowerCase();
+      if (channel === 'web') {
+        const commEl = document.getElementById(`${prefix}-commission${suffix}`) as HTMLInputElement | null;
+        const vatEl  = document.getElementById(`${prefix}-vat${suffix}`)        as HTMLInputElement | null;
+        if (commEl && !commEl.value) commEl.value = '0';
+        if (vatEl) vatEl.checked = false;
+        calcRangesFor(`${prefix}-ranges${suffix}`);
       }
     }
-    (window as any).__calcEditNights = calcEditNights;
+    (window as any).__onChannelChange = onChannelChange;
 
-    function calcEditTotal(id: string) {
-      const adults   = Number((document.getElementById(`ef-adults-${id}`)   as HTMLInputElement)?.value ?? 0);
-      const children = Number((document.getElementById(`ef-children-${id}`) as HTMLInputElement)?.value ?? 0);
-      const totalInput = document.getElementById(`ef-total-${id}`) as HTMLInputElement | null;
-      if (totalInput) totalInput.value = String(adults + children);
+    // ── Guest CRUD ───────────────────────────────────────────────────────────
+
+    function collectRanges(containerId: string): Array<{start_date: string; end_date: string; full_price: number; discounted_price: number}> {
+      const container = document.getElementById(containerId);
+      if (!container) return [];
+      return Array.from(container.querySelectorAll('.range-row')).map(row => ({
+        start_date:       (row.querySelector('.range-start') as HTMLInputElement)?.value ?? '',
+        end_date:         (row.querySelector('.range-end')   as HTMLInputElement)?.value ?? '',
+        full_price:       parseFloat((row.querySelector('.range-full') as HTMLInputElement)?.value ?? '') || 0,
+        discounted_price: parseFloat((row.querySelector('.range-disc') as HTMLInputElement)?.value ?? '') || 0,
+      }));
     }
-    (window as any).__calcEditTotal = calcEditTotal;
 
     async function saveGuest(id: string) {
       const errEl = document.getElementById(`ef-error-${id}`) as HTMLElement | null;
       if (errEl) errEl.hidden = true;
-      const get = (suffix: string) =>
-        (document.getElementById(`ef-${suffix}-${id}`) as HTMLInputElement | HTMLSelectElement | null)?.value ?? '';
+      const v = (n: string) => (document.getElementById(`ef-${n}-${id}`) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null)?.value ?? '';
       const body = {
-        guest_name:     get('name').trim(),
-        booking_number: get('booking').trim() || null,
-        country:        get('country') || null,
-        check_in:       get('checkin'),
-        check_out:      get('checkout'),
-        booking_date:   get('bdate') || null,
-        total_guests:   Number(get('total')),
-        adults:         Number(get('adults')),
-        children:       Number(get('children')),
-        children_ages:  get('cages').trim() || null,
-        nights:         Number(get('nights')),
-        email:          get('email').trim() || null,
-        phone:          get('phone').trim() || null,
-        notes:          get('notes').trim() || null,
-        checkin_hour:   get('checkin-hour').trim() || null,
-        checkout_hour:  get('checkout-hour').trim() || null,
+        guest_name:     v('name').trim(),
+        booking_number: v('booking').trim() || null,
+        channel:        v('channel').trim() || 'booking.com',
+        country:        v('country') || null,
+        booking_date:   v('bdate') || null,
+        total_guests:   Number(v('total')),
+        adults:         Number(v('adults')),
+        children:       Number(v('children')),
+        children_ages:  v('cages').trim() || null,
+        email:          v('email').trim() || null,
+        phone:          v('phone').trim() || null,
+        notes:          v('notes').trim() || null,
+        checkin_hour:   v('checkin-hour').trim() || null,
+        checkout_hour:  v('checkout-hour').trim() || null,
+        commission:     v('commission') !== '' ? Number(v('commission')) : null,
+        vat:            (document.getElementById(`ef-vat-${id}`) as HTMLInputElement)?.checked ?? false,
+        cleaning_fee:   v('cleaning-fee') !== '' ? Number(v('cleaning-fee')) : null,
+        ranges:         collectRanges(`ef-ranges-${id}`),
       };
       try {
-        await api(`/api/admin/cleaning-guests/${id}`, {
-          method: 'PUT',
-          body: JSON.stringify(body),
-        });
+        await api(`/api/admin/cleaning-guests/${id}`, { method: 'PUT', body: JSON.stringify(body) });
         editingGuestId = null;
         await refresh();
       } catch (e) {
-        if (errEl) {
-          errEl.textContent = e instanceof Error ? e.message : 'Save failed';
-          errEl.hidden = false;
-        } else {
-          alert(e instanceof Error ? e.message : 'Save failed');
-        }
+        if (errEl) { errEl.textContent = e instanceof Error ? e.message : 'Save failed'; errEl.hidden = false; }
+        else alert(e instanceof Error ? e.message : 'Save failed');
       }
     }
     (window as any).__saveGuest = saveGuest;
@@ -880,14 +1387,18 @@ import '../../styles/global.css';
     (window as any).__saveMinAdvanceDays = saveMinAdvanceDays;
 
     async function savePricing(month: number) {
-      const input = document.getElementById(`pr-rate-${month}`) as HTMLInputElement;
-      const btn   = document.getElementById(`pr-btn-${month}`) as HTMLButtonElement;
-      const rate  = Number(input.value);
+      const rateInput     = document.getElementById(`pr-rate-${month}`) as HTMLInputElement;
+      const discountInput = document.getElementById(`pr-discount-${month}`) as HTMLInputElement;
+      const btn           = document.getElementById(`pr-btn-${month}`) as HTMLButtonElement;
+      const rate     = Number(rateInput.value);
+      const discount = discountInput.value.trim() !== '' ? Number(discountInput.value) : rate;
       if (!Number.isFinite(rate) || rate < 0) { alert('Enter a valid rate'); return; }
+      if (!Number.isFinite(discount) || discount < 0) { alert('Enter a valid discount rate'); return; }
+      if (discount > rate) { alert('Discount rate cannot exceed the full rate'); return; }
       try {
         await api('/api/admin/pricing', {
           method: 'POST',
-          body: JSON.stringify({ month, rate_eur: rate }),
+          body: JSON.stringify({ month, rate_eur: rate, discount_rate_eur: discount }),
         });
         btn.classList.add('adm-pricing-row__btn--saved');
         btn.textContent = 'Saved ✓';
@@ -901,6 +1412,23 @@ import '../../styles/global.css';
       }
     }
     (window as any).__savePricing = savePricing;
+
+    function updateDiscountHint(month: number) {
+      const rateEl    = document.getElementById(`pr-rate-${month}`) as HTMLInputElement | null;
+      const discountEl = document.getElementById(`pr-discount-${month}`) as HTMLInputElement | null;
+      const badge      = document.getElementById(`pr-badge-${month}`) as HTMLElement | null;
+      if (!rateEl || !discountEl || !badge) return;
+      const rate = Number(rateEl.value);
+      const disc = Number(discountEl.value);
+      if (rate > 0 && Number.isFinite(disc) && disc >= 0 && disc < rate) {
+        const pct = Math.round((1 - disc / rate) * 100);
+        badge.textContent = `-${pct}%`;
+        badge.style.display = '';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+    (window as any).__updateDiscountHint = updateDiscountHint;
 
     async function refresh() {
       const [resData, blockData, priceData, settingsData, cleaningData] = await Promise.all([
@@ -955,13 +1483,25 @@ import '../../styles/global.css';
       for (const p of priceData.pricing) pricingByMonth.set(p.month, p);
       const pricingHtml = [6, 7, 8, 9].map(m => {
         const p = pricingByMonth.get(m);
-        const rate = p?.rate_eur ?? 0;
-        const updated = p ? fmtTs(p.updated_at) : '—';
+        const rate     = p?.rate_eur ?? 0;
+        const discount = p?.discount_rate_eur != null ? p.discount_rate_eur : rate;
+        const pct      = rate > 0 && discount < rate ? Math.round((1 - discount / rate) * 100) : 0;
+        const updated  = p ? fmtTs(p.updated_at) : '—';
         return `
           <div class="adm-pricing-row">
             <div class="adm-pricing-row__month">${monthName(m)}</div>
             <div class="adm-pricing-row__updated">Last updated: ${updated}</div>
-            <div style="display:flex;align-items:center;gap:0.4rem;">€<input type="number" id="pr-rate-${m}" class="adm-pricing-row__input" value="${rate}" min="0" max="10000" /></div>
+            <div class="adm-pricing-row__inputs">
+              <div class="adm-pricing-row__field">
+                <span class="adm-pricing-row__field-label">Full</span>
+                <span>€</span><input type="number" id="pr-rate-${m}" class="adm-pricing-row__input" value="${rate}" min="0" max="10000" oninput="__updateDiscountHint(${m})" />
+              </div>
+              <div class="adm-pricing-row__field">
+                <span class="adm-pricing-row__field-label">Discounted</span>
+                <span>€</span><input type="number" id="pr-discount-${m}" class="adm-pricing-row__input" value="${discount}" min="0" max="10000" oninput="__updateDiscountHint(${m})" />
+                <span class="adm-pricing-row__disc-badge" id="pr-badge-${m}"${pct > 0 ? '' : ' style="display:none"'}>-${pct}%</span>
+              </div>
+            </div>
             <button class="adm-pricing-row__btn" id="pr-btn-${m}" onclick="__savePricing(${m})">Save</button>
           </div>
         `;
@@ -1012,26 +1552,10 @@ import '../../styles/global.css';
       }
     });
 
-    function calcNights() {
-      const ci = (document.getElementById('gf-checkin') as HTMLInputElement).value;
-      const co = (document.getElementById('gf-checkout') as HTMLInputElement).value;
-      const nightsInput = document.getElementById('gf-nights') as HTMLInputElement;
-      if (ci && co && co > ci) {
-        nightsInput.value = String(Math.round((new Date(co).getTime() - new Date(ci).getTime()) / 86400000));
-      } else {
-        nightsInput.value = '';
-      }
-    }
-    document.getElementById('gf-checkin')!.addEventListener('change', calcNights);
-    document.getElementById('gf-checkout')!.addEventListener('change', calcNights);
-
-    function calcTotal() {
-      const adults   = Number((document.getElementById('gf-adults')   as HTMLInputElement).value ?? 0);
-      const children = Number((document.getElementById('gf-children') as HTMLInputElement).value ?? 0);
-      (document.getElementById('gf-total') as HTMLInputElement).value = String(adults + children);
-    }
-    document.getElementById('gf-adults')!.addEventListener('input', calcTotal);
-    document.getElementById('gf-children')!.addEventListener('input', calcTotal);
+    // Initialise the add-guest form ranges container with one empty row
+    addRange('gf-ranges');
+    // Set default cleaning fee based on initial total guests (1 adult)
+    (document.getElementById('gf-cleaning-fee') as HTMLInputElement).value = '147.00';
 
     const guestForm  = document.getElementById('guestForm') as HTMLFormElement;
     const guestError = document.getElementById('guestError') as HTMLElement;
@@ -1040,29 +1564,34 @@ import '../../styles/global.css';
       guestError.hidden = true;
       const fd = new FormData(guestForm);
       const body = {
-        guest_name:     String(fd.get('guest_name')    ?? ''),
-        booking_number: String(fd.get('booking_number') ?? '') || null,
+        guest_name:     String(fd.get('guest_name')    ?? '').trim(),
+        booking_number: String(fd.get('booking_number') ?? '').trim() || null,
+        channel:        String(fd.get('channel')        ?? '').trim() || 'booking.com',
         country:        String(fd.get('country')        ?? '') || null,
-        check_in:       String(fd.get('check_in')       ?? ''),
-        check_out:      String(fd.get('check_out')      ?? ''),
         booking_date:   String(fd.get('booking_date')   ?? '') || null,
         total_guests:   Number(fd.get('total_guests')   ?? 1),
         adults:         Number(fd.get('adults')         ?? 1),
         children:       Number(fd.get('children')       ?? 0),
-        children_ages:  String(fd.get('children_ages')  ?? '') || null,
-        nights:         Number(fd.get('nights')         ?? 0),
-        email:          String(fd.get('email')          ?? '') || null,
-        phone:          String(fd.get('phone')          ?? '') || null,
-        notes:          String(fd.get('notes')          ?? '') || null,
-        checkin_hour:   String(fd.get('checkin_hour')   ?? '') || null,
-        checkout_hour:  String(fd.get('checkout_hour')  ?? '') || null,
+        children_ages:  String(fd.get('children_ages')  ?? '').trim() || null,
+        email:          String(fd.get('email')          ?? '').trim() || null,
+        phone:          String(fd.get('phone')          ?? '').trim() || null,
+        notes:          String(fd.get('notes')          ?? '').trim() || null,
+        checkin_hour:   String(fd.get('checkin_hour')   ?? '').trim() || null,
+        checkout_hour:  String(fd.get('checkout_hour')  ?? '').trim() || null,
+        commission:     fd.get('commission') !== null && String(fd.get('commission')) !== '' ? Number(fd.get('commission')) : null,
+        vat:            (document.getElementById('gf-vat') as HTMLInputElement)?.checked ?? false,
+        cleaning_fee:   fd.get('cleaning_fee') !== null && String(fd.get('cleaning_fee')) !== '' ? Number(fd.get('cleaning_fee')) : null,
+        ranges:         collectRanges('gf-ranges'),
       };
       try {
-        await api('/api/admin/cleaning-guests', {
-          method: 'POST',
-          body: JSON.stringify(body),
-        });
+        await api('/api/admin/cleaning-guests', { method: 'POST', body: JSON.stringify(body) });
         guestForm.reset();
+        // Re-init form state after reset
+        document.getElementById('gf-ranges')!.innerHTML = '';
+        addRange('gf-ranges');
+        (document.getElementById('gf-channel') as HTMLInputElement).value = 'booking.com';
+        (document.getElementById('gf-cleaning-fee') as HTMLInputElement).value = '147.00';
+        calcRangesFor('gf-ranges');
         await refresh();
       } catch (e) {
         guestError.textContent = e instanceof Error ? e.message : 'Failed to add guest';
