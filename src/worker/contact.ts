@@ -5,7 +5,7 @@ import { getTranslations, INTL_LOCALE_MAP, type SupportedLang, SUPPORTED_LANGS }
 const EMAIL_RE     = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const SEASON_START = '2026-06-01';
 const SEASON_END   = '2026-09-30';
-const FROM         = 'Blue Moon Apartment <noreply@bluemoonmandre.eu>';
+const FROM         = 'Blue Moon Apartment <reservations@bluemoonmandre.eu>';
 
 const LANG_MAP: Record<string, string> = {
   en: 'English', hr: 'Croatian', de: 'German',
