@@ -112,6 +112,30 @@ import '../../styles/global.css';
           <div id="settingsList"></div>
         </section>
 
+        <section class="adm-section">
+          <div class="adm-section__head">
+            <h2>Cleaning crew docs</h2>
+          </div>
+          <p class="adm-section__hint">Write guides and checklists for the cleaning crew using markdown. Documents appear in a dropdown on the crew page.</p>
+
+          <div class="adm-form-row">
+            <div class="form-group" style="flex:1;">
+              <label for="doc-title">Title</label>
+              <input type="text" id="doc-title" placeholder="e.g. Checkout Checklist" />
+            </div>
+            <button class="btn btn-primary" id="doc-save-btn" onclick="__saveDoc()">Add doc</button>
+            <button class="adm-btn" id="doc-cancel-btn" style="background:var(--white);border:1px solid #d4d9de;" hidden onclick="__cancelDocEdit()">Cancel</button>
+          </div>
+          <div class="adm-form-row" style="margin-top:0.75rem;margin-bottom:1rem;">
+            <div class="form-group" style="flex:1;">
+              <label for="doc-content">Content (Markdown)</label>
+              <textarea id="doc-content" rows="12" style="resize:vertical;width:100%;font-family:monospace;font-size:0.88rem;" placeholder="# Checkout Checklist&#10;&#10;- Check all rooms&#10;- Remove trash&#10;- Clean bathrooms"></textarea>
+            </div>
+          </div>
+          <p class="adm-form-error" id="docError" hidden></p>
+          <div id="docsList"></div>
+        </section>
+
       </div><!-- /panel-settings -->
 
       <div id="panel-guest-data" class="adm-panel" hidden>
@@ -739,12 +763,16 @@ import '../../styles/global.css';
       invoice: { invoice_number: string; sent_at: number } | null;
     };
 
+    type DocItem = { id: string; title: string; slug: string; updated_at: number };
+
     const loading = document.getElementById('loading')!;
     const content = document.getElementById('content')!;
     const logoutBtn = document.getElementById('logoutBtn') as HTMLButtonElement;
 
     let editingGuestId: string | null = null;
     let currentGuests: CleaningGuest[] = [];
+    let editingDocId: string | null = null;
+    let currentDocs: DocItem[] = [];
 
     const COUNTRIES = ['Croatia','Czechia','Germany','Italy','Poland','Slovakia','Slovenia','Switzerland','United Kingdom','Other'];
 
@@ -1430,13 +1458,98 @@ import '../../styles/global.css';
     }
     (window as any).__updateDiscountHint = updateDiscountHint;
 
+    // ── Crew docs ────────────────────────────────────────────────────────────
+
+    function renderDocsList(docs: DocItem[]): string {
+      if (docs.length === 0) return '<p class="adm-empty">No documents yet.</p>';
+      return `<table class="adm-table"><thead><tr><th>Title</th><th>Shareable URL</th><th>Updated</th><th></th></tr></thead><tbody>${
+        docs.map(d => `
+          <tr>
+            <td><strong>${esc(d.title)}</strong></td>
+            <td style="font-size:0.75rem;color:var(--text-muted);font-family:monospace;">/cleaning/docs?doc=${esc(d.slug)}</td>
+            <td style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap;">${fmtTs(d.updated_at)}</td>
+            <td style="white-space:nowrap;">
+              <button class="adm-btn adm-btn--sm" onclick="__editDoc('${d.id}')">Edit</button>
+              <button class="adm-btn adm-btn--sm adm-btn--remove" onclick="__removeDoc('${d.id}')">Remove</button>
+            </td>
+          </tr>
+        `).join('')
+      }</tbody></table>`;
+    }
+
+    async function saveDoc() {
+      const titleEl   = document.getElementById('doc-title') as HTMLInputElement;
+      const contentEl = document.getElementById('doc-content') as HTMLTextAreaElement;
+      const errEl     = document.getElementById('docError') as HTMLElement;
+      errEl.hidden = true;
+      const title      = titleEl.value.trim();
+      const content_md = contentEl.value;
+      if (!title) { errEl.textContent = 'Title is required'; errEl.hidden = false; return; }
+      try {
+        if (editingDocId) {
+          await api(`/api/admin/docs/${editingDocId}`, { method: 'PUT', body: JSON.stringify({ title, content_md }) });
+          editingDocId = null;
+        } else {
+          await api('/api/admin/docs', { method: 'POST', body: JSON.stringify({ title, content_md }) });
+        }
+        titleEl.value   = '';
+        contentEl.value = '';
+        (document.getElementById('doc-save-btn') as HTMLButtonElement).textContent = 'Add doc';
+        (document.getElementById('doc-cancel-btn') as HTMLButtonElement).hidden = true;
+        await refresh();
+      } catch (e) {
+        errEl.textContent = e instanceof Error ? e.message : 'Save failed';
+        errEl.hidden = false;
+      }
+    }
+    (window as any).__saveDoc = saveDoc;
+
+    async function editDoc(id: string) {
+      try {
+        const { doc } = await api<{ doc: { id: string; title: string; content_md: string } }>(`/api/admin/docs/${id}`);
+        (document.getElementById('doc-title') as HTMLInputElement).value       = doc.title;
+        (document.getElementById('doc-content') as HTMLTextAreaElement).value  = doc.content_md;
+        (document.getElementById('doc-save-btn') as HTMLButtonElement).textContent = 'Save changes';
+        (document.getElementById('doc-cancel-btn') as HTMLButtonElement).hidden    = false;
+        (document.getElementById('docError') as HTMLElement).hidden = true;
+        editingDocId = id;
+        document.getElementById('doc-title')!.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to load doc');
+      }
+    }
+    (window as any).__editDoc = editDoc;
+
+    function cancelDocEdit() {
+      editingDocId = null;
+      (document.getElementById('doc-title') as HTMLInputElement).value        = '';
+      (document.getElementById('doc-content') as HTMLTextAreaElement).value   = '';
+      (document.getElementById('doc-save-btn') as HTMLButtonElement).textContent = 'Add doc';
+      (document.getElementById('doc-cancel-btn') as HTMLButtonElement).hidden    = true;
+      (document.getElementById('docError') as HTMLElement).hidden = true;
+    }
+    (window as any).__cancelDocEdit = cancelDocEdit;
+
+    async function removeDoc(id: string) {
+      if (!confirm('Remove this document?')) return;
+      try {
+        await api(`/api/admin/docs/${id}`, { method: 'DELETE' });
+        if (editingDocId === id) cancelDocEdit();
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Remove failed');
+      }
+    }
+    (window as any).__removeDoc = removeDoc;
+
     async function refresh() {
-      const [resData, blockData, priceData, settingsData, cleaningData] = await Promise.all([
+      const [resData, blockData, priceData, settingsData, cleaningData, docsData] = await Promise.all([
         api<{ reservations: Reservation[] }>('/api/admin/reservations'),
         api<{ blocks: ManualBlock[] }>('/api/admin/blocks'),
         api<{ pricing: PricingRule[] }>('/api/admin/pricing'),
         api<BookingSettings>('/api/admin/settings'),
         api<{ guests: CleaningGuest[] }>('/api/admin/cleaning-guests'),
+        api<{ docs: DocItem[] }>('/api/admin/docs'),
       ]);
 
       const reservations = resData.reservations;
@@ -1522,6 +1635,9 @@ import '../../styles/global.css';
       currentGuests = cleaningData.guests;
       document.getElementById('guestCount')!.textContent = String(currentGuests.length);
       document.getElementById('guestsList')!.innerHTML = renderGuestTable(currentGuests);
+
+      currentDocs = docsData.docs;
+      document.getElementById('docsList')!.innerHTML = renderDocsList(currentDocs);
     }
 
     logoutBtn.addEventListener('click', async () => {
