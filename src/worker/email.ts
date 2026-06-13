@@ -12,7 +12,7 @@ function safeLang(lang: string | null | undefined): SupportedLang {
   return SUPPORTED_LANGS.includes(l) ? l : 'en';
 }
 
-const FROM     = 'Blue Moon Apartment <noreply@bluemoonmandre.eu>';
+const FROM     = 'Blue Moon Apartment <reservations@bluemoonmandre.eu>';
 const SITE     = 'https://bluemoonmandre.eu';
 const LOGO_URL = `${SITE}/images/logo-email.png`;
 
