@@ -1,0 +1,246 @@
+---
+import '../../../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+  <title>Crew Docs | Blue Moon Apartment</title>
+</head>
+<body class="crew-body">
+
+  <header class="crew-header">
+    <div class="crew-header__inner">
+      <a href="/cleaning" class="crew-header__logo-link">
+        <img src="/images/nav-logo.svg" alt="Blue Moon Apartment" height="38" />
+      </a>
+      <span class="crew-header__title" id="pageTitle">Docs</span>
+      <a href="/cleaning/" class="crew-close-btn" aria-label="Close">&#10005;</a>
+    </div>
+  </header>
+
+  <main class="crew-main">
+    <div id="loading" class="crew-loading">Loading…</div>
+    <div id="content" hidden></div>
+  </main>
+
+  <style is:global>
+    .crew-body { background: var(--soft-sky); min-height: 100vh; margin: 0; }
+
+    .crew-header {
+      background: var(--white);
+      border-bottom: 1px solid rgba(74,159,212,0.15);
+      box-shadow: var(--shadow-xs);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .crew-header__inner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .crew-header__logo-link { display: block; flex-shrink: 0; }
+    .crew-header__inner img { display: block; height: 36px; width: auto; }
+    .crew-close-btn {
+      font-size: 1.2rem;
+      line-height: 1;
+      color: var(--ocean-blue);
+      padding: 0.25rem 0.35rem;
+      border-radius: 6px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .crew-close-btn:active { background: var(--soft-sky); }
+    .crew-header__title {
+      flex: 1;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: var(--ocean-blue);
+      font-size: 1rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .crew-main { padding: 1rem; max-width: 680px; margin: 0 auto; }
+    .crew-loading { text-align: center; padding: 3rem; color: var(--text-muted); font-weight: 700; }
+
+    /* Doc list */
+    .crew-doc-list { list-style: none; margin: 0; padding: 0; }
+    .crew-doc-list__item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-xs);
+      margin-bottom: 0.6rem;
+      padding: 1rem 1.25rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-decoration: none;
+    }
+    .crew-doc-list__item:active { background: var(--soft-sky); }
+    .crew-doc-list__item::after {
+      content: '›';
+      font-size: 1.2rem;
+      color: var(--sky-blue);
+      flex-shrink: 0;
+      margin-left: 0.5rem;
+    }
+    .crew-doc-list__back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ocean-blue);
+      text-decoration: none;
+      margin-bottom: 1rem;
+    }
+    .crew-doc-list__back:active { opacity: 0.6; }
+
+    /* Doc content */
+    .crew-doc-content {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-xs);
+      padding: 1.1rem 1.25rem 1.75rem;
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: var(--text-dark);
+    }
+    .crew-doc-content h1,
+    .crew-doc-content h2,
+    .crew-doc-content h3 {
+      font-family: 'Playfair Display', serif;
+      color: var(--ocean-blue);
+      margin: 0.75rem 0 0.25rem;
+    }
+    .crew-doc-content h1:first-child,
+    .crew-doc-content h2:first-child,
+    .crew-doc-content h3:first-child { margin-top: 0; }
+    .crew-doc-content h1 { font-size: 1.2rem; }
+    .crew-doc-content h2 { font-size: 1rem; }
+    .crew-doc-content h3 { font-size: 0.92rem; }
+    .crew-doc-content p { margin: 0.35rem 0; }
+    .crew-doc-content ul,
+    .crew-doc-content ol { padding-left: 1.4rem; margin: 0.35rem 0; }
+    .crew-doc-content li { margin: 0.2rem 0; }
+    .crew-doc-content img { max-width: 100%; height: auto; border-radius: 4px; display: inline; vertical-align: middle; }
+    .crew-doc-content a { color: var(--ocean-blue); }
+    .crew-doc-content strong { font-weight: 800; }
+    .crew-doc-content hr {
+      border: none;
+      border-top: 1px solid rgba(74,159,212,0.25);
+      margin: 1rem 0;
+    }
+    .crew-doc-content code {
+      font-family: monospace;
+      font-size: 0.85em;
+      background: #f3f4f6;
+      color: #e11d48;
+      padding: 0.1em 0.3em;
+      border-radius: 3px;
+    }
+    .crew-doc-content pre {
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      overflow-x: auto;
+      margin: 0.5rem 0;
+    }
+    .crew-doc-content pre code {
+      background: none;
+      color: var(--text-dark);
+      padding: 0;
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+    .crew-doc-content .md-table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 0.5rem 0;
+      font-size: 0.88rem;
+    }
+    .crew-doc-content .md-table th {
+      font-weight: 800;
+      text-align: left;
+      padding: 0.4rem 0.75rem;
+      border-bottom: 2px solid rgba(74,159,212,0.3);
+    }
+    .crew-doc-content .md-table td {
+      padding: 0.4rem 0.75rem;
+      border-bottom: 1px solid rgba(74,159,212,0.12);
+    }
+    .crew-doc-content .md-table tbody tr:last-child td { border-bottom: none; }
+  </style>
+
+  <script>
+    const loading = document.getElementById('loading')!;
+    const content = document.getElementById('content')!;
+    const pageTitle = document.getElementById('pageTitle')!;
+
+    const esc = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    async function api<T>(path: string): Promise<T> {
+      const res = await fetch(path, {
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+      });
+      if (res.status === 401) {
+        window.location.href = '/cleaning/login';
+        throw new Error('not authenticated');
+      }
+      const data = await res.json() as T & { ok?: boolean; error?: string };
+      if ((data as any).ok === false) throw new Error((data as any).error ?? 'Request failed');
+      return data;
+    }
+
+    const slug = new URLSearchParams(location.search).get('doc');
+
+    if (slug) {
+      api<{ doc: { id: string; title: string; content_html: string } }>(`/api/crew/docs?slug=${encodeURIComponent(slug)}`)
+        .then(({ doc }) => {
+          pageTitle.textContent = doc.title;
+          document.title = `${doc.title} | Blue Moon Apartment`;
+          content.innerHTML =
+            `<a href="/cleaning/docs" class="crew-doc-list__back">&#8592; All docs</a>` +
+            `<div class="crew-doc-content">${doc.content_html}</div>`;
+          loading.style.display = 'none';
+          content.hidden = false;
+        })
+        .catch(() => {});
+    } else {
+      api<{ docs: { id: string; title: string; slug: string }[] }>('/api/crew/docs')
+        .then(({ docs }) => {
+          if (docs.length === 0) {
+            content.innerHTML = '<p style="color:var(--text-muted);font-style:italic;">No documents available.</p>';
+          } else {
+            content.innerHTML =
+              `<ul class="crew-doc-list">` +
+              docs.map(d =>
+                `<li><a class="crew-doc-list__item" href="/cleaning/docs?doc=${encodeURIComponent(d.slug)}">${esc(d.title)}</a></li>`
+              ).join('') +
+              `</ul>`;
+          }
+          loading.style.display = 'none';
+          content.hidden = false;
+        })
+        .catch(() => {});
+    }
+  </script>
+</body>
+</html>
