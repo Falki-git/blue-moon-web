@@ -141,6 +141,45 @@ import '../../../styles/global.css';
     .crew-doc-content img { max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0.5rem 0; }
     .crew-doc-content a { color: var(--ocean-blue); }
     .crew-doc-content strong { font-weight: 800; }
+    .crew-doc-content code {
+      font-family: monospace;
+      font-size: 0.85em;
+      background: #f3f4f6;
+      color: #e11d48;
+      padding: 0.1em 0.3em;
+      border-radius: 3px;
+    }
+    .crew-doc-content pre {
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      overflow-x: auto;
+      margin: 0.5rem 0;
+    }
+    .crew-doc-content pre code {
+      background: none;
+      color: var(--text-dark);
+      padding: 0;
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+    .crew-doc-content .md-table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 0.5rem 0;
+      font-size: 0.88rem;
+    }
+    .crew-doc-content .md-table th {
+      font-weight: 800;
+      text-align: left;
+      padding: 0.4rem 0.75rem;
+      border-bottom: 2px solid rgba(74,159,212,0.3);
+    }
+    .crew-doc-content .md-table td {
+      padding: 0.4rem 0.75rem;
+      border-bottom: 1px solid rgba(74,159,212,0.12);
+    }
+    .crew-doc-content .md-table tbody tr:last-child td { border-bottom: none; }
   </style>
 
   <script>

@@ -54,6 +54,8 @@ function escHtml(s: string): string {
 
 function inlineMarkdown(raw: string): string {
   let s = escHtml(raw);
+  // Inline code — must run before bold/italic so content inside isn't processed
+  s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
   // Images before links so ![...](...) doesn't get partially caught by link pattern
   s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
     if (!/^https?:\/\//.test(src)) return alt || '';
@@ -74,6 +76,10 @@ function markdownToHtml(md: string): string {
   let inUl = false;
   let inOl = false;
   let para: string[] = [];
+  let inFence = false;
+  let fenceLines: string[] = [];
+  let tableRows: string[][] = [];
+  let tableAligns: string[] = [];
 
   const flushPara = () => {
     if (para.length) { out.push(`<p>${inlineMarkdown(para.join(' '))}</p>`); para = []; }
@@ -82,8 +88,56 @@ function markdownToHtml(md: string): string {
     if (inUl) { out.push('</ul>'); inUl = false; }
     if (inOl) { out.push('</ol>'); inOl = false; }
   };
+  const flushTable = () => {
+    if (!tableRows.length) return;
+    const [head, ...body] = tableRows;
+    const thHtml = head.map((c, i) => {
+      const a = tableAligns[i]; const style = a ? ` style="text-align:${a}"` : '';
+      return `<th${style}>${inlineMarkdown(c.trim())}</th>`;
+    }).join('');
+    const tbodyHtml = body.map(row =>
+      `<tr>${head.map((_, i) => {
+        const a = tableAligns[i]; const style = a ? ` style="text-align:${a}"` : '';
+        return `<td${style}>${inlineMarkdown((row[i] ?? '').trim())}</td>`;
+      }).join('')}</tr>`
+    ).join('');
+    out.push(`<table class="md-table"><thead><tr>${thHtml}</tr></thead>${tbodyHtml ? `<tbody>${tbodyHtml}</tbody>` : ''}</table>`);
+    tableRows = []; tableAligns = [];
+  };
 
   for (const line of lines) {
+    // Fenced code block
+    if (line.trimStart().startsWith('```')) {
+      if (inFence) {
+        out.push(`<pre><code>${fenceLines.map(escHtml).join('\n')}</code></pre>`);
+        inFence = false; fenceLines = [];
+      } else {
+        flushPara(); closeLists(); flushTable();
+        inFence = true;
+      }
+      continue;
+    }
+    if (inFence) { fenceLines.push(line); continue; }
+
+    // Table row
+    if (line.startsWith('|') && line.trimEnd().endsWith('|')) {
+      const cells = line.split('|').slice(1, -1);
+      const isSep = cells.every(c => /^[\s:|-]+$/.test(c));
+      if (isSep && tableRows.length === 1) {
+        tableAligns = cells.map(c => {
+          const t = c.trim();
+          if (t.startsWith(':') && t.endsWith(':')) return 'center';
+          if (t.endsWith(':')) return 'right';
+          return '';
+        });
+        continue;
+      }
+      if (!tableRows.length) { flushPara(); closeLists(); }
+      tableRows.push(cells);
+      continue;
+    }
+    if (tableRows.length) flushTable();
+
     const hMatch = line.match(/^(#{1,3})\s+(.+)$/);
     if (hMatch) {
       flushPara(); closeLists();
@@ -113,6 +167,8 @@ function markdownToHtml(md: string): string {
 
   flushPara();
   closeLists();
+  flushTable();
+  if (inFence) out.push(`<pre><code>${fenceLines.map(escHtml).join('\n')}</code></pre>`);
   return out.join('\n');
 }
 
