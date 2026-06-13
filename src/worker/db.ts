@@ -557,3 +557,53 @@ export async function upsertInvoice(
        sent_at        = excluded.sent_at`
   ).bind(row.guest_id, row.invoice_number, row.invoice_year, row.invoice_seq, row.r2_key).run();
 }
+
+// ── Crew docs ─────────────────────────────────────────────────────────────────
+
+export interface CrewDocRow {
+  id: string;
+  title: string;
+  content_md: string;
+  content_html: string;
+  created_at: number;
+  updated_at: number;
+}
+
+export async function listCrewDocs(
+  db: D1Database,
+): Promise<Pick<CrewDocRow, 'id' | 'title' | 'updated_at'>[]> {
+  const rs = await db
+    .prepare('SELECT id, title, updated_at FROM crew_docs ORDER BY created_at ASC')
+    .all<Pick<CrewDocRow, 'id' | 'title' | 'updated_at'>>();
+  return rs.results ?? [];
+}
+
+export async function getCrewDoc(db: D1Database, id: string): Promise<CrewDocRow | null> {
+  const r = await db.prepare('SELECT * FROM crew_docs WHERE id = ?1').bind(id).first<CrewDocRow>();
+  return r ?? null;
+}
+
+export async function insertCrewDoc(
+  db: D1Database,
+  row: { id: string; title: string; content_md: string; content_html: string },
+): Promise<void> {
+  await db.prepare(
+    `INSERT INTO crew_docs (id, title, content_md, content_html, created_at, updated_at)
+     VALUES (?1, ?2, ?3, ?4, unixepoch(), unixepoch())`,
+  ).bind(row.id, row.title, row.content_md, row.content_html).run();
+}
+
+export async function updateCrewDoc(
+  db: D1Database,
+  id: string,
+  fields: { title: string; content_md: string; content_html: string },
+): Promise<void> {
+  await db.prepare(
+    `UPDATE crew_docs SET title = ?1, content_md = ?2, content_html = ?3, updated_at = unixepoch()
+     WHERE id = ?4`,
+  ).bind(fields.title, fields.content_md, fields.content_html, id).run();
+}
+
+export async function deleteCrewDoc(db: D1Database, id: string): Promise<void> {
+  await db.prepare('DELETE FROM crew_docs WHERE id = ?1').bind(id).run();
+}

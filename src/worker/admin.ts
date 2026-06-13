@@ -10,6 +10,7 @@ import {
   upsertPricingRule, getSetting, upsertSetting,
   listCleaningGuests, insertCleaningGuest, updateCleaningGuest, deleteCleaningGuest,
   getCleaningGuestWithRanges, getInvoice, getNextInvoiceSeq, upsertInvoice,
+  listCrewDocs, getCrewDoc, insertCrewDoc, updateCrewDoc, deleteCrewDoc,
   type ReservationStatus, type GuestStayRange,
 } from './db';
 import { isInSeason, SEASON_MONTHS } from './pricing';
@@ -41,6 +42,134 @@ function pdfResponse(body: BodyInit, number: string): Response {
 
 function err(status: number, error: string): Response {
   return Response.json({ ok: false, error }, { status });
+}
+
+const slugify = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+// ── Markdown → HTML (server-side, no client library needed) ──────────────────
+
+function escHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function inlineMarkdown(raw: string): string {
+  let s = escHtml(raw);
+  // Inline code — must run before bold/italic so content inside isn't processed
+  s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Images before links so ![...](...) doesn't get partially caught by link pattern
+  s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
+    if (!/^https?:\/\//.test(src)) return alt || '';
+    return `<img src="${src}" alt="${alt}" style="max-width:100%;height:auto;border-radius:4px;margin:0.25rem 0;">`;
+  });
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
+    if (!/^https?:\/\//.test(href) && !href.startsWith('/')) return label;
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+  });
+  s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+  return s;
+}
+
+function markdownToHtml(md: string): string {
+  const lines = md.replace(/\r\n/g, '\n').split('\n');
+  const out: string[] = [];
+  let inUl = false;
+  let inOl = false;
+  let para: string[] = [];
+  let inFence = false;
+  let fenceLines: string[] = [];
+  let tableRows: string[][] = [];
+  let tableAligns: string[] = [];
+
+  const flushPara = () => {
+    if (para.length) { out.push(`<p>${inlineMarkdown(para.join(' '))}</p>`); para = []; }
+  };
+  const closeLists = () => {
+    if (inUl) { out.push('</ul>'); inUl = false; }
+    if (inOl) { out.push('</ol>'); inOl = false; }
+  };
+  const flushTable = () => {
+    if (!tableRows.length) return;
+    const [head, ...body] = tableRows;
+    const thHtml = head.map((c, i) => {
+      const a = tableAligns[i]; const style = a ? ` style="text-align:${a}"` : '';
+      return `<th${style}>${inlineMarkdown(c.trim())}</th>`;
+    }).join('');
+    const tbodyHtml = body.map(row =>
+      `<tr>${head.map((_, i) => {
+        const a = tableAligns[i]; const style = a ? ` style="text-align:${a}"` : '';
+        return `<td${style}>${inlineMarkdown((row[i] ?? '').trim())}</td>`;
+      }).join('')}</tr>`
+    ).join('');
+    out.push(`<table class="md-table"><thead><tr>${thHtml}</tr></thead>${tbodyHtml ? `<tbody>${tbodyHtml}</tbody>` : ''}</table>`);
+    tableRows = []; tableAligns = [];
+  };
+
+  for (const line of lines) {
+    // Fenced code block
+    if (line.trimStart().startsWith('```')) {
+      if (inFence) {
+        out.push(`<pre><code>${fenceLines.map(escHtml).join('\n')}</code></pre>`);
+        inFence = false; fenceLines = [];
+      } else {
+        flushPara(); closeLists(); flushTable();
+        inFence = true;
+      }
+      continue;
+    }
+    if (inFence) { fenceLines.push(line); continue; }
+
+    // Table row
+    if (line.startsWith('|') && line.trimEnd().endsWith('|')) {
+      const cells = line.split('|').slice(1, -1);
+      const isSep = cells.every(c => /^[\s:|-]+$/.test(c));
+      if (isSep && tableRows.length === 1) {
+        tableAligns = cells.map(c => {
+          const t = c.trim();
+          if (t.startsWith(':') && t.endsWith(':')) return 'center';
+          if (t.endsWith(':')) return 'right';
+          return '';
+        });
+        continue;
+      }
+      if (!tableRows.length) { flushPara(); closeLists(); }
+      tableRows.push(cells);
+      continue;
+    }
+    if (tableRows.length) flushTable();
+
+    const hMatch = line.match(/^(#{1,3})\s+(.+)$/);
+    if (hMatch) {
+      flushPara(); closeLists();
+      out.push(`<h${hMatch[1].length}>${inlineMarkdown(hMatch[2])}</h${hMatch[1].length}>`);
+      continue;
+    }
+    const ulMatch = line.match(/^[-*]\s+(.+)$/);
+    if (ulMatch) {
+      flushPara();
+      if (inOl) { out.push('</ol>'); inOl = false; }
+      if (!inUl) { out.push('<ul>'); inUl = true; }
+      out.push(`<li>${inlineMarkdown(ulMatch[1])}</li>`);
+      continue;
+    }
+    const olMatch = line.match(/^\d+\.\s+(.+)$/);
+    if (olMatch) {
+      flushPara();
+      if (inUl) { out.push('</ul>'); inUl = false; }
+      if (!inOl) { out.push('<ol>'); inOl = true; }
+      out.push(`<li>${inlineMarkdown(olMatch[1])}</li>`);
+      continue;
+    }
+    if (line.trim() === '') { flushPara(); closeLists(); continue; }
+    closeLists();
+    para.push(line.trim());
+  }
+
+  flushPara();
+  closeLists();
+  flushTable();
+  if (inFence) out.push(`<pre><code>${fenceLines.map(escHtml).join('\n')}</code></pre>`);
+  return out.join('\n');
 }
 
 function ok(data: Record<string, unknown> = {}): Response {
@@ -343,6 +472,49 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     );
 
     return ok({ invoiceNumber, sentAt: Math.floor(Date.now() / 1000) });
+  }
+
+  // ── Crew docs ─────────────────────────────────────────────────────────────
+
+  if (path === 'docs' && request.method === 'GET') {
+    const docs = await listCrewDocs(env.DB);
+    return ok({ docs: docs.map(d => ({ ...d, slug: slugify(d.title) })) });
+  }
+
+  if (path === 'docs' && request.method === 'POST') {
+    const body = await readJson(request);
+    if (!body) return err(400, 'Invalid JSON');
+    const title = String(body.title ?? '').trim();
+    const contentMd = String(body.content_md ?? '');
+    if (!title) return err(400, 'title is required');
+    const id = crypto.randomUUID();
+    await insertCrewDoc(env.DB, { id, title, content_md: contentMd, content_html: markdownToHtml(contentMd) });
+    return ok({ id });
+  }
+
+  const docMatch = path.match(/^docs\/([^/]+)$/);
+
+  if (docMatch && request.method === 'GET') {
+    const doc = await getCrewDoc(env.DB, docMatch[1]);
+    if (!doc) return err(404, 'Doc not found');
+    return ok({ doc: { id: doc.id, title: doc.title, content_md: doc.content_md, slug: slugify(doc.title), updated_at: doc.updated_at } });
+  }
+
+  if (docMatch && request.method === 'PUT') {
+    const body = await readJson(request);
+    if (!body) return err(400, 'Invalid JSON');
+    const title = String(body.title ?? '').trim();
+    const contentMd = String(body.content_md ?? '');
+    if (!title) return err(400, 'title is required');
+    const existing = await getCrewDoc(env.DB, docMatch[1]);
+    if (!existing) return err(404, 'Doc not found');
+    await updateCrewDoc(env.DB, docMatch[1], { title, content_md: contentMd, content_html: markdownToHtml(contentMd) });
+    return ok();
+  }
+
+  if (docMatch && request.method === 'DELETE') {
+    await deleteCrewDoc(env.DB, docMatch[1]);
+    return ok();
   }
 
   const cleaningGuestMatch = path.match(/^cleaning-guests\/([^/]+)$/);

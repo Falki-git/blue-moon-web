@@ -15,11 +15,15 @@ import '../../styles/global.css';
 
   <header class="crew-header">
     <div class="crew-header__inner">
-      <img src="/images/nav-logo.svg" alt="Blue Moon Apartment" height="38" />
+      <img id="headerLogo" src="/images/nav-logo.svg" alt="Blue Moon Apartment" height="38" />
       <span class="crew-header__title">Cleaning Crew</span>
-      <button id="logoutBtn" class="crew-logout" type="button">Sign out</button>
+      <button id="menuBtn" class="crew-menu-btn" type="button" aria-label="Open docs" hidden>&#9776;</button>
     </div>
   </header>
+
+  <div id="docsPanel" class="crew-docs-panel" hidden>
+    <div id="docsPanelList" class="crew-docs-panel__list"></div>
+  </div>
 
   <main class="crew-main">
     <div id="loading" class="crew-loading">Loading…</div>
@@ -51,7 +55,7 @@ import '../../styles/global.css';
       max-width: 680px;
       margin: 0 auto;
     }
-    .crew-header__inner img { display: block; height: 36px; width: auto; }
+    .crew-header__inner img { display: block; height: 36px; width: auto; cursor: pointer; }
     .crew-header__title {
       flex: 1;
       font-family: 'Playfair Display', serif;
@@ -59,20 +63,56 @@ import '../../styles/global.css';
       color: var(--ocean-blue);
       font-size: 1rem;
     }
-    .crew-logout {
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 700;
+    .crew-menu-btn {
       background: none;
-      border: 1px solid rgba(74,159,212,0.4);
-      border-radius: 8px;
+      border: none;
+      font-size: 1.2rem;
+      line-height: 1;
       color: var(--ocean-blue);
-      padding: 0.4rem 0.75rem;
+      padding: 0.25rem 0.35rem;
       cursor: pointer;
-      white-space: nowrap;
+      border-radius: 6px;
+      flex-shrink: 0;
     }
-    .crew-logout:active { background: var(--soft-sky); }
+    .crew-menu-btn:active { background: var(--soft-sky); }
 
+    /* Docs panel — fixed overlay below the sticky header */
+    .crew-docs-panel {
+      position: fixed;
+      top: 60px; /* matches header height */
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--white);
+      overflow-y: auto;
+      z-index: 9;
+      border-top: 1px solid rgba(74,159,212,0.15);
+    }
+    .crew-docs-panel__list {
+      padding: 0.5rem 0;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .crew-docs-panel__item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(74,159,212,0.1);
+      padding: 1rem 1.25rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-decoration: none;
+    }
+    .crew-docs-panel__item:active { background: var(--soft-sky); }
+    .crew-docs-panel__item::after {
+      content: '›';
+      font-size: 1.2rem;
+      color: var(--sky-blue);
+      flex-shrink: 0;
+      margin-left: 0.5rem;
+    }
     .crew-main {
       padding: 1rem;
       max-width: 680px;
@@ -217,6 +257,7 @@ import '../../styles/global.css';
       font-size: 0.95rem;
       vertical-align: middle;
     }
+
   </style>
 
   <script>
@@ -383,13 +424,50 @@ import '../../styles/global.css';
       return data;
     }
 
-    document.getElementById('logoutBtn')!.addEventListener('click', async () => {
-      try { await fetch('/api/crew/logout', { method: 'POST', credentials: 'same-origin' }); }
-      finally { window.location.href = '/cleaning/login'; }
+    const menuBtn   = document.getElementById('menuBtn') as HTMLButtonElement;
+    const docsPanel = document.getElementById('docsPanel') as HTMLDivElement;
+    const panelList = document.getElementById('docsPanelList') as HTMLDivElement;
+
+    let panelOpen = false;
+
+    function closePanel() {
+      panelOpen = false;
+      docsPanel.hidden = true;
+      menuBtn.innerHTML = '&#9776;';
+      menuBtn.setAttribute('aria-label', 'Open docs');
+    }
+
+    menuBtn.addEventListener('click', () => {
+      if (panelOpen) {
+        closePanel();
+      } else {
+        panelOpen = true;
+        docsPanel.hidden = false;
+        menuBtn.innerHTML = '&#10005;';
+        menuBtn.setAttribute('aria-label', 'Close docs');
+      }
     });
 
-    api<{ guests: CrewGuest[] }>('/api/crew/guests')
-      .then(({ guests }) => {
+    document.getElementById('headerLogo')!.addEventListener('click', () => {
+      if (panelOpen) closePanel();
+    });
+
+    async function loadDocs() {
+      try {
+        const { docs } = await api<{ docs: { id: string; title: string; slug: string }[] }>('/api/crew/docs');
+        if (docs.length === 0) return;
+        panelList.innerHTML = docs.map(d =>
+          `<a class="crew-docs-panel__item" href="/cleaning/docs?doc=${encodeURIComponent(d.slug)}">${esc(d.title)}</a>`
+        ).join('');
+        menuBtn.hidden = false;
+      } catch { /* docs are optional — fail silently */ }
+    }
+
+    Promise.all([
+      api<{ guests: CrewGuest[] }>('/api/crew/guests'),
+      loadDocs(),
+    ])
+      .then(([{ guests }]) => {
         document.getElementById('guestList')!.innerHTML = renderSections(guests);
         loading.style.display = 'none';
         content.hidden = false;
