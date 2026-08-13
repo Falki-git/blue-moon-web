@@ -16,7 +16,10 @@ export default defineConfig({
   integrations: [
     sitemap({
       filter: (page) =>
-        !page.includes('/admin') && !page.includes('/booking/confirm'),
+        !page.includes('/admin') &&
+        !page.includes('/booking/confirm') &&
+        // Unlisted — reachable only via the direct link we email to confirmed guests
+        !page.includes('/guest-guide'),
     }),
   ],
 });

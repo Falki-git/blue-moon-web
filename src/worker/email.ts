@@ -453,6 +453,45 @@ ${sectionHeading(e.approvedCheckinSection)}
   return { subject, html, text };
 }
 
+// ─── Guest welcome (short note; all detail lives on the guest guide page) ─────
+
+export function buildGuestWelcome(r: ReservationRow, langCode?: string): { subject: string; html: string; text: string } {
+  const lang      = safeLang(langCode ?? r.language);
+  const e         = getTranslations(lang).email;
+  const firstName = r.full_name.split(' ')[0];
+  const guideUrl  = `${SITE}${lang === 'en' ? '' : `/${lang}`}/guest-guide`;
+  const subject   = e.welcomeSubject;
+
+  const content = `
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(tpl(e.welcomeHeading, { name: firstName }))}</div>
+<p style="margin:0 0 28px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.welcomeBody)}</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;">
+  <tr>
+    <td align="center">
+      <a href="${guideUrl}" style="display:inline-block;background-color:#1A5FAD;color:#ffffff;padding:15px 34px;border-radius:8px;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;">${esc(e.welcomeCta)} &nbsp;&rarr;</a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0;font-size:14px;color:#5a7080;line-height:1.6;">${esc(e.welcomeFollowUp)}</p>`;
+
+  const html = emailShell(content);
+
+  const text = [
+    tpl(e.welcomeHeading, { name: firstName }),
+    '',
+    e.welcomeBody,
+    '',
+    `${e.welcomeCta}: ${guideUrl}`,
+    '',
+    e.welcomeFollowUp,
+    TEXT_SIG,
+  ].join('\n');
+
+  return { subject, html, text };
+}
+
 // ─── Guest invoice (cover note; PDF sent as attachment) ───────────────────────
 
 export function buildGuestInvoiceEmail(

@@ -24,7 +24,20 @@ export interface ReservationRow {
   decision_token: string;
   decided_at: number | null;
   deposit_confirmation_sent_at: number | null;
+  welcome_email_sent_at: number | null;
 }
+
+/**
+ * Guest emails whose "last sent" timestamp is tracked on the reservation row.
+ * Add a kind here (plus a migration adding the column) to give a new guest email
+ * the send / resend + timestamp treatment in the admin dashboard.
+ */
+export const GUEST_EMAIL_COLUMNS = {
+  deposit: 'deposit_confirmation_sent_at',
+  welcome: 'welcome_email_sent_at',
+} as const;
+
+export type GuestEmailKind = keyof typeof GUEST_EMAIL_COLUMNS;
 
 export interface ManualBlockRow {
   id: string;
@@ -255,9 +268,15 @@ export async function listReservations(
   return rs.results ?? [];
 }
 
-export async function markDepositPaid(db: D1Database, id: string): Promise<void> {
+/**
+ * Stamps the send time for one tracked guest email. The column name comes from the
+ * GUEST_EMAIL_COLUMNS whitelist — never from caller-supplied strings — so it is safe
+ * to interpolate into the statement.
+ */
+export async function markGuestEmailSent(db: D1Database, id: string, kind: GuestEmailKind): Promise<void> {
+  const column = GUEST_EMAIL_COLUMNS[kind];
   await db.prepare(
-    `UPDATE reservations SET deposit_confirmation_sent_at = unixepoch() WHERE id = ?1`
+    `UPDATE reservations SET ${column} = unixepoch() WHERE id = ?1`
   ).bind(id).run();
 }
 
