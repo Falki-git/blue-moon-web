@@ -11,6 +11,8 @@ interface Props {
   description?: string;
   ogImage?: string;
   lang?: string;
+  /** Unlisted pages (e.g. the guest guide) — keeps them out of search results. */
+  noindex?: boolean;
 }
 
 const {
@@ -18,6 +20,7 @@ const {
   description = 'Blue Moon Apartment — a luxury 2-bedroom family retreat on the island of Pag, Croatia. 92m², sea views, private hot tub terrace, 200m from the beach. Open June–September.',
   ogImage = '/images/og-image.jpg',
   lang = 'en',
+  noindex = false,
 } = Astro.props;
 
 const T = getTranslations(lang);
@@ -55,6 +58,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? siteBase);
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
+
+  {noindex && <meta name="robots" content="noindex, nofollow" />}
 
   <!-- Canonical -->
   <link rel="canonical" href={canonicalURL} />

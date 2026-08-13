@@ -1,0 +1,7 @@
+---
+import { getTranslations } from '../i18n/utils';
+import GuestGuideContent from '../components/pages/GuestGuideContent.astro';
+
+const T = getTranslations('en');
+---
+<GuestGuideContent lang="en" T={T} />

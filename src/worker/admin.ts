@@ -5,7 +5,7 @@ import {
 } from './auth';
 import {
   listReservations, listManualBlocks, listPricing,
-  getReservation, updateReservationStatus, markDepositPaid,
+  getReservation, updateReservationStatus, markGuestEmailSent,
   insertManualBlock, deleteManualBlock,
   upsertPricingRule, getSetting, upsertSetting,
   listCleaningGuests, insertCleaningGuest, updateCleaningGuest, deleteCleaningGuest,
@@ -16,6 +16,7 @@ import {
 import { isInSeason, SEASON_MONTHS } from './pricing';
 import {
   sendEmail, buildGuestBookingApproved, buildGuestDepositReceived, buildGuestInvoiceEmail,
+  buildGuestWelcome,
 } from './email';
 import { buildInvoicePdf } from './invoice';
 
@@ -289,7 +290,7 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     if (!row) return err(404, 'Reservation not found');
     if (row.status !== 'confirmed') return err(409, `Cannot send deposit confirmation for a ${row.status} reservation`);
 
-    await markDepositPaid(env.DB, id);
+    await markGuestEmailSent(env.DB, id, 'deposit');
     const msg = buildGuestDepositReceived(row, row.language ?? 'en');
     ctx.waitUntil(
       sendEmail(env, {
@@ -297,6 +298,26 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
         subject: msg.subject, html: msg.html, text: msg.text,
       }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend deposit-received failed:', r.status, t)); })
         .catch(e => console.error('Resend deposit-received failed:', e))
+    );
+
+    return ok();
+  }
+
+  const welcomeMatch = path.match(/^reservations\/([^/]+)\/welcome-email$/);
+  if (welcomeMatch && request.method === 'POST') {
+    const id = welcomeMatch[1];
+    const row = await getReservation(env.DB, id);
+    if (!row) return err(404, 'Reservation not found');
+    if (row.status !== 'confirmed') return err(409, `Cannot send welcome info for a ${row.status} reservation`);
+
+    await markGuestEmailSent(env.DB, id, 'welcome');
+    const msg = buildGuestWelcome(row, row.language ?? 'en');
+    ctx.waitUntil(
+      sendEmail(env, {
+        to: row.email, replyTo: env.CONTACT_TO_EMAIL,
+        subject: msg.subject, html: msg.html, text: msg.text,
+      }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend welcome-email failed:', r.status, t)); })
+        .catch(e => console.error('Resend welcome-email failed:', e))
     );
 
     return ok();
