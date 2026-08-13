@@ -13,4 +13,9 @@
 
 ALTER TABLE reservations ADD COLUMN welcome_email_sent_at INTEGER;
 
-INSERT INTO d1_migrations (name, applied_at) VALUES ('0009_welcome_email_sent', unixepoch());
+-- Name must match the filename exactly, including the .sql extension: `wrangler d1
+-- migrations apply` compares filenames against this column, so a name recorded without
+-- the extension makes wrangler think the migration is unapplied and re-run it.
+-- applied_at is left to the column default (CURRENT_TIMESTAMP) so it stores a readable
+-- datetime, matching migrations 0001-0007.
+INSERT INTO d1_migrations (name) VALUES ('0009_welcome_email_sent.sql');
