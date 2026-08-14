@@ -735,6 +735,7 @@
     "arrivalTipTitle": "Check conditions on the day you travel",
     "arrivalTipBody": "Strong winds can delay or close either the ferry or the bridge. The HRT-HR2 radio channel reports traffic conditions regularly, and the HAK smartphone app shows live road, bridge and ferry status.",
     "arrivalDirectionsLink": "See full route descriptions",
+    "arrivalBridgeBadge": "Pag bridge",
 
     "findingLabel": "The last few minutes",
     "findingTitle": "Finding the Apartment",
@@ -755,7 +756,7 @@
     "checkinLabel": "Check-in",
     "checkinTitle": "Your Keys Will Be Waiting",
     "checkinTime": "From 4:00 PM",
-    "checkinBody": "Before you set off, please let us know roughly when you expect to arrive — a short message on WhatsApp is perfect. If you get here early, we're glad to store your luggage until the apartment is ready.",
+    "checkinBody": "The keys wait for you in the key-locker, so there's no need to meet anyone on the way in. If you get here early, we're glad to store your luggage until the apartment is ready.",
 
     "apartmentLabel": "Good to know",
     "apartmentTitle": "While You're in the Apartment",
@@ -818,11 +819,11 @@
     "adventure3Title": "Bikes & boats",
     "adventure3Body": "Rent bikes or a small boat and explore the island entirely at your own pace.",
     "adventure4Title": "Life on Mars trail",
-    "adventure4Body": "The most striking and otherworldly walking trail in Croatia, right on your doorstep.",
+    "adventure4Body": "The most striking and otherworldly walking trail in Croatia — and it's here on Pag.",
     "adventure5Title": "Gligora dairy",
     "adventure5Body": "Factory tours and cheese tasting in nearby Kolan — a short and very tasty drive.",
     "adventure6Title": "Pag salt",
-    "adventure6Body": "Tour the Permanent Exhibition on Salt Production in Pag town, or join an early-morning workshop out in the salt fields — book ahead for either.",
+    "adventure6Body": "Tour the Permanent Exhibition on Salt Production in Pag town, or join an early-morning workshop out in the salt fields.",
     "adventure6Badge1": "Exhibition",
     "adventure6Badge2": "Salt fields",
 

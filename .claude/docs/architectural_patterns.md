@@ -4,6 +4,69 @@ Recurring patterns found across multiple files. Follow these when adding pages o
 
 ---
 
+## Localized Page Pattern
+
+The site ships in 7 languages, so **every public page is three files**:
+
+```
+src/pages/apartment.astro              # English shell → /apartment
+src/pages/[lang]/apartment.astro       # Other six     → /hr/apartment, /de/apartment, …
+src/components/pages/ApartmentContent.astro   # The actual page body
+```
+
+Both shells are thin and do nothing but resolve translations and render the shared component:
+
+```astro
+---
+// src/pages/apartment.astro — English, unprefixed
+import { getTranslations } from '../i18n/utils';
+import ApartmentContent from '../components/pages/ApartmentContent.astro';
+const T = getTranslations('en');
+---
+<ApartmentContent lang="en" T={T} />
+```
+
+```astro
+---
+// src/pages/[lang]/apartment.astro — the other six
+import { SUPPORTED_LANGS, getTranslations } from '../../i18n/utils';
+import ApartmentContent from '../../components/pages/ApartmentContent.astro';
+
+export function getStaticPaths() {
+  return SUPPORTED_LANGS.filter(l => l !== 'en').map(lang => ({ params: { lang } }));
+}
+const { lang } = Astro.params;
+const T = getTranslations(lang);
+---
+<ApartmentContent {lang} T={T} />
+```
+
+**Adding a public page means adding all three files** — a `[lang]/` shell that is forgotten produces a 404 in six languages.
+
+### Inside a `*Content.astro`
+
+Every content component takes the same two props and derives a link prefix from them:
+
+```astro
+interface Props { lang: string; T: Translations; }
+const { lang, T } = Astro.props;
+const prefix = lang === 'en' ? '' : `/${lang}`;
+```
+
+- **All internal links must use `prefix`** — `href={`${prefix}/directions`}`. A bare `/directions` drops a German visitor back to English.
+- **All user-facing text comes from `T`** — never hardcode a string in the component. Convention on longer pages is a short local alias (`const G = T.guestGuide;`).
+- Alt text and `aria-label`s that are not visible copy are commonly left in English; visible copy never is.
+
+### Translation files
+
+`src/i18n/utils.ts` exports `SUPPORTED_LANGS` (`en, hr, de, si, it, pl, cz`), `HREFLANG_MAP`, `INTL_LOCALE_MAP`, and `getTranslations(lang)`. The URL codes `si` and `cz` are project-specific — ISO would be `sl`/`cs`, which is what `HREFLANG_MAP` converts them to for SEO tags.
+
+`getTranslations` deep-merges the locale file over `en.json` and skips `null`/`undefined`/`""` as "not yet translated".
+
+**IMPORTANT**: a key missing from a locale file falls back to English instead of failing the build. Copy changes therefore have to be made in **all seven** `src/i18n/*.json` files — add the key to `en.json` first (it is the schema: `type Translations = typeof en`), then translate it in the other six. Nothing in the build will warn you otherwise.
+
+---
+
 ## Component Structure
 
 Every `.astro` component has three zones: frontmatter (server logic), HTML, scoped `<style>` block.
@@ -25,9 +88,9 @@ All public pages use a two-layer nesting:
 1. **`BaseLayout.astro`** — `<html>` shell, SEO meta, Nav, Footer, WhatsAppButton, CookieBanner, seasonal bar
 2. **`PageLayout.astro`** — wraps `BaseLayout`, adds hero header with background image, dark overlay, title, subtitle
 
-`index.astro` uses `BaseLayout` directly (custom hero). Every other public page uses `PageLayout`.
+`IndexContent.astro` uses `BaseLayout` directly (custom hero). Every other public page uses `PageLayout`. Both take a `lang` prop, which they forward to Nav, Footer and the SEO tags.
 
-**Exception — Admin pages** (`src/pages/admin/`): bypass both layouts entirely. They render a fully custom `<!DOCTYPE html>` shell with `<meta name="robots" content="noindex, nofollow">`, a branded `adm-header`, and no Nav/Footer. They import only `global.css` for base tokens. Do not wrap admin pages in BaseLayout.
+**Exception — Admin and crew pages** (`src/pages/admin/`, `src/pages/cleaning/`): bypass both layouts entirely. They render a fully custom `<!DOCTYPE html>` shell with `<meta name="robots" content="noindex, nofollow">`, a branded header (`adm-header` / `crew-header`), and no Nav/Footer. They import only `global.css` for base tokens, are English-only, and have no `[lang]` counterpart. Do not wrap them in BaseLayout.
 
 ---
 
@@ -43,7 +106,7 @@ Every content section across all pages follows this structure:
 </section>
 ```
 
-Seen in: `src/pages/index.astro`, `src/pages/apartment.astro`, `src/pages/gallery.astro`, and every other page.
+Seen in: `src/components/pages/IndexContent.astro`, `ApartmentContent.astro`, `GalleryContent.astro`, and every other page component.
 
 ---
 
@@ -52,11 +115,11 @@ Seen in: `src/pages/index.astro`, `src/pages/apartment.astro`, `src/pages/galler
 Every content section opens with an eyebrow label followed by an `<h2>`:
 
 ```astro
-<span class="section-label">Overview</span>
-<h2>A Semi-Penthouse Above the Adriatic</h2>
+<span class="section-label">{T.apartment.overviewLabel}</span>
+<h2>{T.apartment.overviewTitle}</h2>
 ```
 
-`src/pages/apartment.astro:19,45,62,83,105,125` — used 6 times on that page alone.
+`src/components/pages/ApartmentContent.astro` — used 6 times on that page alone.
 
 ---
 
@@ -72,7 +135,7 @@ Property details pages use a grid that reverses column order on alternating sect
 <div class="apt-grid apt-grid--reverse">  <!-- text left, image right -->
 ```
 
-`src/pages/apartment.astro:17,40,60,78,103` — used 5 times.
+`src/components/pages/ApartmentContent.astro` — used 5 times.
 
 ---
 
@@ -101,7 +164,9 @@ const img = (filename: string) =>
   galleryImages[`../assets/gallery/${filename}`]?.default;
 ```
 
-Used in: `src/pages/gallery.astro`, `src/pages/apartment.astro`, `src/pages/about-mandre.astro`
+Used in: `src/components/pages/GalleryContent.astro`, `ApartmentContent.astro`, `AboutMandreContent.astro`, `GuestGuideContent.astro`
+
+Images are shared across all locales — they live in the component, not in the translation files. Only the `alt` text and any visible caption come from `T`.
 
 ---
 
@@ -147,7 +212,7 @@ Multi-image carousels with prev/next buttons, dot indicators, keyboard arrows, a
 
 When a page has multiple carousels, each gets a unique `id` so the JS can scope to that container. The inline script initialises all carousels on the page by iterating over `.carousel` elements.
 
-Used in: `src/pages/apartment.astro` (5 carousels), `src/pages/about-mandre.astro` (4 carousels)
+Used in: `src/components/pages/ApartmentContent.astro` (5 carousels), `AboutMandreContent.astro` (5), `GuestGuideContent.astro` (1, plus per-card carousels rendered from a slides array)
 
 ---
 
@@ -169,7 +234,7 @@ Full-screen image viewer on the gallery page. The modal is rendered once in the 
 
 JS handles: open/close, prev/next navigation, Escape and arrow key support, touch swipe, dynamic stage sizing. `.is-open` class is toggled to show/hide the modal.
 
-Used in: `src/pages/gallery.astro`
+Used in: `src/components/pages/GalleryContent.astro`
 
 ---
 
@@ -177,16 +242,21 @@ Used in: `src/pages/gallery.astro`
 
 Nav links and language options are defined as arrays, then `.map()`-rendered. This keeps the nav and footer in sync:
 
-- `src/components/Nav.astro:2-21` — `navLinks` array, `languages` array
-- `src/components/Footer.astro:2-12` — parallel `footerLinks` array
+- `src/components/Nav.astro` — `languages` array (code, flag, label), `navLinks` array, `isActive()` helper
+- `src/components/Footer.astro` — parallel `footerLinks` array
+
+Labels come from `T`, and every `href` is built from the language prefix:
 
 ```astro
+const prefix = lang === 'en' ? '' : `/${lang}`;
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/apartment', label: 'Apartment' },
+  { href: `${prefix}/`,          label: T.nav.home },
+  { href: `${prefix}/apartment`, label: T.nav.apartment },
 ];
 {navLinks.map(link => <li><a href={link.href}>{link.label}</a></li>)}
 ```
+
+The language switcher's static `href` points at the target language's homepage as a no-JS fallback, but its click handler preventDefaults and rewrites the *current* path instead — stripping any existing `/<lang>` segment and re-prefixing it — so switching language keeps the visitor on the same page.
 
 ---
 
@@ -194,10 +264,13 @@ const navLinks = [
 
 No frontend framework — all interactivity is inline `<script>` blocks with DOM APIs:
 
-- Burger menu toggle: `src/components/Nav.astro:257-279`
-- Language dropdown: `src/components/Nav.astro:280-295`
-- Cookie consent with `localStorage`: `src/components/CookieBanner.astro:76-105`
-- Gallery category filter: `src/pages/gallery.astro` (script block at end of file)
+- Burger menu toggle: `src/components/Nav.astro`
+- Language dropdown + `bm_lang` cookie write: `src/components/Nav.astro` (script block at end of file)
+- Cookie consent with `localStorage`: `src/components/CookieBanner.astro`
+- Gallery category filter: `src/components/pages/GalleryContent.astro` (script block at end of file)
+- Language preference redirect: `src/layouts/BaseLayout.astro` — an `is:inline` script in `<head>`
+
+**Language preference redirect** — the only script that runs before render. It reads the `bm_lang` cookie (set by the language switcher, 7-day expiry) and, if it disagrees with the language in the URL, `location.replace()`s to the same page under the preferred language. It runs synchronously in `<head>` to avoid a flash of the wrong language, and skips `/admin` and `/booking/confirm`. Since it fires on every page, a new locale code has to be added to its inline `SUPPORTED` array too — the array is duplicated there rather than imported, because the script is inlined verbatim.
 
 ---
 
@@ -261,7 +334,7 @@ Curved SVG waves separate sections with different background colors:
 ```
 
 The `fill` color matches the *destination* section's background.  
-Used at: `src/pages/index.astro:94-99`, `src/pages/index.astro:132-137`.
+Used at: `src/components/pages/IndexContent.astro` (twice), and between most sections of `GuestGuideContent.astro`.
 
 ---
 
@@ -269,11 +342,13 @@ Used at: `src/pages/index.astro:94-99`, `src/pages/index.astro:132-137`.
 
 **Meta tags** — Every page passes `title` and `description` to `BaseLayout`. `BaseLayout` generates all meta tags, canonical URL, Open Graph, and Twitter Card tags from these props (`src/layouts/BaseLayout.astro:20-46`). Defaults are provided if props are omitted. Canonical URLs are built from `Astro.site` (set to `https://bluemoonmandre.eu` in `astro.config.mjs`).
 
-**Sitemap** — `@astrojs/sitemap@3.2.0` (pinned — v3.7+ requires Astro 5) auto-generates `sitemap-index.xml` + `sitemap-0.xml` at build time. Configured in `astro.config.mjs` with a filter that excludes `/admin` and `/booking/confirm`. The sitemap URL is referenced in `public/robots.txt`.
+**hreflang / canonical** — `BaseLayout` strips the `/<lang>` prefix from `Astro.url.pathname` to get a language-neutral slug, then emits a `<link rel="alternate">` for all seven languages plus `x-default` (pointing at English). `HREFLANG_MAP` converts the project's URL codes to ISO (`si` → `sl`, `cz` → `cs`); `og:locale` comes from a parallel map in `BaseLayout`. `<html lang>` is set from the `lang` prop. All of this depends on the page passing `lang` down — a page that omits it silently advertises itself as English.
+
+**Sitemap** — `@astrojs/sitemap@3.2.0` (pinned — v3.7+ requires Astro 5) auto-generates `sitemap-index.xml` + `sitemap-0.xml` at build time, covering all localized URLs. Configured in `astro.config.mjs` with a filter that excludes `/admin`, `/booking/confirm` and `/guest-guide` (unlisted — reachable only via the link emailed to confirmed guests). `astro.config.mjs` also declares the `i18n` block with `prefixDefaultLocale: false`, which is why English is unprefixed.
 
 **robots.txt** — Lives at `public/robots.txt`. Allows all crawlers on public pages, disallows `/admin` and `/booking/confirm`, references the sitemap.
 
-**noindex pages** — Admin pages (`/admin`, `/admin/login`) and the booking confirmation page (`/booking/confirm`) carry `<meta name="robots" content="noindex, nofollow">` directly in their `<head>`. These pages bypass `BaseLayout` so the tag is hardcoded in each file.
+**noindex pages** — Admin (`/admin`, `/admin/login`), crew (`/cleaning`, `/cleaning/login`, `/cleaning/docs`) and the booking confirmation page (`/booking/confirm`) hardcode `<meta name="robots" content="noindex, nofollow">` in their own `<head>`, since they bypass `BaseLayout`. The guest guide goes through `BaseLayout` instead and sets `noindex={true}` as a prop — for pages using the standard layouts, that prop is the mechanism.
 
 **JSON-LD structured data** — Key pages embed a `<script type="application/ld+json">` block using Astro's `set:html` directive to inject pre-serialised JSON without Vite processing it:
 
@@ -281,8 +356,8 @@ Used at: `src/pages/index.astro:94-99`, `src/pages/index.astro:132-137`.
 <script type="application/ld+json" set:html={JSON.stringify(schemaObject)} />
 ```
 
-- `src/pages/index.astro` — `LodgingBusiness` schema (amenities, capacity, check-in/out, booking URL)
-- `src/pages/reviews.astro` — `LodgingBusiness` with `aggregateRating` + individual `Review` entries; schema data is computed in the frontmatter from the `reviews` array before being passed to `JSON.stringify`
+- `src/components/pages/IndexContent.astro` — `LodgingBusiness` schema (amenities, capacity, check-in/out, booking URL)
+- `src/components/pages/ReviewsContent.astro` — `LodgingBusiness` with `aggregateRating` + individual `Review` entries; schema data is computed in the frontmatter from the `reviews` array before being passed to `JSON.stringify`
 
 ---
 
@@ -297,9 +372,14 @@ All API routes are handled in `src/worker/index.ts` and delegated to module hand
 | POST | `/api/booking` | `booking.ts` | Creates reservation in D1, sends owner + guest emails |
 | GET | `/api/booking/decide` | `booking.ts` | Owner approve/decline via signed token link in email |
 | GET | `/api/booking/resolve` | `booking.ts` | Alias for `/decide` |
-| * | `/api/admin/*` | `admin.ts` | Admin dashboard: list reservations, manage blocks, update pricing |
+| * | `/api/admin/*` | `admin.ts` | Admin dashboard: list reservations, manage blocks, update pricing, guest data, invoices |
+| * | `/api/crew/*` | `crew.ts` | Cleaning crew: login, guest list, reference docs |
 
-**Env bindings** (defined in `Env` interface in `index.ts`): `ASSETS`, `DB` (D1), `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `CONTACT_TO_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`.
+Anything not matching falls through to the `ASSETS` binding, which serves the pre-rendered pages.
+
+**Env bindings** (defined in `Env` interface in `index.ts`): `ASSETS`, `DB` (D1), `INVOICES` (R2), `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `CONTACT_TO_EMAIL`, `ADMIN_PASSWORD`, `CREW_PASSWORD`, `SESSION_SECRET`.
+
+Guest-facing emails are localized from the same source: `email.ts` imports `getTranslations` and `INTL_LOCALE_MAP` from `src/i18n/utils`, and each builder resolves `langCode ?? reservation.language`. Email copy therefore lives in the same `src/i18n/*.json` files and follows the same all-seven-languages rule as page copy. Owner-facing mail stays English.
 
 ---
 
