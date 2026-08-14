@@ -887,6 +887,7 @@
     "approvedSubject": "Vaša rezervacija je potvrđena — Blue Moon Apartment",
     "approvedHeading": "Vaša rezervacija je potvrđena!",
     "approvedBody": "S veseljem potvrđujemo vaš boravak u Blue Moon Apartmanu. Radujemo se vašem dolasku u Mandre!",
+    "approvedStaySection": "Detalji boravka",
     "approvedPaymentSection": "Plaćanje",
     "approvedPaymentBody": "Za osiguranje rezervacije, molimo prenesite 30% pologa od €{{deposit}} unutar 3 dana od ovog e-maila. Preostalih €{{remainder}} plaća se bankovnim transferom po dolasku.",
     "approvedCheckinSection": "Informacije o prijavi",
