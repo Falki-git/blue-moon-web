@@ -13,6 +13,8 @@ import plitvice from '../../assets/gallery/about-mandre/plitvice.jpg';
 import lifeOnMars from '../../assets/gallery/about-mandre/life-on-mars-1.jpg';
 import boatExcursion from '../../assets/gallery/about-mandre/boat-excursion-1.jpg';
 import gligoraTour from '../../assets/gallery/about-mandre/gligora-tour.png';
+import saltExhibition from '../../assets/gallery/about-mandre/pag-salt-exhibition.jpg';
+import saltFields from '../../assets/gallery/about-mandre/pag-salt-fields.jpg';
 import beaches1 from '../../assets/gallery/about-mandre/beaches-1.jpg';
 import beaches2 from '../../assets/gallery/about-mandre/beaches-2.jpg';
 import beaches3 from '../../assets/gallery/about-mandre/beaches-3.jpg';
@@ -44,6 +46,7 @@ const houseNotes = [
   { icon: '🛏️', title: G.cleaningTitle,     body: G.cleaningBody },
   { icon: '💧', title: G.waterTitle,        body: G.waterBody },
   { icon: '☕', title: G.coffeeTitle,       body: G.coffeeBody },
+  { icon: '💨', title: G.hairdryerTitle,    body: G.hairdryerBody },
   { icon: '🩹', title: G.firstAidTitle,     body: G.firstAidBody },
   { icon: '🧯', title: G.extinguisherTitle, body: G.extinguisherBody },
   { icon: '🗑️', title: G.trashTitle,        body: G.trashBody },
@@ -52,12 +55,45 @@ const houseNotes = [
 ];
 
 // `badge` names the place shown in the photo when the caption alone wouldn't make it obvious.
+// A card with more than one slide renders as a carousel; a single slide renders as a plain image.
 const adventures = [
-  { img: silba,         title: G.adventure1Title, body: G.adventure1Body, alt: 'Silba island',                                    badge: 'Silba' },
-  { img: plitvice,      title: G.adventure2Title, body: G.adventure2Body, alt: 'Plitvice Lakes National Park',                    badge: 'Plitvice' },
-  { img: boatExcursion, title: G.adventure3Title, body: G.adventure3Body, alt: 'Boat excursion from Mandre marina',               badge: null },
-  { img: lifeOnMars,    title: G.adventure4Title, body: G.adventure4Body, alt: 'Life on Mars walking trail on Pag',               badge: null },
-  { img: gligoraTour,   title: G.adventure5Title, body: G.adventure5Body, alt: 'Gligora dairy tour and cheese tasting in Kolan',  badge: null },
+  {
+    title: G.adventure1Title, body: G.adventure1Body,
+    slides: [{ img: silba, alt: 'Silba island', badge: 'Silba' }],
+  },
+  {
+    title: G.adventure2Title, body: G.adventure2Body,
+    slides: [{ img: plitvice, alt: 'Plitvice Lakes National Park', badge: 'Plitvice' }],
+  },
+  {
+    title: G.adventure3Title, body: G.adventure3Body,
+    slides: [{ img: boatExcursion, alt: 'Boat excursion from Mandre marina', badge: null }],
+  },
+  {
+    title: G.adventure4Title, body: G.adventure4Body,
+    slides: [{ img: lifeOnMars, alt: 'Life on Mars walking trail on Pag', badge: null }],
+  },
+  {
+    title: G.adventure5Title, body: G.adventure5Body,
+    slides: [{ img: gligoraTour, alt: 'Gligora dairy tour and cheese tasting in Kolan', badge: null }],
+  },
+  {
+    title: G.adventure6Title, body: G.adventure6Body,
+    slides: [
+      { img: saltExhibition, alt: 'Permanent Exhibition on Salt Production in the old salt warehouse in Pag', badge: G.adventure6Badge1 },
+      { img: saltFields,     alt: 'Freshly harvested sea salt drying beside the Pag salt fields',             badge: G.adventure6Badge2 },
+    ],
+  },
+];
+
+// Served straight from public/documents — the same printed guides that sit in the apartment.
+// `type` is shown on the link so guests know what will open before they tap.
+const documents = [
+  { icon: '🛁', title: G.doc1Title, href: '/documents/hot-tub-rules.pdf',              type: 'PDF' },
+  { icon: '🛁', title: G.doc2Title, href: '/documents/hot-tub-instructions.pdf',       type: 'PDF' },
+  { icon: '📶', title: G.doc3Title, href: '/documents/wifi-tv-radio.pdf',              type: 'PDF' },
+  { icon: '⛱️', title: G.doc4Title, href: '/documents/pergola-remote.pdf',             type: 'PDF' },
+  { icon: '♻️', title: G.doc5Title, href: '/documents/waste-collection-schedule.png',  type: 'PNG' },
 ];
 
 const familySlides = [
@@ -271,6 +307,27 @@ const familySlides = [
           </div>
         ))}
       </div>
+
+      <!-- Downloadable copies of the guides printed in the apartment -->
+      <div class="gg-docs">
+        <div class="gg-docs__head">
+          <span class="gg-docs__icon" aria-hidden="true">📄</span>
+          <div>
+            <h3>{G.docsTitle}</h3>
+            <p>{G.docsIntro}</p>
+          </div>
+        </div>
+        <div class="gg-docs__list">
+          {documents.map(d => (
+            <a class="gg-doc" href={d.href} target="_blank" rel="noopener">
+              <span class="gg-doc__icon" aria-hidden="true">{d.icon}</span>
+              <span class="gg-doc__name">{d.title}</span>
+              <span class="gg-doc__type">{d.type}</span>
+              <svg class="gg-doc__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/></svg>
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   </section>
 
@@ -332,8 +389,30 @@ const familySlides = [
         {adventures.map(a => (
           <div class="gg-adventure card">
             <div class="gg-adventure__media">
-              <Image src={a.img} alt={a.alt} widths={[300, 500, 800]} sizes="(max-width: 860px) 50vw, 24vw" class="gg-img" />
-              {a.badge && <span class="gg-adventure__badge">{a.badge}</span>}
+              {a.slides.length === 1 ? (
+                <>
+                  <Image src={a.slides[0].img} alt={a.slides[0].alt} widths={[300, 500, 800]} sizes="(max-width: 580px) 90vw, (max-width: 960px) 46vw, 24vw" class="gg-img" />
+                  {a.slides[0].badge && <span class="gg-adventure__badge">{a.slides[0].badge}</span>}
+                </>
+              ) : (
+                <div class="carousel carousel--flush">
+                  <div class="carousel__track">
+                    {a.slides.map(s => (
+                      <div class="carousel__slide">
+                        <Image src={s.img} alt={s.alt} widths={[300, 500, 800]} sizes="(max-width: 580px) 90vw, (max-width: 960px) 46vw, 24vw" />
+                        {s.badge && <span class="gg-adventure__badge">{s.badge}</span>}
+                      </div>
+                    ))}
+                  </div>
+                  <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">&#8249;</button>
+                  <button class="carousel__btn carousel__btn--next" aria-label="Next image">&#8250;</button>
+                  <div class="carousel__dots">
+                    {a.slides.map((_, i) => (
+                      <button class={`carousel__dot${i === 0 ? ' carousel__dot--active' : ''}`} aria-label={`Slide ${i + 1}`}></button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <div class="gg-adventure__text">
               <h4>{a.title}</h4>
@@ -781,6 +860,56 @@ const familySlides = [
   .gg-note h4 { color: var(--ocean-blue); margin-bottom: 0.3rem; }
   .gg-note p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.65; }
 
+  /* ─── Handy documents ────────────────────────────────────────────────────── */
+  .gg-docs {
+    margin-top: 3rem;
+    background: var(--white);
+    border: 1px solid rgba(74,159,212,0.16);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+  }
+  .gg-docs__head {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+  }
+  .gg-docs__icon { font-size: 1.6rem; line-height: 1.2; }
+  .gg-docs__head h3 { margin-bottom: 0.2rem; }
+  .gg-docs__head p { font-size: 0.94rem; color: var(--text-muted); }
+
+  .gg-docs__list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .gg-doc {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 0.7rem;
+    background: var(--soft-sky);
+    border-radius: var(--radius);
+    padding: 0.8rem 1rem;
+    color: var(--deep-navy);
+    transition: background var(--transition-fast), transform var(--transition-fast);
+  }
+  /* An unpaired final link spans the row rather than leaving a gap beside it. */
+  .gg-doc:nth-child(odd):last-child { grid-column: 1 / -1; }
+  .gg-doc:hover { background: rgba(74,159,212,0.18); transform: translateY(-2px); }
+  .gg-doc__icon { font-size: 1.15rem; line-height: 1.2; }
+  .gg-doc__name { font-weight: 700; font-size: 0.92rem; line-height: 1.4; }
+  .gg-doc__type {
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    background: var(--white);
+    border-radius: 5px;
+    padding: 0.2rem 0.4rem;
+  }
+  .gg-doc__arrow { color: var(--ocean-blue); }
+
   /* ─── Food ───────────────────────────────────────────────────────────────── */
   .gg-food {
     display: grid;
@@ -889,7 +1018,23 @@ const familySlides = [
   .carousel__slide {
     min-width: 100%;
     height: 100%;
+    position: relative; /* anchors the per-slide place badge */
   }
+
+  /* Carousel filling an adventure card's media box: the card already clips and sets
+     the aspect ratio, so drop the carousel's own and shrink the controls to fit. */
+  .carousel--flush {
+    border-radius: 0;
+    aspect-ratio: auto;
+    height: 100%;
+  }
+  .carousel--flush .carousel__btn {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.2rem;
+  }
+  .carousel--flush .carousel__btn--prev { left: 0.5rem; }
+  .carousel--flush .carousel__btn--next { right: 0.5rem; }
   .carousel__slide :global(img) {
     width: 100%;
     height: 100%;
@@ -1014,37 +1159,134 @@ const familySlides = [
 
   /* ─── Responsive ─────────────────────────────────────────────────────────── */
   @media (max-width: 960px) {
+    /* Every block stacks to one column here, so the generous desktop rhythm turns
+       into a very long scroll. Tighten the vertical spacing as the columns collapse. */
+    .section { padding: 3.25rem 0; }
+    .gg-head { margin-bottom: 2rem; }
+
     .gg-facts { grid-template-columns: repeat(2, 1fr); gap: 1rem 1.25rem; }
     .gg-fact + .gg-fact { border-left: none; padding-left: 0; }
 
-    .gg-split { grid-template-columns: 1fr; gap: 2rem; }
+    .gg-split { grid-template-columns: 1fr; gap: 1.5rem; }
     .gg-split--reverse .gg-split__text,
     .gg-split--reverse .gg-split__media { order: initial; }
 
-    .gg-parking { grid-template-columns: 1fr; gap: 1.5rem; }
-    .gg-food { grid-template-columns: 1fr; gap: 2rem; }
-    .gg-recs { grid-template-columns: 1fr; }
+    .gg-parking { grid-template-columns: 1fr; gap: 1.25rem; margin-top: 2.5rem; padding: 1.25rem; }
+    .gg-food { grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .gg-recs { grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem; }
     .gg-note { flex-basis: calc((100% - 1.25rem) / 2); }
-    .gg-adventures { grid-template-columns: repeat(2, 1fr); }
+    .gg-adventures { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .gg-docs { margin-top: 2rem; padding: 1.25rem; }
 
     .gg-family { grid-template-columns: 1fr; }
 
-    .gg-band__inner { grid-template-columns: 1fr; gap: 1.5rem; }
+    .gg-band { padding: 2.5rem 0; }
+    .gg-band__inner { grid-template-columns: 1fr; gap: 1.25rem; }
     .gg-band__stamp { justify-self: start; }
 
     .gg-help__inner { padding: 2rem; }
   }
 
   @media (max-width: 580px) {
-    .gg-facts { grid-template-columns: 1fr; }
-    .gg-route-pair { grid-template-columns: 1fr; }
-    .gg-note { flex-basis: 100%; }
-    .gg-adventures { grid-template-columns: 1fr; }
-    .gg-wifi { padding: 1.5rem; }
-    .gg-wifi__creds { grid-template-columns: 1fr; }
+    .section { padding: 2.5rem 0; }
+    .gg-head { margin-bottom: 1.5rem; }
+    .gg-head .gg-lead { margin-top: 0.5rem; }
+    .gg-lead { font-size: 0.95rem; }
+    .gg-sub-head { margin-bottom: 1rem; }
+
+    .gg-facts-band { padding: 1.1rem 0; }
+    .gg-facts { grid-template-columns: 1fr; gap: 0.75rem; }
+
+    /* Arrival routes: emoji beside the heading instead of stacked above it. */
+    .gg-route-pair { grid-template-columns: 1fr; gap: 0.6rem; margin: 1.1rem 0; }
+    .gg-route {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 0.6rem;
+      padding: 0.9rem 1rem;
+    }
+    .gg-route__icon { font-size: 1.2rem; margin-bottom: 0; align-self: center; }
+    .gg-route h3 { font-size: 1.05rem; margin-bottom: 0; align-self: center; }
+    .gg-route p { grid-column: 2; font-size: 0.87rem; line-height: 1.5; margin-top: 0.15rem; }
+
+    .gg-map-btn { margin-top: 1rem; }
+    .gg-inline-link { margin-top: 1rem; }
+    .gg-garage { margin-top: 1rem; padding: 0.8rem 1rem; }
     .gg-garage__dims { gap: 1.25rem; }
-    .gg-help__inner { padding: 1.5rem; }
-    .gg-help__links { flex-direction: column; }
+    .gg-garage__value { font-size: 1.15rem; }
+
+    .gg-band { padding: 2rem 0; }
+    .gg-band__stamp { padding: 0.9rem 1.25rem; min-width: 0; }
+    .gg-band__note { margin-top: 1rem; }
+
+    .gg-wifi { padding: 1.15rem; margin-bottom: 1.75rem; }
+    .gg-wifi__head { gap: 0.7rem; margin-bottom: 1rem; }
+    .gg-wifi__icon { font-size: 1.5rem; }
+    .gg-wifi__creds { grid-template-columns: 1fr; gap: 0.6rem; }
+    .gg-cred { padding: 0.7rem 0.85rem; }
+
+    /* House notes: emoji beside the heading, body text tucked underneath it. */
+    .gg-notes { gap: 0.6rem; }
+    .gg-note {
+      flex-basis: 100%;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 0.6rem;
+      padding: 0.85rem 1rem;
+    }
+    .gg-note__icon { font-size: 1.2rem; margin-bottom: 0; align-self: center; }
+    .gg-note h4 { font-size: 1.02rem; margin-bottom: 0; align-self: center; }
+    .gg-note p { grid-column: 2; font-size: 0.87rem; line-height: 1.5; margin-top: 0.15rem; }
+
+    .gg-docs { padding: 1.1rem; }
+    .gg-docs__head { gap: 0.7rem; margin-bottom: 0.9rem; }
+    .gg-docs__icon { font-size: 1.3rem; }
+    .gg-docs__head p { font-size: 0.87rem; }
+    .gg-docs__list { grid-template-columns: 1fr; gap: 0.5rem; }
+    .gg-doc { padding: 0.7rem 0.85rem; gap: 0.55rem; }
+    .gg-doc__name { font-size: 0.87rem; }
+
+    .gg-food__images { gap: 0.6rem; }
+    .gg-food__images :global(img:first-child) { margin-top: 1rem; }
+
+    /* Recommendation cards: emoji beside the heading. */
+    .gg-rec {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 0.6rem;
+      padding: 1rem 1.1rem;
+    }
+    .gg-rec__icon { font-size: 1.25rem; margin-bottom: 0; align-self: center; }
+    .gg-rec h3 { font-size: 1.1rem; margin-bottom: 0; align-self: center; }
+    .gg-rec > p,
+    .gg-rec__item { grid-column: 2; }
+    .gg-rec > p { font-size: 0.87rem; margin-top: 0.15rem; }
+    .gg-rec__icon--second { margin-top: 0.9rem; }
+    .gg-rec__item + .gg-rec__item { margin-top: 0.7rem; }
+    .gg-rec__item p { font-size: 0.87rem; line-height: 1.5; }
+
+    .gg-adventures { grid-template-columns: 1fr; gap: 0.85rem; }
+    .gg-adventure__text { padding: 0.9rem 1rem 1.05rem; }
+    .gg-adventure__text p { font-size: 0.87rem; line-height: 1.55; }
+
+    /* Family cards: `display: contents` lifts the heading and body out of their
+       wrapper so the emoji can sit on the heading's line. */
+    .gg-family { gap: 1.25rem; }
+    .gg-family__cards { gap: 0.6rem; }
+    .gg-fam-card { column-gap: 0.6rem; padding: 0.9rem 1.1rem; }
+    .gg-fam-card > div { display: contents; }
+    .gg-fam-card__icon { font-size: 1.25rem; align-self: center; }
+    .gg-fam-card h3 { font-size: 1.05rem; margin-bottom: 0; align-self: center; }
+    .gg-fam-card p { grid-column: 2; font-size: 0.87rem; line-height: 1.5; margin-top: 0.15rem; }
+
+    .gg-help__inner { padding: 1.4rem; }
+    .gg-help__body { font-size: 0.92rem; }
+    /* In a column flex container `flex-basis` sets the height, so the desktop
+       `flex: 1 1 240px` would give each link a 240px-tall empty box. */
+    .gg-help__links { flex-direction: column; gap: 0.6rem; margin-top: 1.25rem; }
+    .gg-help__link { flex: 0 0 auto; padding: 0.7rem 0.9rem; }
+    .gg-help__sig { margin-top: 1.25rem; padding-top: 1.1rem; }
+    .gg-help__closing { margin-top: 1rem; font-size: 1rem; }
   }
 </style>
 
