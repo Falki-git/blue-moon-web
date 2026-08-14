@@ -180,6 +180,7 @@ const familySlides = [
             sizes="(max-width: 960px) 100vw, 46vw"
             class="gg-img"
           />
+          <span class="gg-media-badge">{G.arrivalBridgeBadge}</span>
         </div>
       </div>
     </div>
@@ -629,6 +630,7 @@ const familySlides = [
   .gg-split__text > p { margin-bottom: 0.5rem; }
 
   .gg-split__media {
+    position: relative; /* anchors the place badge */
     aspect-ratio: 4 / 3;
     border-radius: var(--radius);
     overflow: hidden;
@@ -960,7 +962,8 @@ const familySlides = [
   .gg-adventure { display: flex; flex-direction: column; }
   .gg-adventure__media { aspect-ratio: 16 / 10; overflow: hidden; position: relative; }
   .gg-adventure__media :global(img) { border-radius: 0; }
-  .gg-adventure__badge {
+  .gg-adventure__badge,
+  .gg-media-badge {
     position: absolute;
     top: 0.6rem;
     right: 0.6rem;
@@ -1171,6 +1174,10 @@ const familySlides = [
     .gg-split--reverse .gg-split__text,
     .gg-split--reverse .gg-split__media { order: initial; }
 
+    /* One credential per row from here down — the 20-digit password needs the
+       full card width to stay on a single line. */
+    .gg-wifi__creds { grid-template-columns: 1fr; }
+
     .gg-parking { grid-template-columns: 1fr; gap: 1.25rem; margin-top: 2.5rem; padding: 1.25rem; }
     .gg-food { grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
     .gg-recs { grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem; }
@@ -1222,8 +1229,11 @@ const familySlides = [
     .gg-wifi { padding: 1.15rem; margin-bottom: 1.75rem; }
     .gg-wifi__head { gap: 0.7rem; margin-bottom: 1rem; }
     .gg-wifi__icon { font-size: 1.5rem; }
-    .gg-wifi__creds { grid-template-columns: 1fr; gap: 0.6rem; }
+    .gg-wifi__creds { gap: 0.6rem; }
     .gg-cred { padding: 0.7rem 0.85rem; }
+    /* Below ~470px the password no longer fits at 1.05rem, so let it scale with
+       the viewport rather than wrapping onto a second line. */
+    .gg-cred__value--pw { font-size: clamp(0.76rem, 3.6vw, 1.05rem); letter-spacing: 0; }
 
     /* House notes: emoji beside the heading, body text tucked underneath it. */
     .gg-notes { gap: 0.6rem; }
