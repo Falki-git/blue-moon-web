@@ -25,6 +25,7 @@ export interface ReservationRow {
   decided_at: number | null;
   deposit_confirmation_sent_at: number | null;
   welcome_email_sent_at: number | null;
+  evisitor_email_sent_at: number | null;
 }
 
 /**
@@ -35,6 +36,7 @@ export interface ReservationRow {
 export const GUEST_EMAIL_COLUMNS = {
   deposit: 'deposit_confirmation_sent_at',
   welcome: 'welcome_email_sent_at',
+  evisitor: 'evisitor_email_sent_at',
 } as const;
 
 export type GuestEmailKind = keyof typeof GUEST_EMAIL_COLUMNS;
@@ -326,6 +328,24 @@ export async function upsertSetting(db: D1Database, key: string, value: string):
     `INSERT INTO settings (key, value, updated_at) VALUES (?1, ?2, unixepoch())
        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`
   ).bind(key, value).run();
+}
+
+/**
+ * Combination of the key-locker outside the apartment door — sent only in the eVisitor
+ * email. The real code is never committed: it is set in admin -> Settings and read from
+ * the DB. The default below is a placeholder for a DB that has no value stored yet.
+ */
+export const KEY_LOCKER_CODE_KEY = 'key_locker_code';
+export const KEY_LOCKER_CODE_DEFAULT = '0000';
+
+/** Four digits, no leading/trailing space — the physical locker takes nothing else. */
+export function isValidKeyLockerCode(code: string): boolean {
+  return /^\d{4}$/.test(code);
+}
+
+export async function getKeyLockerCode(db: D1Database): Promise<string> {
+  const stored = await getSetting(db, KEY_LOCKER_CODE_KEY);
+  return stored !== null && isValidKeyLockerCode(stored) ? stored : KEY_LOCKER_CODE_DEFAULT;
 }
 
 // ── Cleaning crew guests ─────────────────────────────────────────────────────

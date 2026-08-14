@@ -492,6 +492,134 @@ export function buildGuestWelcome(r: ReservationRow, langCode?: string): { subje
   return { subject, html, text };
 }
 
+// ─── Guest eVisitor request (pre-arrival; carries the key-locker code) ────────
+
+const WHATSAPP_NUMBER = '385914691204';
+
+/** Dates and times get the same blue emphasis they carry in the booking summary tables. */
+function boldDate(s: string): string {
+  return `<strong style="color:#1A5FAD;">${esc(s)}</strong>`;
+}
+
+/** Bulleted checklist inside the usual light-blue panel. */
+function checklistPanel(items: string[]): string {
+  const rows = items.map(item => `<tr>
+    <td width="16" valign="top" style="padding:4px 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#E8A82A;line-height:1.5;">&bull;</td>
+    <td style="padding:4px 0 4px 8px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a2a3a;line-height:1.5;">${item}</td>
+  </tr>`).join('\n');
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#EAF6FC;border-radius:8px;margin:14px 0 18px;"><tr><td style="padding:14px 20px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0">${rows}</table></td></tr></table>`;
+}
+
+/**
+ * The one email that carries the key-locker combination. Sent by hand from the admin
+ * dashboard a few days before arrival; `keyLockerCode` comes from the `key_locker_code`
+ * setting so a change in admin applies to every mail sent afterwards.
+ */
+export function buildGuestEvisitorRequest(
+  r: ReservationRow, keyLockerCode: string, langCode?: string,
+): { subject: string; html: string; text: string } {
+  const lang      = safeLang(langCode ?? r.language);
+  const e         = getTranslations(lang).email;
+  const locale    = INTL_LOCALE_MAP[lang];
+  const firstName = r.full_name.split(' ')[0];
+  const checkin   = fmtDateLong(r.check_in, locale);
+  const guideUrl  = `${SITE}${lang === 'en' ? '' : `/${lang}`}/guest-guide`;
+  const waUrl     = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(e.evisitorWhatsappPrefill)}`;
+  const subject   = e.evisitorSubject;
+
+  const fields = [
+    e.evisitorFieldFirstName,
+    e.evisitorFieldLastName,
+    e.evisitorFieldDocType,
+    e.evisitorFieldDocNumber,
+    e.evisitorFieldGender,
+    e.evisitorFieldCountryResidence,
+    e.evisitorFieldCityResidence,
+    e.evisitorFieldNationality,
+    e.evisitorFieldCountryBirth,
+    e.evisitorFieldDateOfBirth,
+  ];
+
+  const content = `
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(tpl(e.evisitorHeading, { name: firstName }))}</div>
+<p style="margin:0 0 8px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.evisitorBody).replace('{{checkin}}', boldDate(checkin))}</p>
+
+${sectionHeading(e.evisitorRegSection)}
+<p style="margin:14px 0 0;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.evisitorRegBody)}</p>
+${checklistPanel(fields.map(esc))}
+<p style="margin:0 0 12px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.evisitorRegAlt)}</p>
+<p style="margin:0 0 20px;font-size:13px;color:#5a7080;line-height:1.6;">${esc(e.evisitorRegPrivacy)}</p>
+
+<p style="margin:0 0 14px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.evisitorSendBody)}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px;">
+  <tr>
+    <td align="center">
+      <a href="${waUrl}" style="display:inline-block;background-color:#25D366;color:#ffffff;padding:15px 34px;border-radius:8px;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;">${esc(e.evisitorWhatsappCta)} &nbsp;&rarr;</a>
+    </td>
+  </tr>
+</table>
+
+${sectionHeading(e.evisitorLockerSection)}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0 14px;background-color:#081628;border-radius:10px;">
+  <tr>
+    <td align="center" style="padding:22px 20px;border:2px solid #E8A82A;border-radius:10px;">
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#4A9FD4;margin-bottom:8px;">${esc(e.evisitorLockerLabel)}</div>
+      <div style="font-family:'Courier New',Courier,monospace;font-size:42px;font-weight:bold;color:#E8A82A;letter-spacing:12px;line-height:1.1;">${esc(keyLockerCode)}</div>
+    </td>
+  </tr>
+</table>
+<p style="margin:0 0 4px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.evisitorLockerBody)}</p>
+
+${sectionHeading(e.evisitorCheckinSection)}
+<p style="margin:14px 0 12px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.evisitorCheckinBody).replace('{{time}}', boldDate(e.evisitorCheckinTime)).replace('{{checkin}}', boldDate(checkin))}</p>
+<p style="margin:0 0 12px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.evisitorParkingBody)}</p>
+<p style="margin:0 0 18px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.evisitorGuideBody)}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 26px;">
+  <tr>
+    <td align="center">
+      <a href="${guideUrl}" style="display:inline-block;background-color:#1A5FAD;color:#ffffff;padding:15px 34px;border-radius:8px;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;">${esc(e.evisitorGuideCta)} &nbsp;&rarr;</a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0;font-size:14px;color:#5a7080;">${esc(e.approvedQuestions)}</p>`;
+
+  const html = emailShell(content);
+
+  const text = [
+    tpl(e.evisitorHeading, { name: firstName }),
+    '',
+    tpl(e.evisitorBody, { checkin }),
+    '',
+    `${e.evisitorRegSection.toUpperCase()}`,
+    e.evisitorRegBody,
+    '',
+    ...fields.map(f => `- ${f}`),
+    '',
+    e.evisitorRegAlt,
+    e.evisitorRegPrivacy,
+    '',
+    e.evisitorSendBody,
+    `${e.evisitorWhatsappCta}: ${waUrl}`,
+    '',
+    `${e.evisitorLockerSection.toUpperCase()}`,
+    `${e.evisitorLockerLabel}: ${keyLockerCode}`,
+    e.evisitorLockerBody,
+    '',
+    `${e.evisitorCheckinSection.toUpperCase()}`,
+    tpl(tpl(e.evisitorCheckinBody, { time: e.evisitorCheckinTime }), { checkin }),
+    e.evisitorParkingBody,
+    '',
+    e.evisitorGuideBody,
+    `${e.evisitorGuideCta}: ${guideUrl}`,
+    '',
+    e.approvedQuestions,
+    TEXT_SIG,
+  ].join('\n');
+
+  return { subject, html, text };
+}
+
 // ─── Guest invoice (cover note; PDF sent as attachment) ───────────────────────
 
 export function buildGuestInvoiceEmail(

@@ -8,6 +8,7 @@ import {
   getReservation, updateReservationStatus, markGuestEmailSent,
   insertManualBlock, deleteManualBlock,
   upsertPricingRule, getSetting, upsertSetting,
+  getKeyLockerCode, isValidKeyLockerCode, KEY_LOCKER_CODE_KEY,
   listCleaningGuests, insertCleaningGuest, updateCleaningGuest, deleteCleaningGuest,
   getCleaningGuestWithRanges, getInvoice, getNextInvoiceSeq, upsertInvoice,
   listCrewDocs, getCrewDoc, insertCrewDoc, updateCrewDoc, deleteCrewDoc,
@@ -16,7 +17,7 @@ import {
 import { isInSeason, SEASON_MONTHS } from './pricing';
 import {
   sendEmail, buildGuestBookingApproved, buildGuestDepositReceived, buildGuestInvoiceEmail,
-  buildGuestWelcome,
+  buildGuestWelcome, buildGuestEvisitorRequest,
 } from './email';
 import { buildInvoicePdf } from './invoice';
 
@@ -46,6 +47,15 @@ function err(status: number, error: string): Response {
 }
 
 const slugify = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+/** Every admin-editable setting, with its fallback when nothing has been saved yet. */
+async function readSettings(db: D1Database): Promise<{ minAdvanceDays: number; keyLockerCode: string }> {
+  const val = await getSetting(db, 'min_advance_days');
+  return {
+    minAdvanceDays: val !== null ? (parseInt(val, 10) || 0) : 3,
+    keyLockerCode: await getKeyLockerCode(db),
+  };
+}
 
 // ── Markdown → HTML (server-side, no client library needed) ──────────────────
 
@@ -323,6 +333,29 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     return ok();
   }
 
+  // Pre-arrival email: asks for the eVisitor registration details and carries the
+  // key-locker combination — the only mail in which that code is ever sent.
+  const evisitorMatch = path.match(/^reservations\/([^/]+)\/evisitor-email$/);
+  if (evisitorMatch && request.method === 'POST') {
+    const id = evisitorMatch[1];
+    const row = await getReservation(env.DB, id);
+    if (!row) return err(404, 'Reservation not found');
+    if (row.status !== 'confirmed') return err(409, `Cannot send the arrival email for a ${row.status} reservation`);
+
+    const keyLockerCode = await getKeyLockerCode(env.DB);
+    await markGuestEmailSent(env.DB, id, 'evisitor');
+    const msg = buildGuestEvisitorRequest(row, keyLockerCode, row.language ?? 'en');
+    ctx.waitUntil(
+      sendEmail(env, {
+        to: row.email, replyTo: env.CONTACT_TO_EMAIL,
+        subject: msg.subject, html: msg.html, text: msg.text,
+      }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend evisitor-email failed:', r.status, t)); })
+        .catch(e => console.error('Resend evisitor-email failed:', e))
+    );
+
+    return ok();
+  }
+
   if (path === 'blocks' && request.method === 'GET') {
     const rows = await listManualBlocks(env.DB);
     return ok({ blocks: rows });
@@ -379,20 +412,32 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
   }
 
   if (path === 'settings' && request.method === 'GET') {
-    const val = await getSetting(env.DB, 'min_advance_days');
-    const minAdvanceDays = val !== null ? (parseInt(val, 10) || 0) : 3;
-    return ok({ minAdvanceDays });
+    return ok(await readSettings(env.DB));
   }
 
+  // Each setting is optional in the body — only the keys that are present are written,
+  // so a form can save one row without clearing the others.
   if (path === 'settings' && request.method === 'POST') {
     const body = await readJson(request);
     if (!body) return err(400, 'Invalid JSON');
-    const days = Number(body.minAdvanceDays);
-    if (!Number.isInteger(days) || days < 0 || days > 30) {
-      return err(400, 'minAdvanceDays must be an integer between 0 and 30');
+
+    if (body.minAdvanceDays !== undefined) {
+      const days = Number(body.minAdvanceDays);
+      if (!Number.isInteger(days) || days < 0 || days > 30) {
+        return err(400, 'minAdvanceDays must be an integer between 0 and 30');
+      }
+      await upsertSetting(env.DB, 'min_advance_days', String(days));
     }
-    await upsertSetting(env.DB, 'min_advance_days', String(days));
-    return ok({ minAdvanceDays: days });
+
+    if (body.keyLockerCode !== undefined) {
+      const code = String(body.keyLockerCode).trim();
+      if (!isValidKeyLockerCode(code)) {
+        return err(400, 'keyLockerCode must be exactly 4 digits');
+      }
+      await upsertSetting(env.DB, KEY_LOCKER_CODE_KEY, code);
+    }
+
+    return ok(await readSettings(env.DB));
   }
 
   if (path === 'cleaning-guests' && request.method === 'GET') {
