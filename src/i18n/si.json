@@ -193,7 +193,27 @@
     "subgroupBedroom1": "Spalnica 1",
     "subgroupBedroom2": "Spalnica 2",
     "subgroupBathroom1": "Kopalnica 1",
-    "subgroupBathroom2": "Kopalnica 2"
+    "subgroupBathroom2": "Kopalnica 2",
+    "labels": {
+      "terraceHotTub": "Terasa z jacuzzijem",
+      "terrace": "Terasa",
+      "terracePanorama": "Panorama terase",
+      "livingRoom": "Dnevna soba",
+      "diningArea": "Jedilnica",
+      "openPlanLiving": "Odprt bivalni prostor",
+      "hallway": "Hodnik",
+      "kitchen": "Kuhinja",
+      "kitchenDetail": "Kuhinja — detajl",
+      "bedroom1": "Spalnica 1",
+      "bedroom2": "Spalnica 2",
+      "bathroom1": "Kopalnica 1",
+      "bathroom2": "Kopalnica 2",
+      "mandre": "Mandre",
+      "buildingOutdoor": "Stavba in okolica",
+      "floorPlan": "Tloris",
+      "inRoomSafe": "Sef v apartmaju",
+      "mandreLocation": "Mandre — lokacija"
+    }
   },
   "pricelist": {
     "metaTitle": "Cenik | Blue Moon Apartment, Mandre",
@@ -404,7 +424,63 @@
     "leaveReviewBody": "Radi bi slišali o vaši izkušnji. Vaše mnenje pomaga drugim družinam najti idealne počitnice.",
     "leaveReviewBtn": "Pustite mnenje na Booking.com →",
     "contactBtn": "Kontaktirajte nas",
-    "bookCta": "Preverite razpoložljivost →"
+    "bookCta": "Preverite razpoložljivost →",
+    "countryPoland": "Poljska",
+    "countryGermany": "Nemčija",
+    "countrySlovenia": "Slovenija",
+    "countrySlovakia": "Slovaška",
+    "countryItaly": "Italija",
+    "countryCzechia": "Češka",
+    "monthJune": "junij",
+    "monthAugust": "avgust",
+    "monthSeptember": "september",
+    "items": [
+      {
+        "title": "Čisto, dobro vzdrževano in odlično opremljeno",
+        "text": "Nepremičnina je zelo čista, dobro vzdrževana in odlično opremljena. Terasa je čista ter opremljena z ležalniki in žarom. Apartma je odlično umeščen, blizu plaže, promenade in restavracij.",
+        "highlights": ["Žar na terasi", "Plaža in promenada", "Brezhibno čisto"]
+      },
+      {
+        "title": "Jacuzzi je pravljica",
+        "text": "Čudovit apartma, zelo udoben. Imel je vse, kar bi lahko potrebovali med bivanjem, in še več. Zelo čist, blizu plaže in restavracij, majhna trgovina takoj čez cesto. Pogled na morje s terase je čudovit — jacuzzi pa je pravljica.",
+        "highlights": ["Jacuzzi", "Pogled na morje s terase", "Trgovina čez cesto"]
+      },
+      {
+        "title": "Čudovit čas v Mandrah",
+        "text": "Penthouse ima vse, kar potrebujete. Odlična terasa z novim jacuzzijem, sedežno garnituro in senčnikom. Bruno (lokalni kontakt) nas je toplo sprejel in nam pokazal celoten apartma. Kuhinja je bila popolnoma opremljena — ves pribor in celo začimbe, olje itd. — v hladilniku pa sta bila celo sveže sadje in pijača. Kopalnica je bila enako dobro pripravljena: dezodorant, vatirane blazinice, pralni prašek — imela je vse. Manjši supermarket je oddaljen le 20 metrov. Promenada, plaža, restavracije in trgovinice so 2–3 minute hoje. Goran nam je uredil tudi zgodnjo prijavo, saj smo prejšnji teden preživeli v Mandrah — povsem brez zapletov. Najlepša hvala za to!",
+        "highlights": ["Nov jacuzzi", "Popolnoma opremljena kuhinja", "Urejena zgodnja prijava"]
+      },
+      {
+        "title": "Izpolnil bo tudi najzahtevnejša pričakovanja",
+        "text": "Sodoben, odlično opremljen apartma. Po mojem mnenju bo izpolnil tudi najzahtevnejša pričakovanja. Zelo dobra komunikacija z Brunom, ki je bil vedno dosegljiv in ni nikoli odrekel pomoči. Toplo priporočam!",
+        "highlights": ["Sodoben in opremljen", "Bruno vedno dosegljiv", "Toplo priporočamo"]
+      },
+      {
+        "title": "Gostoljubni, prijazni gostitelji — priporočam",
+        "text": "Gostoljubni, prijazni gostitelji. Odlična lokacija, čudovit apartma — zelo čist in urejen. Priporočamo vsem.",
+        "highlights": ["Prijazni gostitelji", "Čisto in urejeno", "Odlična lokacija"]
+      },
+      {
+        "title": "Odličen dopust",
+        "text": "Čudovit, povsem nov apartma, popolnoma opremljen, brezhibno čist, dve kopalnici, trije LCD televizorji, velika terasa s sedežno garnituro in ležalniki. WiFi je deloval brezhibno. Vse fotografije v oglasu so pristne. Čudoviti Bruno nas je pričakal s skledo svežega sadja, ohlajeno mineralno vodo in sokom. Imeli smo parkirno mesto in garažo. Komunikacija je bila odlična. Hvala Brunu in Goranu za izvrstno bivanje!",
+        "highlights": ["Dve kopalnici", "Dobrodošlica", "Parkirišče in garaža"]
+      },
+      {
+        "title": "Vse je bilo popolno — vi ste najboljši!",
+        "text": "Vse je bilo popolno! Vi ste najboljši! Čestitke! Preživeli smo čudovite počitnice v apartmaju in v kraju Mandre! Hvala za vaše delo!",
+        "highlights": ["Popolno bivanje", "Kraj Mandre", "Izjemni gostitelji"]
+      },
+      {
+        "title": "Hvala ekipi Blue Moon za odličen dopust!",
+        "text": "Čudovit apartma na odlični lokaciji v Mandrah. 1 minuta do trgovine in pekarne. 3 minute do plaže. Zelo udobna terasa z osupljivo pokrajino! Odlična podpora lokalnega kontakta Bruna. Vse je bilo popolno. Hvala ekipi Blue Moon za odličen dopust! Zame in za mojo družino je bil to čas popolne sprostitve!",
+        "highlights": ["Popolna lokacija", "Terasa in razgledi", "Bruno na kraju samem"]
+      },
+      {
+        "title": "Zasnovano s skrbnostjo in velikim občutkom za detajle",
+        "text": "Med bivanjem smo imeli povsem izjemno udobje, apartma je bil čudovito opremljen, očitno je, da je bil zasnovan s skrbnostjo in velikim občutkom za detajle. Imeli smo vse, kar smo potrebovali, in več, kot smo pričakovali. Terasa je absoluten vrhunec. Gostitelj je bil zelo ustrežljiv in prijazen.",
+        "highlights": ["Terasa", "Čudovita oprema", "Prijazen gostitelj"]
+      }
+    ]
   },
   "aboutMandre": {
     "metaTitle": "O Mandre | Blue Moon Apartment, Otok Pag",
@@ -471,6 +547,11 @@
     "trip2Body": "Organizirani izleti s čolnom iz Luke Mandre — otoki brez avtomobilov z izjemnim čarom.",
     "trip3Title": "🏞️ Narodni parki Krka in Plitvička jezera",
     "trip3Body": "Dva od najosupljivejših parkov Hrvaške v dosegu — Krka (~90 min) za slapove in kopanje, Plitvice (~2 uri) za osupljiva turkizna jezera. Organizirani izleti so na voljo za oba.",
+    "tripCaptionLifeOnMars": "Pot Life on Mars",
+    "tripCaptionBoat": "Izlet z ladjo iz Luke Mandre",
+    "tripCaptionSilba": "Otok Silba",
+    "tripCaptionKrka": "Narodni park Krka",
+    "tripCaptionPlitvice": "Narodni park Plitviška jezera",
     "aroundLabel": "Onkraj Mandre",
     "aroundTitle": "🏝️ Po otoku in naprej",
     "dist1Time": "20 min",

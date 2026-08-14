@@ -193,7 +193,27 @@
     "subgroupBedroom1": "Schlafzimmer 1",
     "subgroupBedroom2": "Schlafzimmer 2",
     "subgroupBathroom1": "Badezimmer 1",
-    "subgroupBathroom2": "Badezimmer 2"
+    "subgroupBathroom2": "Badezimmer 2",
+    "labels": {
+      "terraceHotTub": "Terrasse mit Whirlpool",
+      "terrace": "Terrasse",
+      "terracePanorama": "Terrassenpanorama",
+      "livingRoom": "Wohnzimmer",
+      "diningArea": "Essbereich",
+      "openPlanLiving": "Offener Wohnbereich",
+      "hallway": "Flur",
+      "kitchen": "Küche",
+      "kitchenDetail": "Küche — Detail",
+      "bedroom1": "Schlafzimmer 1",
+      "bedroom2": "Schlafzimmer 2",
+      "bathroom1": "Badezimmer 1",
+      "bathroom2": "Badezimmer 2",
+      "mandre": "Mandre",
+      "buildingOutdoor": "Gebäude & Außenbereich",
+      "floorPlan": "Grundriss",
+      "inRoomSafe": "Safe in der Wohnung",
+      "mandreLocation": "Mandre — Lage"
+    }
   },
   "pricelist": {
     "metaTitle": "Preisliste | Blue Moon Apartment, Mandre",
@@ -404,7 +424,63 @@
     "leaveReviewBody": "Wir würden gerne von Ihrer Erfahrung hören. Ihre Bewertung hilft anderen Familien, ihren perfekten Urlaub zu finden.",
     "leaveReviewBtn": "Bewertung auf Booking.com hinterlassen →",
     "contactBtn": "Kontaktieren Sie uns",
-    "bookCta": "Verfügbarkeit prüfen →"
+    "bookCta": "Verfügbarkeit prüfen →",
+    "countryPoland": "Polen",
+    "countryGermany": "Deutschland",
+    "countrySlovenia": "Slowenien",
+    "countrySlovakia": "Slowakei",
+    "countryItaly": "Italien",
+    "countryCzechia": "Tschechien",
+    "monthJune": "Juni",
+    "monthAugust": "August",
+    "monthSeptember": "September",
+    "items": [
+      {
+        "title": "Sauber, gepflegt und hervorragend ausgestattet",
+        "text": "Die Unterkunft ist sehr sauber, gepflegt und hervorragend ausgestattet. Die Terrasse ist sauber und mit Sonnenliegen und einem Grill ausgestattet. Die Wohnung liegt perfekt in der Nähe von Strand, Promenade und Restaurants.",
+        "highlights": ["Grill auf der Terrasse", "Strand & Promenade", "Blitzsauber"]
+      },
+      {
+        "title": "Der Whirlpool ist ein Märchen",
+        "text": "Eine wunderschöne Wohnung, sehr komfortabel. Sie hatte alles, was man für den Aufenthalt braucht, und mehr. Sehr sauber, nah am Strand und an Restaurants, ein kleiner Laden direkt gegenüber. Der Meerblick von der Terrasse ist herrlich — und der Whirlpool ist ein Märchen.",
+        "highlights": ["Whirlpool", "Meerblick von der Terrasse", "Laden gegenüber"]
+      },
+      {
+        "title": "Eine wunderbare Zeit in Mandre",
+        "text": "Das Penthouse hat alles, was man braucht. Tolle Terrasse mit dem neuen Whirlpool, Sitzgelegenheiten und Sonnenschirm. Bruno (Ansprechpartner vor Ort) hat uns herzlich empfangen und die ganze Wohnung gezeigt. Die Küche war voll ausgestattet — sämtliches Zubehör und sogar Gewürze, Öl usw. — und im Kühlschrank lagen sogar frisches Obst und Getränke. Das Bad war ebenso gut vorbereitet: Deo, Wattepads, Waschmittel — es war alles da. Ein kleiner Supermarkt ist nur 20 Meter entfernt. Promenade, Strand, Restaurants und kleine Läden sind 2–3 Gehminuten entfernt. Goran hat außerdem einen frühen Check-in ermöglicht, da wir die Vorwoche in Mandre verbracht hatten — ein nahtloser Übergang. Vielen Dank dafür!",
+        "highlights": ["Neuer Whirlpool", "Voll ausgestattete Küche", "Früher Check-in ermöglicht"]
+      },
+      {
+        "title": "Erfüllt selbst anspruchsvollste Erwartungen",
+        "text": "Moderne, hervorragend ausgestattete Wohnung. Meiner Meinung nach erfüllt sie selbst anspruchsvollste Erwartungen. Sehr gute Kommunikation mit Bruno, der immer erreichbar war und nie eine Hilfe verweigert hat. Sehr zu empfehlen!",
+        "highlights": ["Modern & ausgestattet", "Bruno immer erreichbar", "Sehr zu empfehlen"]
+      },
+      {
+        "title": "Gastfreundliche, nette Gastgeber — sehr zu empfehlen",
+        "text": "Gastfreundliche, nette Gastgeber. Tolle Lage, wunderschöne Wohnung — sehr sauber und ordentlich. Wir empfehlen sie allen weiter.",
+        "highlights": ["Nette Gastgeber", "Sauber & ordentlich", "Tolle Lage"]
+      },
+      {
+        "title": "Toller Urlaub",
+        "text": "Eine wunderschöne, brandneue Wohnung, voll ausgestattet, blitzsauber, zwei Badezimmer, drei LCD-Fernseher, große Terrasse mit Sitzgelegenheiten und Sonnenliegen. Das WLAN funktionierte einwandfrei. Alle Fotos im Inserat sind echt. Der wunderbare Bruno empfing uns mit einer Schale frischem Obst, gekühltem Mineralwasser und Saft. Wir hatten einen Parkplatz und eine Garage. Die Kommunikation war ausgezeichnet. Danke Bruno und Goran für einen großartigen Aufenthalt!",
+        "highlights": ["Zwei Badezimmer", "Willkommensgruß", "Parkplatz & Garage"]
+      },
+      {
+        "title": "Alles war perfekt — Sie sind die Besten!",
+        "text": "Alles war perfekt! Sie sind die Besten! Herzlichen Glückwunsch! Wir haben einen wunderbaren Urlaub in der Wohnung und im Ort Mandre verbracht! Danke für Ihre Arbeit!",
+        "highlights": ["Perfekter Aufenthalt", "Ort Mandre", "Herausragende Gastgeber"]
+      },
+      {
+        "title": "Danke, Blue Moon Team, für einen ausgezeichneten Urlaub!",
+        "text": "Wunderschöne Wohnung in hervorragender Lage in Mandre. 1 Minute zum Laden und zur Bäckerei. 3 Minuten zum Strand. Sehr komfortable Terrasse mit fantastischer Landschaft! Großartige Unterstützung durch den Ansprechpartner vor Ort, Bruno. Alles war perfekt. Danke, Blue Moon Team, für einen ausgezeichneten Urlaub! Es war eine Zeit völliger Entspannung für mich und meine Familie!",
+        "highlights": ["Perfekte Lage", "Terrasse & Ausblick", "Bruno vor Ort"]
+      },
+      {
+        "title": "Mit Sorgfalt und viel Sinn fürs Detail gestaltet",
+        "text": "Wir hatten während unseres Aufenthalts einen absolut großartigen Komfort, die Wohnung war wunderbar eingerichtet, man merkt deutlich, dass sie mit Sorgfalt und viel Sinn fürs Detail gestaltet wurde. Wir hatten alles, was wir brauchten, und mehr, als wir erwartet hätten. Die Terrasse ist absolute Spitze. Der Gastgeber war sehr hilfsbereit und herzlich.",
+        "highlights": ["Terrasse", "Schöne Einrichtung", "Herzlicher Gastgeber"]
+      }
+    ]
   },
   "aboutMandre": {
     "metaTitle": "Über Mandre | Blue Moon Apartment, Insel Pag",
@@ -471,6 +547,11 @@
     "trip2Body": "Organisierte Bootsfahrten von Luka Mandre — autofreie Inseln von außerordentlichem Charme.",
     "trip3Title": "🏞️ Nationalparks Krka & Plitvička Jezera",
     "trip3Body": "Zwei der spektakulärsten Parks Kroatiens in Reichweite — Krka (~90 Min.) für Wasserfälle und Schwimmen, Plitvicer Seen (~2 Std.) für atemberaubende türkisfarbene Seen. Geführte Ausflüge für beide verfügbar.",
+    "tripCaptionLifeOnMars": "Life on Mars Trail",
+    "tripCaptionBoat": "Bootsausflug ab Luka Mandre",
+    "tripCaptionSilba": "Insel Silba",
+    "tripCaptionKrka": "Nationalpark Krka",
+    "tripCaptionPlitvice": "Nationalpark Plitvicer Seen",
     "aroundLabel": "Über Mandre hinaus",
     "aroundTitle": "🏝️ Rund um die Insel & Darüber hinaus",
     "dist1Time": "20 Min.",

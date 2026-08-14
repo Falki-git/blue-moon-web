@@ -193,7 +193,27 @@
     "subgroupBedroom1": "Ložnice 1",
     "subgroupBedroom2": "Ložnice 2",
     "subgroupBathroom1": "Koupelna 1",
-    "subgroupBathroom2": "Koupelna 2"
+    "subgroupBathroom2": "Koupelna 2",
+    "labels": {
+      "terraceHotTub": "Terasa s vířivkou",
+      "terrace": "Terasa",
+      "terracePanorama": "Panorama terasy",
+      "livingRoom": "Obývací pokoj",
+      "diningArea": "Jídelní kout",
+      "openPlanLiving": "Otevřený obytný prostor",
+      "hallway": "Chodba",
+      "kitchen": "Kuchyně",
+      "kitchenDetail": "Kuchyně — detail",
+      "bedroom1": "Ložnice 1",
+      "bedroom2": "Ložnice 2",
+      "bathroom1": "Koupelna 1",
+      "bathroom2": "Koupelna 2",
+      "mandre": "Mandre",
+      "buildingOutdoor": "Budova a okolí",
+      "floorPlan": "Půdorys",
+      "inRoomSafe": "Trezor v apartmánu",
+      "mandreLocation": "Mandre — poloha"
+    }
   },
   "pricelist": {
     "metaTitle": "Ceník | Blue Moon Apartment, Mandre",
@@ -404,7 +424,63 @@
     "leaveReviewBody": "Rádi bychom slyšeli o vašich zkušenostech. Vaše recenze pomáhá ostatním rodinám najít jejich dokonalou dovolenou.",
     "leaveReviewBtn": "Zanechat recenzi na Booking.com →",
     "contactBtn": "Kontaktujte nás",
-    "bookCta": "Zkontrolovat dostupnost →"
+    "bookCta": "Zkontrolovat dostupnost →",
+    "countryPoland": "Polsko",
+    "countryGermany": "Německo",
+    "countrySlovenia": "Slovinsko",
+    "countrySlovakia": "Slovensko",
+    "countryItaly": "Itálie",
+    "countryCzechia": "Česká republika",
+    "monthJune": "červen",
+    "monthAugust": "srpen",
+    "monthSeptember": "září",
+    "items": [
+      {
+        "title": "Čisté, dobře udržované a skvěle vybavené",
+        "text": "Objekt je velmi čistý, dobře udržovaný a skvěle vybavený. Terasa je čistá a vybavená lehátky a grilem. Apartmán je perfektně umístěný, blízko pláže, promenády a restaurací.",
+        "highlights": ["Gril na terase", "Pláž a promenáda", "Bezvadně čisté"]
+      },
+      {
+        "title": "Vířivka je pohádka",
+        "text": "Krásný apartmán, velmi pohodlný. Měl vše, co byste během pobytu mohli potřebovat, a ještě víc. Velmi čistý, blízko pláže a restaurací, malý obchod hned naproti. Výhled na moře z terasy je nádherný — a vířivka je pohádka.",
+        "highlights": ["Vířivka", "Výhled na moře z terasy", "Obchod naproti"]
+      },
+      {
+        "title": "Nádherný čas v Mandre",
+        "text": "Penthouse má vše, co potřebujete. Skvělá terasa s novou vířivkou, posezením a slunečníkem. Bruno (místní kontakt) nás vřele přivítal a ukázal nám celý apartmán. Kuchyně byla plně vybavená — veškeré náčiní i koření, olej atd. — a v lednici bylo dokonce čerstvé ovoce a nápoje. Koupelna byla stejně dobře připravená: deodorant, odličovací tampony, prací prášek — bylo tam všechno. Malý supermarket je vzdálený jen 20 metrů. Promenáda, pláž, restaurace a obchůdky jsou 2–3 minuty chůze. Goran nám navíc zařídil dřívější check-in, protože jsme předchozí týden strávili v Mandre — naprosto plynulý přechod. Mnohokrát za to děkujeme!",
+        "highlights": ["Nová vířivka", "Plně vybavená kuchyně", "Zajištěný dřívější příjezd"]
+      },
+      {
+        "title": "Splní i ta nejnáročnější očekávání",
+        "text": "Moderní, skvěle vybavený apartmán. Podle mého názoru splní i ta nejnáročnější očekávání. Velmi dobrá komunikace s Brunem, který byl vždy k dispozici a nikdy neodmítl pomoct. Vřele doporučuji!",
+        "highlights": ["Moderní a vybavený", "Bruno vždy k dispozici", "Vřele doporučujeme"]
+      },
+      {
+        "title": "Pohostinní, přátelští hostitelé — doporučuji",
+        "text": "Pohostinní, přátelští hostitelé. Skvělá poloha, krásný apartmán — velmi čistý a uklizený. Doporučujeme všem.",
+        "highlights": ["Přátelští hostitelé", "Čisté a uklizené", "Skvělá poloha"]
+      },
+      {
+        "title": "Skvělá dovolená",
+        "text": "Krásný, zcela nový apartmán, plně vybavený, bezvadně čistý, dvě koupelny, tři LCD televize, velká terasa s posezením a lehátky. WiFi fungovala bezchybně. Všechny fotky v inzerátu jsou pravé. Úžasný Bruno nás přivítal miskou čerstvého ovoce, vychlazenou minerálkou a džusem. Měli jsme parkovací místo a garáž. Komunikace byla vynikající. Děkujeme Brunovi a Goranovi za skvělý pobyt!",
+        "highlights": ["Dvě koupelny", "Uvítací pohoštění", "Parkování a garáž"]
+      },
+      {
+        "title": "Všechno bylo perfektní — jste nejlepší!",
+        "text": "Všechno bylo perfektní! Jste nejlepší! Gratulujeme! Strávili jsme nádhernou dovolenou v apartmánu i v obci Mandre! Děkujeme za vaši práci!",
+        "highlights": ["Perfektní pobyt", "Obec Mandre", "Vynikající hostitelé"]
+      },
+      {
+        "title": "Děkuji týmu Blue Moon za vynikající dovolenou!",
+        "text": "Krásný apartmán ve vynikající poloze v Mandre. 1 minuta k obchodu a pekárně. 3 minuty na pláž. Velmi pohodlná terasa s úžasnou krajinou! Skvělá podpora od místního kontaktu Bruna. Všechno bylo perfektní. Děkuji týmu Blue Moon za vynikající dovolenou! Byl to čas naprostého odpočinku pro mě i mou rodinu!",
+        "highlights": ["Perfektní poloha", "Terasa a výhledy", "Bruno na místě"]
+      },
+      {
+        "title": "Navrženo s péčí a velkým smyslem pro detail",
+        "text": "Během pobytu jsme měli naprosto skvělý komfort, apartmán byl nádherně zařízený, je zjevné, že byl navržen s péčí a velkým smyslem pro detail. Měli jsme všechno, co jsme potřebovali, a víc, než bychom čekali. Terasa je absolutní špička. Hostitel byl velmi vstřícný a milý.",
+        "highlights": ["Terasa", "Krásné zařízení", "Vstřícný hostitel"]
+      }
+    ]
   },
   "aboutMandre": {
     "metaTitle": "O Mandre | Blue Moon Apartment, ostrov Pag",
@@ -471,6 +547,11 @@
     "trip2Body": "Organizované výlety lodí z Luka Mandre — ostrovy bez aut s mimořádným půvabem.",
     "trip3Title": "🏞️ Národní parky Krka a Plitvická Jezera",
     "trip3Body": "Dva z nejpůsobivějších parků Chorvatska v dosahu — Krka (~90 min) pro vodopády a koupání, Plitvice (~2 hod) pro dechberoucí tyrkysová jezera. Pro oba jsou k dispozici řízené exkurze.",
+    "tripCaptionLifeOnMars": "Stezka Life on Mars",
+    "tripCaptionBoat": "Výlet lodí z Luky Mandre",
+    "tripCaptionSilba": "Ostrov Silba",
+    "tripCaptionKrka": "Národní park Krka",
+    "tripCaptionPlitvice": "Národní park Plitvická jezera",
     "aroundLabel": "Za hranicemi Mandre",
     "aroundTitle": "🏝️ Po ostrově a dál",
     "dist1Time": "20 min",
