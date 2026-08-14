@@ -15,6 +15,7 @@ interface Props {
   heroScaleTablet?: number;
   showHeroLogo?: boolean;
   lang?: string;
+  noindex?: boolean;
 }
 
 const {
@@ -30,10 +31,11 @@ const {
   heroScaleTablet = 1,
   showHeroLogo = false,
   lang = 'en',
+  noindex = false,
 } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description} lang={lang}>
+<BaseLayout title={title} description={description} lang={lang} noindex={noindex}>
   <header class="page-header">
     <div class={`page-header__bg ${bgImage ? '' : `img-ph ${bgClass}`} ar-hero`} aria-hidden="true" style={`--hero-scale-mobile:${heroScaleMobile};--hero-scale-tablet:${heroScaleTablet};--hero-obj-pos:${heroObjectPosition};`}>
       {bgImage

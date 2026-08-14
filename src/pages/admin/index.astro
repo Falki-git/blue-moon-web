@@ -482,10 +482,13 @@ import '../../styles/global.css';
     .adm-btn--decline:hover { background: #f1dada; }
     .adm-btn--cancel  { background: var(--white); color: #a64141; border-color: #f1dada; }
     .adm-btn--cancel:hover  { background: #f1dada; }
-    .adm-btn--deposit { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
-    .adm-btn--deposit:hover { background: #c8e6c9; }
-    .adm-btn--deposit-resend { background: var(--white); color: #6a7989; border-color: #d4d9de; }
-    .adm-btn--deposit-resend:hover { background: #d4d9de; }
+    /* Guest-email send buttons: green until sent, grey once sent (then they read "Resend …"). */
+    .adm-btn--send { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+    .adm-btn--send:hover { background: #c8e6c9; }
+    .adm-btn--resend { background: var(--white); color: #6a7989; border-color: #d4d9de; }
+    .adm-btn--resend:hover { background: #d4d9de; }
+    .adm-sent-note { font-size: 0.68rem; color: var(--text-muted); }
+    .adm-send-group { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; }
     .adm-btn--remove  { background: var(--white); color: #a64141; border-color: #f1dada; }
     .adm-btn--remove:hover  { background: #f1dada; }
     .adm-btn--sm { padding: 0.25rem 0.6rem; font-size: 0.74rem; }
@@ -741,7 +744,8 @@ import '../../styles/global.css';
       guests: number; children_ages: string | null;
       check_in: string; check_out: string; nights: number; total_eur: number;
       full_total_eur: number | null; discount_pct: number | null;
-      message: string | null; decided_at: number | null; deposit_confirmation_sent_at: number | null;
+      message: string | null; decided_at: number | null;
+      deposit_confirmation_sent_at: number | null; welcome_email_sent_at: number | null;
     };
     type ManualBlock = { id: string; created_at: number; from_date: string; to_date: string; note: string | null };
     type PricingRule = { month: number; rate_eur: number; discount_rate_eur: number | null; updated_at: number };
@@ -817,8 +821,8 @@ import '../../styles/global.css';
         const inv = g.invoice;
         const hasPrice = g.final_price !== null || g.ranges.length > 0;
         const invoiceBtn = inv
-          ? `<button class="adm-btn adm-btn--sm adm-btn--deposit-resend" onclick="__sendInvoice('${id}')">Resend invoice</button>`
-          : `<button class="adm-btn adm-btn--sm adm-btn--deposit" onclick="__sendInvoice('${id}')">Send invoice</button>`;
+          ? `<button class="adm-btn adm-btn--sm adm-btn--resend" onclick="__sendInvoice('${id}')">Resend invoice</button>`
+          : `<button class="adm-btn adm-btn--sm adm-btn--send" onclick="__sendInvoice('${id}')">Send invoice</button>`;
         const invoiceLink = inv
           ? `<a href="#" onclick="__viewInvoice('${id}');return false;" style="color:var(--ocean-blue);">View sent PDF</a>`
           : (hasPrice ? `<a href="#" onclick="__previewInvoice('${id}');return false;" style="color:var(--ocean-blue);">Preview PDF</a>` : '');
@@ -1029,6 +1033,19 @@ import '../../styles/global.css';
     const fmtEur = (n: number) => `€${n.toLocaleString('en-GB')}`;
     const depositEur = (total: number) => Math.round(total * 0.3);
     const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    /** Escapes a value used as a single-quoted JS string literal inside an HTML attribute. */
+    const escAttrArg = (s: string) => esc(s.replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
+
+    /**
+     * Renders a guest-email send button plus its sent-at stamp. Green + "Send …" until the
+     * email has gone out, then grey + "Resend …" with the timestamp underneath.
+     * Adding another guest email (e.g. eVisitor) is one more call to this.
+     */
+    const guestEmailButton = (sentAt: number | null, label: string, onclick: string) => `
+      <div class="adm-send-group">
+        <button class="adm-btn ${sentAt ? 'adm-btn--resend' : 'adm-btn--send'}" onclick="${onclick}">${sentAt ? 'Resend' : 'Send'} ${label}</button>
+        ${sentAt ? `<span class="adm-sent-note">&#10003; Email sent ${fmtTs(sentAt)}</span>` : ''}
+      </div>`;
 
     async function api<T>(path: string, init?: RequestInit): Promise<T> {
       const res = await fetch(path, {
@@ -1086,6 +1103,17 @@ import '../../styles/global.css';
       }
     }
     (window as any).__sendDepositConfirmation = sendDepositConfirmation;
+
+    async function sendWelcomeInfo(id: string, email: string) {
+      if (!confirm(`Send the welcome info (link to the guest guide) to ${email}?`)) return;
+      try {
+        await api(`/api/admin/reservations/${id}/welcome-email`, { method: 'POST' });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to send email');
+      }
+    }
+    (window as any).__sendWelcomeInfo = sendWelcomeInfo;
 
     function invoiceModal(email: string, defaultNumber: string): Promise<string | null> {
       return new Promise(resolve => {
@@ -1569,10 +1597,8 @@ import '../../styles/global.css';
         <button class="adm-btn adm-btn--decline" onclick="__decide('${r.id}','decline')">Decline</button>
       `);
       document.getElementById('confirmedList')!.innerHTML = tableRows(confirmed, r => `
-        <div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.15rem;">
-          <button class="adm-btn ${r.deposit_confirmation_sent_at ? 'adm-btn--deposit-resend' : 'adm-btn--deposit'}" onclick="__sendDepositConfirmation('${r.id}')">${r.deposit_confirmation_sent_at ? 'Resend deposit confirmation' : 'Send deposit confirmation'}</button>
-          ${r.deposit_confirmation_sent_at ? `<span style="font-size:0.68rem;color:var(--text-muted);">&#10003; Email sent ${fmtTs(r.deposit_confirmation_sent_at)}</span>` : ''}
-        </div>
+        ${guestEmailButton(r.deposit_confirmation_sent_at, 'deposit confirmation', `__sendDepositConfirmation('${r.id}')`)}
+        ${guestEmailButton(r.welcome_email_sent_at, 'welcome info', `__sendWelcomeInfo('${r.id}','${escAttrArg(r.email)}')`)}
         <button class="adm-btn adm-btn--cancel" onclick="__decide('${r.id}','cancel')">Delete reservation</button>
       `);
       document.getElementById('otherList')!.innerHTML = tableRows(other, () => '');

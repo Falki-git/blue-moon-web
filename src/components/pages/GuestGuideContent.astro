@@ -1,0 +1,1338 @@
+---
+import { Image } from 'astro:assets';
+import PageLayout from '../../layouts/PageLayout.astro';
+import type { Translations } from '../../i18n/utils';
+import heroBg from '../../assets/gallery/hot-tub-night.jpg';
+import pagBridge from '../../assets/gallery/about-mandre/pag-bridge.jpg';
+import findAptImg from '../../assets/gallery/how to get to the apartment.jpg';
+import parkingImg from '../../assets/gallery/outdoor.jpg';
+import pagCheese from '../../assets/gallery/about-mandre/pag-cheese.jpg';
+import pagLamb from '../../assets/gallery/about-mandre/pag-lamb.jpg';
+import silba from '../../assets/gallery/about-mandre/silba.jpg';
+import plitvice from '../../assets/gallery/about-mandre/plitvice.jpg';
+import lifeOnMars from '../../assets/gallery/about-mandre/life-on-mars-1.jpg';
+import boatExcursion from '../../assets/gallery/about-mandre/boat-excursion-1.jpg';
+import gligoraTour from '../../assets/gallery/about-mandre/gligora-tour.png';
+import saltExhibition from '../../assets/gallery/about-mandre/pag-salt-exhibition.jpg';
+import saltFields from '../../assets/gallery/about-mandre/pag-salt-fields.jpg';
+import beaches1 from '../../assets/gallery/about-mandre/beaches-1.jpg';
+import beaches2 from '../../assets/gallery/about-mandre/beaches-2.jpg';
+import beaches3 from '../../assets/gallery/about-mandre/beaches-3.jpg';
+import beaches4 from '../../assets/gallery/about-mandre/beaches-4.jpg';
+import beaches5 from '../../assets/gallery/about-mandre/beaches-5.jpg';
+import beaches6 from '../../assets/gallery/about-mandre/beaches-6.jpg';
+import playground1 from '../../assets/gallery/about-mandre/family-3.png';
+import playground2 from '../../assets/gallery/about-mandre/family-4.png';
+
+interface Props {
+  lang: string;
+  T: Translations;
+}
+
+const { lang, T } = Astro.props;
+const G = T.guestGuide;
+const prefix = lang === 'en' ? '' : `/${lang}`;
+
+const MAPS_URL = 'https://www.google.com/maps/dir/?api=1&destination=Blue+Moon+Apartment&destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ';
+
+const quickFacts = [
+  { icon: '📍', label: G.quickAddressLabel, value: G.quickAddressValue, href: MAPS_URL },
+  { icon: '🅿️', label: G.quickParkingLabel, value: G.quickParkingValue, href: null },
+];
+
+const houseNotes = [
+  { icon: '🛁', title: G.hotTubTitle,       body: G.hotTubBody },
+  { icon: '❄️', title: G.acTitle,           body: G.acBody },
+  { icon: '🛏️', title: G.cleaningTitle,     body: G.cleaningBody },
+  { icon: '💧', title: G.waterTitle,        body: G.waterBody },
+  { icon: '☕', title: G.coffeeTitle,       body: G.coffeeBody },
+  { icon: '💨', title: G.hairdryerTitle,    body: G.hairdryerBody },
+  { icon: '🩹', title: G.firstAidTitle,     body: G.firstAidBody },
+  { icon: '🧯', title: G.extinguisherTitle, body: G.extinguisherBody },
+  { icon: '🗑️', title: G.trashTitle,        body: G.trashBody },
+  { icon: '👕', title: G.ironTitle,         body: G.ironBody },
+  { icon: '🌙', title: G.quietTitle,        body: G.quietBody },
+];
+
+// `badge` names the place shown in the photo when the caption alone wouldn't make it obvious.
+// A card with more than one slide renders as a carousel; a single slide renders as a plain image.
+const adventures = [
+  {
+    title: G.adventure1Title, body: G.adventure1Body,
+    slides: [{ img: silba, alt: 'Silba island', badge: 'Silba' }],
+  },
+  {
+    title: G.adventure2Title, body: G.adventure2Body,
+    slides: [{ img: plitvice, alt: 'Plitvice Lakes National Park', badge: 'Plitvice' }],
+  },
+  {
+    title: G.adventure3Title, body: G.adventure3Body,
+    slides: [{ img: boatExcursion, alt: 'Boat excursion from Mandre marina', badge: null }],
+  },
+  {
+    title: G.adventure4Title, body: G.adventure4Body,
+    slides: [{ img: lifeOnMars, alt: 'Life on Mars walking trail on Pag', badge: null }],
+  },
+  {
+    title: G.adventure5Title, body: G.adventure5Body,
+    slides: [{ img: gligoraTour, alt: 'Gligora dairy tour and cheese tasting in Kolan', badge: null }],
+  },
+  {
+    title: G.adventure6Title, body: G.adventure6Body,
+    slides: [
+      { img: saltExhibition, alt: 'Permanent Exhibition on Salt Production in the old salt warehouse in Pag', badge: G.adventure6Badge1 },
+      { img: saltFields,     alt: 'Freshly harvested sea salt drying beside the Pag salt fields',             badge: G.adventure6Badge2 },
+    ],
+  },
+];
+
+// Served straight from public/documents — the same printed guides that sit in the apartment.
+// `type` is shown on the link so guests know what will open before they tap.
+const documents = [
+  { icon: '🛁', title: G.doc1Title, href: '/documents/hot-tub-rules.pdf',              type: 'PDF' },
+  { icon: '🛁', title: G.doc2Title, href: '/documents/hot-tub-instructions.pdf',       type: 'PDF' },
+  { icon: '📶', title: G.doc3Title, href: '/documents/wifi-tv-radio.pdf',              type: 'PDF' },
+  { icon: '⛱️', title: G.doc4Title, href: '/documents/pergola-remote.pdf',             type: 'PDF' },
+  { icon: '♻️', title: G.doc5Title, href: '/documents/waste-collection-schedule.png',  type: 'PNG' },
+];
+
+const familySlides = [
+  { img: beaches1,    alt: 'Pebble beach along the Mandre shoreline' },
+  { img: beaches2,    alt: 'Mandre shoreline' },
+  { img: playground1, alt: "Children's playground by the Konzum store in Mandre" },
+  { img: beaches3,    alt: 'Beach in Mandre' },
+  { img: playground2, alt: "Children's playground by the shore in Mandre" },
+  { img: beaches4,    alt: 'Swimming spot in Mandre' },
+  { img: beaches5,    alt: 'Clear shallow water along the Mandre shore' },
+  { img: beaches6,    alt: 'Pebble beach near the apartment' },
+];
+---
+
+<PageLayout
+  title={G.metaTitle}
+  description={G.metaDescription}
+  pageTitle={G.pageTitle}
+  pageSubtitle={G.pageSubtitle}
+  label={G.label}
+  bgClass="ph-terrace"
+  bgImage={heroBg}
+  heroObjectPosition="center 50%"
+  showHeroLogo={true}
+  noindex={true}
+  lang={lang}
+>
+
+  <!-- ═══ QUICK FACTS ═══ -->
+  <section class="gg-facts-band">
+    <div class="container">
+      <div class="gg-facts">
+        {quickFacts.map(f => (
+          <div class="gg-fact">
+            <span class="gg-fact__icon" aria-hidden="true">{f.icon}</span>
+            <div>
+              <span class="gg-fact__label">{f.label}</span>
+              {f.href
+                ? <a class="gg-fact__value gg-fact__value--link" href={f.href} target="_blank" rel="noopener">{f.value}</a>
+                : <span class="gg-fact__value">{f.value}</span>
+              }
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ GETTING TO MANDRE ═══ -->
+  <section class="section" id="arrival">
+    <div class="container">
+      <div class="gg-split">
+        <div class="gg-split__text">
+          <span class="section-label">{G.arrivalLabel}</span>
+          <h2>{G.arrivalTitle}</h2>
+          <p class="gg-lead">{G.arrivalIntro}</p>
+
+          <div class="gg-route-pair">
+            <div class="gg-route">
+              <span class="gg-route__icon" aria-hidden="true">🌉</span>
+              <h3>{G.arrivalBridgeTitle}</h3>
+              <p>{G.arrivalBridgeBody}</p>
+            </div>
+            <div class="gg-route">
+              <span class="gg-route__icon" aria-hidden="true">⛴️</span>
+              <h3>{G.arrivalFerryTitle}</h3>
+              <p>{G.arrivalFerryBody}</p>
+            </div>
+          </div>
+
+          <div class="highlight-box gg-tip">
+            <h4>{G.arrivalTipTitle}</h4>
+            <p>{G.arrivalTipBody}</p>
+          </div>
+
+          <a href={`${prefix}/directions`} class="gg-inline-link">{G.arrivalDirectionsLink} →</a>
+        </div>
+
+        <div class="gg-split__media">
+          <Image
+            src={pagBridge}
+            alt="The Pag Bridge connecting the island to the mainland"
+            widths={[400, 700, 1100]}
+            sizes="(max-width: 960px) 100vw, 46vw"
+            class="gg-img"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wave">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,28 C240,56 480,0 720,28 C960,56 1200,8 1440,28 L1440,56 L0,56 Z" fill="#EAF6FC"/>
+    </svg>
+  </div>
+
+  <!-- ═══ FINDING THE APARTMENT ═══ -->
+  <section class="section gg-sky" id="finding">
+    <div class="container">
+      <div class="gg-split gg-split--reverse">
+        <div class="gg-split__text">
+          <span class="section-label">{G.findingLabel}</span>
+          <h2>{G.findingTitle}</h2>
+          <p class="gg-address">{G.quickAddressValue}</p>
+          <p>{G.findingBody}</p>
+          <a href={MAPS_URL} target="_blank" rel="noopener" class="btn btn-sky gg-map-btn">{G.findingMapBtn}</a>
+        </div>
+
+        <div class="gg-split__media">
+          <Image
+            src={findAptImg}
+            alt="The street approach to Blue Moon Apartment in Mandre"
+            widths={[400, 700, 1100]}
+            sizes="(max-width: 960px) 100vw, 46vw"
+            class="gg-img"
+          />
+        </div>
+      </div>
+
+      <div class="gg-parking">
+        <div class="gg-parking__media">
+          <Image
+            src={parkingImg}
+            alt="Private parking in front of the building entrance, with the garage to the right"
+            widths={[400, 700, 1000]}
+            sizes="(max-width: 860px) 100vw, 40vw"
+            class="gg-img gg-img--parking"
+          />
+        </div>
+        <div class="gg-parking__text">
+          <h3>{G.parkingTitle}</h3>
+          <p>{G.parkingBody}</p>
+
+          <div class="gg-garage">
+            <span class="gg-garage__title">{G.garageTitle}</span>
+            <div class="gg-garage__dims">
+              <div><span class="gg-garage__label">{G.garageWidth}</span><span class="gg-garage__value">{G.garageWidthValue}</span></div>
+              <div><span class="gg-garage__label">{G.garageHeight}</span><span class="gg-garage__value">{G.garageHeightValue}</span></div>
+              <div><span class="gg-garage__label">{G.garageLength}</span><span class="gg-garage__value">{G.garageLengthValue}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CHECK-IN ═══ -->
+  <section class="gg-band">
+    <div class="container">
+      <div class="gg-band__inner">
+        <div class="gg-band__stamp">
+          <span class="gg-band__label">{G.checkinLabel}</span>
+          <span class="gg-band__time">{G.checkinTime}</span>
+        </div>
+        <div class="gg-band__text">
+          <h2>{G.checkinTitle}</h2>
+          <p>{G.checkinBody}</p>
+          <div class="gg-band__note">
+            <strong>{G.greetingTitle}</strong>
+            <p>{G.greetingBody}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ IN THE APARTMENT ═══ -->
+  <section class="section" id="apartment">
+    <div class="container">
+      <div class="text-center gg-head">
+        <span class="section-label">{G.apartmentLabel}</span>
+        <h2>{G.apartmentTitle}</h2>
+        <p class="gg-lead">{G.apartmentIntro}</p>
+      </div>
+
+      <!-- Wi-Fi feature card -->
+      <div class="gg-wifi">
+        <div class="gg-wifi__head">
+          <span class="gg-wifi__icon" aria-hidden="true">📶</span>
+          <div>
+            <h3>{G.wifiTitle}</h3>
+            <p>{G.wifiBody}</p>
+          </div>
+        </div>
+        <div class="gg-wifi__creds">
+          <div class="gg-cred">
+            <span class="gg-cred__label">{G.wifiNetworkLabel}</span>
+            <code class="gg-cred__value" id="wifiNetwork">{G.wifiNetworkValue}</code>
+            <button type="button" class="gg-copy" data-copy-target="wifiNetwork" aria-label={`${G.wifiNetworkLabel} — copy`}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <div class="gg-cred">
+            <span class="gg-cred__label">{G.wifiPasswordLabel}</span>
+            <code class="gg-cred__value gg-cred__value--pw" id="wifiPassword">{G.wifiPasswordValue}</code>
+            <button type="button" class="gg-copy" data-copy-target="wifiPassword" aria-label={`${G.wifiPasswordLabel} — copy`}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- House notes -->
+      <div class="gg-notes">
+        {houseNotes.map(n => (
+          <div class="gg-note">
+            <span class="gg-note__icon" aria-hidden="true">{n.icon}</span>
+            <h4>{n.title}</h4>
+            <p>{n.body}</p>
+          </div>
+        ))}
+      </div>
+
+      <!-- Downloadable copies of the guides printed in the apartment -->
+      <div class="gg-docs">
+        <div class="gg-docs__head">
+          <span class="gg-docs__icon" aria-hidden="true">📄</span>
+          <div>
+            <h3>{G.docsTitle}</h3>
+            <p>{G.docsIntro}</p>
+          </div>
+        </div>
+        <div class="gg-docs__list">
+          {documents.map(d => (
+            <a class="gg-doc" href={d.href} target="_blank" rel="noopener">
+              <span class="gg-doc__icon" aria-hidden="true">{d.icon}</span>
+              <span class="gg-doc__name">{d.title}</span>
+              <span class="gg-doc__type">{d.type}</span>
+              <svg class="gg-doc__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/></svg>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wave">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,28 C240,56 480,0 720,28 C960,56 1200,8 1440,28 L1440,56 L0,56 Z" fill="#F7EDD8"/>
+    </svg>
+  </div>
+
+  <!-- ═══ THINGS TO DO ═══ -->
+  <section class="section gg-sand" id="explore">
+    <div class="container">
+      <div class="text-center gg-head">
+        <span class="section-label">{G.exploreLabel}</span>
+        <h2>{G.exploreTitle}</h2>
+        <p class="gg-lead">{G.exploreIntro}</p>
+      </div>
+
+      <!-- Food -->
+      <div class="gg-food">
+        <div class="gg-food__images">
+          <Image src={pagCheese} alt="Pag cheese" widths={[300, 500, 700]} sizes="(max-width: 860px) 50vw, 22vw" class="gg-img" />
+          <Image src={pagLamb} alt="Pag lamb" widths={[300, 500, 700]} sizes="(max-width: 860px) 50vw, 22vw" class="gg-img" />
+        </div>
+        <div class="gg-food__text">
+          <h3>{G.foodTitle}</h3>
+          <p>{G.foodBody}</p>
+        </div>
+      </div>
+
+      <!-- Restaurants + markets -->
+      <div class="gg-recs">
+        <div class="gg-rec card">
+          <span class="gg-rec__icon" aria-hidden="true">🍽️</span>
+          <h3>{G.restaurantsTitle}</h3>
+          <div class="gg-rec__item">
+            <strong>{G.restaurantsName1}</strong>
+            <p>{G.restaurantsBody1}</p>
+          </div>
+          <div class="gg-rec__item">
+            <strong>{G.restaurantsName2}</strong>
+            <p>{G.restaurantsBody2}</p>
+          </div>
+        </div>
+
+        <div class="gg-rec card">
+          <span class="gg-rec__icon" aria-hidden="true">🛒</span>
+          <h3>{G.marketsTitle}</h3>
+          <p>{G.marketsBody}</p>
+          <span class="gg-rec__icon gg-rec__icon--second" aria-hidden="true">🎪</span>
+          <h3>{G.festivitiesTitle}</h3>
+          <p>{G.festivitiesBody}</p>
+        </div>
+      </div>
+
+      <!-- Adventures -->
+      <h3 class="gg-sub-head">{G.adventureTitle}</h3>
+      <div class="gg-adventures">
+        {adventures.map(a => (
+          <div class="gg-adventure card">
+            <div class="gg-adventure__media">
+              {a.slides.length === 1 ? (
+                <>
+                  <Image src={a.slides[0].img} alt={a.slides[0].alt} widths={[300, 500, 800]} sizes="(max-width: 580px) 90vw, (max-width: 960px) 46vw, 24vw" class="gg-img" />
+                  {a.slides[0].badge && <span class="gg-adventure__badge">{a.slides[0].badge}</span>}
+                </>
+              ) : (
+                <div class="carousel carousel--flush">
+                  <div class="carousel__track">
+                    {a.slides.map(s => (
+                      <div class="carousel__slide">
+                        <Image src={s.img} alt={s.alt} widths={[300, 500, 800]} sizes="(max-width: 580px) 90vw, (max-width: 960px) 46vw, 24vw" />
+                        {s.badge && <span class="gg-adventure__badge">{s.badge}</span>}
+                      </div>
+                    ))}
+                  </div>
+                  <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">&#8249;</button>
+                  <button class="carousel__btn carousel__btn--next" aria-label="Next image">&#8250;</button>
+                  <div class="carousel__dots">
+                    {a.slides.map((_, i) => (
+                      <button class={`carousel__dot${i === 0 ? ' carousel__dot--active' : ''}`} aria-label={`Slide ${i + 1}`}></button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div class="gg-adventure__text">
+              <h4>{a.title}</h4>
+              <p>{a.body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <div class="wave">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,28 C240,56 480,0 720,28 C960,56 1200,8 1440,28 L1440,56 L0,56 Z" fill="#FFFFFF"/>
+    </svg>
+  </div>
+
+  <!-- ═══ FOR YOUR LITTLE ONES ═══ -->
+  <section class="section" id="family">
+    <div class="container">
+      <div class="text-center gg-head">
+        <span class="section-label">{G.familyLabel}</span>
+        <h2>{G.familyTitle}</h2>
+      </div>
+
+      <div class="gg-family">
+        <div class="gg-family__cards">
+          <div class="gg-fam-card">
+            <span class="gg-fam-card__icon" aria-hidden="true">🏖️</span>
+            <div>
+              <h3>{G.beachesTitle}</h3>
+              <p>{G.beachesBody}</p>
+            </div>
+          </div>
+          <div class="gg-fam-card">
+            <span class="gg-fam-card__icon" aria-hidden="true">🛝</span>
+            <div>
+              <h3>{G.playgroundsTitle}</h3>
+              <p>{G.playgroundsBody}</p>
+            </div>
+          </div>
+          <div class="gg-fam-card">
+            <span class="gg-fam-card__icon" aria-hidden="true">🩺</span>
+            <div>
+              <h3>{G.doctorTitle}</h3>
+              <p>{G.doctorBody}</p>
+            </div>
+          </div>
+        </div>
+        <div class="gg-family__media">
+          <div class="carousel" id="family-carousel">
+            <div class="carousel__track">
+              {familySlides.map(s => (
+                <div class="carousel__slide">
+                  <Image src={s.img} alt={s.alt} widths={[400, 700, 1100]} sizes="(max-width: 960px) 100vw, 40vw" />
+                </div>
+              ))}
+            </div>
+            <button class="carousel__btn carousel__btn--prev" aria-label="Previous image">&#8249;</button>
+            <button class="carousel__btn carousel__btn--next" aria-label="Next image">&#8250;</button>
+            <div class="carousel__dots">
+              {familySlides.map((_, i) => (
+                <button class={`carousel__dot${i === 0 ? ' carousel__dot--active' : ''}`} aria-label={`Slide ${i + 1}`}></button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CHECK-OUT ═══ -->
+  <section class="gg-band gg-band--out">
+    <div class="container">
+      <div class="gg-band__inner">
+        <div class="gg-band__stamp">
+          <span class="gg-band__label">{G.checkoutLabel}</span>
+          <span class="gg-band__time">{G.checkoutTime}</span>
+        </div>
+        <div class="gg-band__text">
+          <h2>{G.checkoutTitle}</h2>
+          <p>{G.checkoutBody}</p>
+          <div class="gg-band__note">
+            <strong>{G.checkoutEarlyTitle}</strong>
+            <p>{G.checkoutEarlyBody}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ HELP / CONTACT ═══ -->
+  <section class="section gg-help">
+    <div class="container">
+      <div class="gg-help__inner">
+        <span class="section-label">{G.helpLabel}</span>
+        <h2>{G.helpTitle}</h2>
+        <p class="gg-help__body">{G.helpBody}</p>
+
+        <div class="gg-help__links">
+          <a href="mailto:bluemoon.mandre@gmail.com" class="gg-help__link">
+            <span class="gg-help__link-label">{G.helpEmailLabel}</span>
+            <span class="gg-help__link-value">bluemoon.mandre@gmail.com</span>
+          </a>
+          <a href="https://wa.me/385914691204" target="_blank" rel="noopener" class="gg-help__link">
+            <span class="gg-help__link-label">{G.helpPhoneLabel}</span>
+            <span class="gg-help__link-value">+385 91 469 1204</span>
+          </a>
+        </div>
+
+        <div class="gg-help__sig">
+          <span class="gg-help__name">Goran Falkoni</span>
+          <span class="gg-help__role">{G.helpHostRole}</span>
+        </div>
+
+        <p class="gg-help__closing">{G.helpClosing}</p>
+      </div>
+    </div>
+  </section>
+
+</PageLayout>
+
+<style>
+  /* ─── Shared ─────────────────────────────────────────────────────────────── */
+  .gg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius);
+    display: block;
+  }
+
+  /* Shifts the crop window right so the "Garage" label in the photo stays visible. */
+  .gg-img--parking { object-position: 78% center; }
+
+  .gg-lead {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+  }
+
+  .gg-head { margin-bottom: 3rem; }
+  .gg-head .gg-lead { max-width: 620px; margin: 0.75rem auto 0; }
+
+  .gg-sky  { background: var(--soft-sky); }
+  .gg-sand { background: var(--warm-sand); }
+
+  .gg-inline-link {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-weight: 700;
+    color: var(--ocean-blue);
+  }
+  .gg-inline-link:hover { color: var(--sky-blue); }
+
+  /* ─── Quick facts band ───────────────────────────────────────────────────── */
+  .gg-facts-band {
+    background: var(--deep-navy);
+    padding: 1.5rem 0;
+  }
+  .gg-facts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .gg-fact {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .gg-fact + .gg-fact {
+    border-left: 1px solid rgba(255,255,255,0.12);
+    padding-left: 1.25rem;
+  }
+  .gg-fact__icon { font-size: 1.35rem; line-height: 1.3; flex-shrink: 0; }
+  .gg-fact__label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sky-blue);
+  }
+  .gg-fact__value {
+    display: block;
+    color: var(--white);
+    font-weight: 700;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  .gg-fact__value--link {
+    text-decoration: underline;
+    text-decoration-color: rgba(74,159,212,0.6);
+    text-underline-offset: 3px;
+    transition: color var(--transition-fast), text-decoration-color var(--transition-fast);
+  }
+  .gg-fact__value--link:hover {
+    color: var(--sky-blue);
+    text-decoration-color: var(--sky-blue);
+  }
+
+  /* ─── Split layout ───────────────────────────────────────────────────────── */
+  .gg-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+    align-items: center;
+  }
+  .gg-split--reverse .gg-split__text { order: 2; }
+  .gg-split--reverse .gg-split__media { order: 1; }
+
+  .gg-split__text h2 { margin-bottom: 1rem; }
+  .gg-split__text > p { margin-bottom: 0.5rem; }
+
+  .gg-split__media {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* ─── Arrival routes ─────────────────────────────────────────────────────── */
+  .gg-route-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin: 1.75rem 0;
+  }
+  .gg-route {
+    background: var(--white);
+    border: 1px solid rgba(74,159,212,0.2);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-xs);
+  }
+  .gg-route__icon { font-size: 1.5rem; display: block; margin-bottom: 0.4rem; }
+  .gg-route h3 { font-size: 1.15rem; margin-bottom: 0.35rem; }
+  .gg-route p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; }
+
+  .gg-tip h4 { color: var(--ocean-blue); margin-bottom: 0.35rem; }
+  .gg-tip p { font-size: 0.94rem; color: var(--text-muted); line-height: 1.65; }
+
+  /* ─── Finding the apartment ──────────────────────────────────────────────── */
+  .gg-address {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--sunset-gold);
+    margin-bottom: 0.75rem;
+  }
+  .gg-map-btn { margin-top: 1.5rem; }
+
+  .gg-parking {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 2.5rem;
+    align-items: center;
+    margin-top: 4rem;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .gg-parking__media {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .gg-parking__text h3 { margin-bottom: 0.6rem; }
+  .gg-parking__text > p { color: var(--text-muted); }
+
+  .gg-garage {
+    margin-top: 1.5rem;
+    background: var(--soft-sky);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+  }
+  .gg-garage__title {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ocean-blue);
+    margin-bottom: 0.6rem;
+  }
+  .gg-garage__dims {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .gg-garage__label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .gg-garage__value {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--deep-navy);
+    line-height: 1.2;
+  }
+
+  /* ─── Check-in / check-out bands ─────────────────────────────────────────── */
+  .gg-band {
+    background: var(--ocean-blue);
+    padding: 3.5rem 0;
+  }
+  .gg-band--out { background: var(--deep-navy); }
+
+  .gg-band__inner {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  .gg-band__stamp {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid var(--sunset-gold);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.75rem;
+    text-align: center;
+    min-width: 190px;
+  }
+  .gg-band__label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--sunset-gold);
+    margin-bottom: 0.3rem;
+  }
+  .gg-band__time {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.2;
+  }
+  .gg-band__text h2 { color: var(--white); margin-bottom: 0.6rem; }
+  .gg-band__text p { color: rgba(255,255,255,0.82); }
+
+  .gg-band__note {
+    margin-top: 1.25rem;
+    padding-left: 1.1rem;
+    border-left: 3px solid var(--sunset-gold);
+  }
+  .gg-band__note strong { color: var(--sunset-gold); display: block; margin-bottom: 0.2rem; }
+  .gg-band__note p { font-size: 0.94rem; }
+
+  /* ─── Wi-Fi card ─────────────────────────────────────────────────────────── */
+  .gg-wifi {
+    background: linear-gradient(135deg, var(--ocean-blue), var(--sky-blue));
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: var(--shadow-md);
+  }
+  .gg-wifi__head {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+  .gg-wifi__icon { font-size: 1.9rem; line-height: 1.2; }
+  .gg-wifi__head h3 { color: var(--white); margin-bottom: 0.2rem; }
+  .gg-wifi__head p { color: rgba(255,255,255,0.85); font-size: 0.95rem; }
+
+  .gg-wifi__creds {
+    display: grid;
+    grid-template-columns: 1fr 1.35fr;
+    gap: 1rem;
+  }
+  .gg-cred {
+    background: rgba(255,255,255,0.95);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "label btn" "value btn";
+    align-items: center;
+    gap: 0 0.75rem;
+  }
+  .gg-cred__label {
+    grid-area: label;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .gg-cred__value {
+    grid-area: value;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--deep-navy);
+    word-break: break-all;
+    line-height: 1.4;
+  }
+  .gg-cred__value--pw { letter-spacing: 0.02em; }
+
+  .gg-copy {
+    grid-area: btn;
+    background: var(--soft-sky);
+    border: none;
+    border-radius: 8px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ocean-blue);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    flex-shrink: 0;
+  }
+  .gg-copy:hover { background: var(--sky-blue); color: var(--white); }
+  .gg-copy.is-copied { background: var(--sunset-gold); color: var(--white); }
+
+  /* ─── House notes ────────────────────────────────────────────────────────── */
+  /* Flex rather than grid so a partial final row centres instead of hanging left. */
+  .gg-notes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.25rem;
+  }
+  .gg-note { flex: 0 1 calc((100% - 2.5rem) / 3); }
+  .gg-note {
+    background: var(--white);
+    border: 1px solid rgba(74,159,212,0.16);
+    border-radius: var(--radius);
+    padding: 1.4rem;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .gg-note:hover { transform: translateY(-3px); box-shadow: var(--shadow-sm); }
+  .gg-note__icon { font-size: 1.5rem; display: block; margin-bottom: 0.5rem; }
+  .gg-note h4 { color: var(--ocean-blue); margin-bottom: 0.3rem; }
+  .gg-note p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.65; }
+
+  /* ─── Handy documents ────────────────────────────────────────────────────── */
+  .gg-docs {
+    margin-top: 3rem;
+    background: var(--white);
+    border: 1px solid rgba(74,159,212,0.16);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+  }
+  .gg-docs__head {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+  }
+  .gg-docs__icon { font-size: 1.6rem; line-height: 1.2; }
+  .gg-docs__head h3 { margin-bottom: 0.2rem; }
+  .gg-docs__head p { font-size: 0.94rem; color: var(--text-muted); }
+
+  .gg-docs__list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .gg-doc {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 0.7rem;
+    background: var(--soft-sky);
+    border-radius: var(--radius);
+    padding: 0.8rem 1rem;
+    color: var(--deep-navy);
+    transition: background var(--transition-fast), transform var(--transition-fast);
+  }
+  /* An unpaired final link spans the row rather than leaving a gap beside it. */
+  .gg-doc:nth-child(odd):last-child { grid-column: 1 / -1; }
+  .gg-doc:hover { background: rgba(74,159,212,0.18); transform: translateY(-2px); }
+  .gg-doc__icon { font-size: 1.15rem; line-height: 1.2; }
+  .gg-doc__name { font-weight: 700; font-size: 0.92rem; line-height: 1.4; }
+  .gg-doc__type {
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    background: var(--white);
+    border-radius: 5px;
+    padding: 0.2rem 0.4rem;
+  }
+  .gg-doc__arrow { color: var(--ocean-blue); }
+
+  /* ─── Food ───────────────────────────────────────────────────────────────── */
+  .gg-food {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 2.5rem;
+    align-items: center;
+    margin-bottom: 3rem;
+  }
+  .gg-food__images {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .gg-food__images :global(img) {
+    aspect-ratio: 3 / 4;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+  }
+  .gg-food__images :global(img:first-child) { margin-top: 1.5rem; }
+  .gg-food__text h3 { margin-bottom: 0.75rem; }
+  .gg-food__text p { color: var(--text-muted); }
+
+  /* ─── Recommendations ────────────────────────────────────────────────────── */
+  .gg-recs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3.5rem;
+  }
+  .gg-rec { padding: 1.75rem; }
+  .gg-rec__icon { font-size: 1.6rem; display: block; margin-bottom: 0.4rem; }
+  .gg-rec__icon--second { margin-top: 1.5rem; }
+  .gg-rec h3 { margin-bottom: 0.6rem; }
+  .gg-rec p { font-size: 0.94rem; color: var(--text-muted); line-height: 1.65; }
+  .gg-rec__item + .gg-rec__item { margin-top: 1rem; }
+  .gg-rec__item strong { color: var(--deep-navy); font-size: 1rem; }
+
+  /* ─── Adventures ─────────────────────────────────────────────────────────── */
+  .gg-sub-head {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+  .gg-adventures {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .gg-adventure { display: flex; flex-direction: column; }
+  .gg-adventure__media { aspect-ratio: 16 / 10; overflow: hidden; position: relative; }
+  .gg-adventure__media :global(img) { border-radius: 0; }
+  .gg-adventure__badge {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    background: rgba(8,22,40,0.72);
+    color: var(--white);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.28rem 0.6rem;
+    border-radius: 6px;
+    backdrop-filter: blur(2px);
+  }
+  .gg-adventure__text { padding: 1.25rem 1.35rem 1.5rem; }
+  .gg-adventure__text h4 { color: var(--ocean-blue); margin-bottom: 0.3rem; }
+  .gg-adventure__text p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.65; }
+  .gg-adventure__icon { font-size: 1.6rem; display: block; margin-bottom: 0.4rem; }
+
+  /* ─── Family ─────────────────────────────────────────────────────────────── */
+  .gg-family {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  .gg-family__cards { display: grid; gap: 1.25rem; }
+  .gg-fam-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.1rem;
+    align-items: start;
+    background: var(--soft-sky);
+    border-radius: var(--radius);
+    padding: 1.4rem 1.6rem;
+  }
+  .gg-fam-card__icon { font-size: 1.7rem; line-height: 1.2; }
+  .gg-fam-card h3 { font-size: 1.2rem; margin-bottom: 0.3rem; }
+  .gg-fam-card p { font-size: 0.93rem; color: var(--text-muted); line-height: 1.65; }
+
+  .gg-family__media :global(.carousel) { box-shadow: var(--shadow-sm); }
+
+  /* ─── Carousel (same pattern as the apartment / about-mandre pages) ──────── */
+  .carousel {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    width: 100%;
+  }
+  .carousel__track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.4s ease;
+  }
+  .carousel__slide {
+    min-width: 100%;
+    height: 100%;
+    position: relative; /* anchors the per-slide place badge */
+  }
+
+  /* Carousel filling an adventure card's media box: the card already clips and sets
+     the aspect ratio, so drop the carousel's own and shrink the controls to fit. */
+  .carousel--flush {
+    border-radius: 0;
+    aspect-ratio: auto;
+    height: 100%;
+  }
+  .carousel--flush .carousel__btn {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.2rem;
+  }
+  .carousel--flush .carousel__btn--prev { left: 0.5rem; }
+  .carousel--flush .carousel__btn--next { right: 0.5rem; }
+  .carousel__slide :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .carousel__btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: background var(--transition);
+    color: var(--ocean-blue);
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  .carousel__btn:hover { background: white; }
+  .carousel__btn--prev { left: 0.75rem; }
+  .carousel__btn--next { right: 0.75rem; }
+  .carousel__dots {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 2;
+  }
+  .carousel__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background var(--transition);
+  }
+  .carousel__dot--active { background: white; }
+
+  /* ─── Help ───────────────────────────────────────────────────────────────── */
+  .gg-help { background: var(--soft-sky); }
+  .gg-help__inner {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 2.75rem 3rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .gg-help__inner h2 { margin-bottom: 0.6rem; }
+  .gg-help__body { color: var(--text-muted); }
+
+  .gg-help__sig {
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(74,159,212,0.18);
+  }
+  .gg-help__name {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ocean-blue);
+  }
+  .gg-help__role {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-light);
+  }
+
+  .gg-help__links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.75rem;
+    text-align: left;
+  }
+  .gg-help__link {
+    flex: 1 1 240px;
+    background: var(--soft-sky);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.2rem;
+    transition: background var(--transition-fast);
+  }
+  .gg-help__link:hover { background: rgba(74,159,212,0.18); }
+  .gg-help__link-label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .gg-help__link-value {
+    display: block;
+    font-weight: 700;
+    color: var(--ocean-blue);
+    word-break: break-word;
+  }
+
+  .gg-help__closing {
+    margin-top: 1.5rem;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--sunset-gold);
+  }
+
+  /* ─── Responsive ─────────────────────────────────────────────────────────── */
+  @media (max-width: 960px) {
+    /* Every block stacks to one column here, so the generous desktop rhythm turns
+       into a very long scroll. Tighten the vertical spacing as the columns collapse. */
+    .section { padding: 3.25rem 0; }
+    .gg-head { margin-bottom: 2rem; }
+
+    .gg-facts { grid-template-columns: repeat(2, 1fr); gap: 1rem 1.25rem; }
+    .gg-fact + .gg-fact { border-left: none; padding-left: 0; }
+
+    .gg-split { grid-template-columns: 1fr; gap: 1.5rem; }
+    .gg-split--reverse .gg-split__text,
+    .gg-split--reverse .gg-split__media { order: initial; }
+
+    .gg-parking { grid-template-columns: 1fr; gap: 1.25rem; margin-top: 2.5rem; padding: 1.25rem; }
+    .gg-food { grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .gg-recs { grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem; }
+    .gg-note { flex-basis: calc((100% - 1.25rem) / 2); }
+    .gg-adventures { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .gg-docs { margin-top: 2rem; padding: 1.25rem; }
+
+    .gg-family { grid-template-columns: 1fr; }
+
+    .gg-band { padding: 2.5rem 0; }
+    .gg-band__inner { grid-template-columns: 1fr; gap: 1.25rem; }
+    .gg-band__stamp { justify-self: start; }
+
+    .gg-help__inner { padding: 2rem; }
+  }
+
+  @media (max-width: 580px) {
+    .section { padding: 2.5rem 0; }
+    .gg-head { margin-bottom: 1.5rem; }
+    .gg-head .gg-lead { margin-top: 0.5rem; }
+    .gg-lead { font-size: 0.95rem; }
+    .gg-sub-head { margin-bottom: 1rem; }
+
+    .gg-facts-band { padding: 1.1rem 0; }
+    .gg-facts { grid-template-columns: 1fr; gap: 0.75rem; }
+
+    /* Arrival routes: emoji beside the heading instead of stacked above it. */
+    .gg-route-pair { grid-template-columns: 1fr; gap: 0.6rem; margin: 1.1rem 0; }
+    .gg-route {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 0.6rem;
+      padding: 0.9rem 1rem;
+    }
+    .gg-route__icon { font-size: 1.2rem; margin-bottom: 0; align-self: center; }
+    .gg-route h3 { font-size: 1.05rem; margin-bottom: 0; align-self: center; }
+    .gg-route p { grid-column: 2; font-size: 0.87rem; line-height: 1.5; margin-top: 0.15rem; }
+
+    .gg-map-btn { margin-top: 1rem; }
+    .gg-inline-link { margin-top: 1rem; }
+    .gg-garage { margin-top: 1rem; padding: 0.8rem 1rem; }
+    .gg-garage__dims { gap: 1.25rem; }
+    .gg-garage__value { font-size: 1.15rem; }
+
+    .gg-band { padding: 2rem 0; }
+    .gg-band__stamp { padding: 0.9rem 1.25rem; min-width: 0; }
+    .gg-band__note { margin-top: 1rem; }
+
+    .gg-wifi { padding: 1.15rem; margin-bottom: 1.75rem; }
+    .gg-wifi__head { gap: 0.7rem; margin-bottom: 1rem; }
+    .gg-wifi__icon { font-size: 1.5rem; }
+    .gg-wifi__creds { grid-template-columns: 1fr; gap: 0.6rem; }
+    .gg-cred { padding: 0.7rem 0.85rem; }
+
+    /* House notes: emoji beside the heading, body text tucked underneath it. */
+    .gg-notes { gap: 0.6rem; }
+    .gg-note {
+      flex-basis: 100%;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 0.6rem;
+      padding: 0.85rem 1rem;
+    }
+    .gg-note__icon { font-size: 1.2rem; margin-bottom: 0; align-self: center; }
+    .gg-note h4 { font-size: 1.02rem; margin-bottom: 0; align-self: center; }
+    .gg-note p { grid-column: 2; font-size: 0.87rem; line-height: 1.5; margin-top: 0.15rem; }
+
+    .gg-docs { padding: 1.1rem; }
+    .gg-docs__head { gap: 0.7rem; margin-bottom: 0.9rem; }
+    .gg-docs__icon { font-size: 1.3rem; }
+    .gg-docs__head p { font-size: 0.87rem; }
+    .gg-docs__list { grid-template-columns: 1fr; gap: 0.5rem; }
+    .gg-doc { padding: 0.7rem 0.85rem; gap: 0.55rem; }
+    .gg-doc__name { font-size: 0.87rem; }
+
+    .gg-food__images { gap: 0.6rem; }
+    .gg-food__images :global(img:first-child) { margin-top: 1rem; }
+
+    /* Recommendation cards: emoji beside the heading. */
+    .gg-rec {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 0.6rem;
+      padding: 1rem 1.1rem;
+    }
+    .gg-rec__icon { font-size: 1.25rem; margin-bottom: 0; align-self: center; }
+    .gg-rec h3 { font-size: 1.1rem; margin-bottom: 0; align-self: center; }
+    .gg-rec > p,
+    .gg-rec__item { grid-column: 2; }
+    .gg-rec > p { font-size: 0.87rem; margin-top: 0.15rem; }
+    .gg-rec__icon--second { margin-top: 0.9rem; }
+    .gg-rec__item + .gg-rec__item { margin-top: 0.7rem; }
+    .gg-rec__item p { font-size: 0.87rem; line-height: 1.5; }
+
+    .gg-adventures { grid-template-columns: 1fr; gap: 0.85rem; }
+    .gg-adventure__text { padding: 0.9rem 1rem 1.05rem; }
+    .gg-adventure__text p { font-size: 0.87rem; line-height: 1.55; }
+
+    /* Family cards: `display: contents` lifts the heading and body out of their
+       wrapper so the emoji can sit on the heading's line. */
+    .gg-family { gap: 1.25rem; }
+    .gg-family__cards { gap: 0.6rem; }
+    .gg-fam-card { column-gap: 0.6rem; padding: 0.9rem 1.1rem; }
+    .gg-fam-card > div { display: contents; }
+    .gg-fam-card__icon { font-size: 1.25rem; align-self: center; }
+    .gg-fam-card h3 { font-size: 1.05rem; margin-bottom: 0; align-self: center; }
+    .gg-fam-card p { grid-column: 2; font-size: 0.87rem; line-height: 1.5; margin-top: 0.15rem; }
+
+    .gg-help__inner { padding: 1.4rem; }
+    .gg-help__body { font-size: 0.92rem; }
+    /* In a column flex container `flex-basis` sets the height, so the desktop
+       `flex: 1 1 240px` would give each link a 240px-tall empty box. */
+    .gg-help__links { flex-direction: column; gap: 0.6rem; margin-top: 1.25rem; }
+    .gg-help__link { flex: 0 0 auto; padding: 0.7rem 0.9rem; }
+    .gg-help__sig { margin-top: 1.25rem; padding-top: 1.1rem; }
+    .gg-help__closing { margin-top: 1rem; font-size: 1rem; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.gg-copy').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.dataset.copyTarget;
+      if (!targetId) return;
+      const el = document.getElementById(targetId);
+      if (!el?.textContent) return;
+
+      try {
+        await navigator.clipboard.writeText(el.textContent.trim());
+      } catch {
+        return;
+      }
+
+      btn.classList.add('is-copied');
+      window.setTimeout(() => btn.classList.remove('is-copied'), 1600);
+    });
+  });
+
+  document.querySelectorAll<HTMLElement>('.carousel').forEach(carousel => {
+    const track = carousel.querySelector('.carousel__track') as HTMLElement | null;
+    const dots = carousel.querySelectorAll('.carousel__dot');
+    const prevBtn = carousel.querySelector('.carousel__btn--prev');
+    const nextBtn = carousel.querySelector('.carousel__btn--next');
+    const total = dots.length;
+    if (!track || total === 0) return;
+    let current = 0;
+
+    function goTo(index: number) {
+      current = ((index % total) + total) % total;
+      track!.style.transform = `translateX(-${current * 100}%)`;
+      dots.forEach((dot, i) => dot.classList.toggle('carousel__dot--active', i === current));
+    }
+
+    prevBtn?.addEventListener('click', () => goTo(current - 1));
+    nextBtn?.addEventListener('click', () => goTo(current + 1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+
+    let touchStartX = 0;
+    carousel.addEventListener('touchstart', (e: TouchEvent) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    carousel.addEventListener('touchend', (e: TouchEvent) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) goTo(dx < 0 ? current + 1 : current - 1);
+    });
+  });
+</script>
