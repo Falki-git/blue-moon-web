@@ -669,7 +669,7 @@
     "garageLength": "Length",
     "garageLengthValue": "6 m",
     "greetingTitle": "Where to find the key-locker",
-    "greetingBody": "The key-locker is on the 2nd floor, right next to the apartment door. Inside are the keys to the building and the apartment, along with the garage remote.",
+    "greetingBody": "The key-locker is on the 2nd floor, right next to the apartment door. Inside are the keys to the building and the apartment, along with the garage remote. We'll send you the locker combination separately.",
 
     "checkinLabel": "Check-in",
     "checkinTitle": "Your Keys Will Be Waiting",
@@ -759,7 +759,7 @@
     "checkoutTime": "By 10:00 AM",
     "checkoutBody": "Please leave the apartment in the same condition you found it on the day of arrival. We'll be there to check the apartment and to say goodbye when you go.",
     "checkoutEarlyTitle": "Leaving earlier than that?",
-    "checkoutEarlyBody": "If you need to head off before 10:00 AM, you can leave the keys in the key locker outside the apartment. We'll send you the locker combination separately, closer to your departure.",
+    "checkoutEarlyBody": "If you need to head off before 10:00 AM, you can leave the keys in the key locker outside the apartment. We'll send you the locker combination separately.",
 
     "helpLabel": "We're here",
     "helpTitle": "Anything at all — just ask",
