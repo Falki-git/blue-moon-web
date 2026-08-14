@@ -487,7 +487,11 @@ import '../../styles/global.css';
     .adm-btn--send:hover { background: #c8e6c9; }
     .adm-btn--resend { background: var(--white); color: #6a7989; border-color: #d4d9de; }
     .adm-btn--resend:hover { background: #d4d9de; }
+    /* Amber state: the mail is due (check-in within 3 days) and has not gone out yet. */
+    .adm-btn--due { background: #fff4dd; color: #8a6300; border-color: #E8A82A; }
+    .adm-btn--due:hover { background: #ffe6bb; }
     .adm-sent-note { font-size: 0.68rem; color: var(--text-muted); }
+    .adm-sent-note--due { color: #8a6300; font-weight: 800; }
     .adm-send-group { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; }
     .adm-btn--remove  { background: var(--white); color: #a64141; border-color: #f1dada; }
     .adm-btn--remove:hover  { background: #f1dada; }
@@ -734,7 +738,7 @@ import '../../styles/global.css';
   </style>
 
   <script>
-    type BookingSettings = { minAdvanceDays: number };
+    type BookingSettings = { minAdvanceDays: number; keyLockerCode: string };
     type Reservation = {
       id: string;
       created_at: number;
@@ -746,6 +750,7 @@ import '../../styles/global.css';
       full_total_eur: number | null; discount_pct: number | null;
       message: string | null; decided_at: number | null;
       deposit_confirmation_sent_at: number | null; welcome_email_sent_at: number | null;
+      evisitor_email_sent_at: number | null;
     };
     type ManualBlock = { id: string; created_at: number; from_date: string; to_date: string; note: string | null };
     type PricingRule = { month: number; rate_eur: number; discount_rate_eur: number | null; updated_at: number };
@@ -1036,16 +1041,41 @@ import '../../styles/global.css';
     /** Escapes a value used as a single-quoted JS string literal inside an HTML attribute. */
     const escAttrArg = (s: string) => esc(s.replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
 
+    /** Whole days from today until an ISO date. Negative once the date has passed. */
+    const daysUntil = (iso: string) => {
+      const [y, m, d] = iso.split('-').map(Number);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return Math.round((new Date(y, m - 1, d).getTime() - today.getTime()) / 86400000);
+    };
+
+    /** The eVisitor mail goes out a few days before arrival — null while it isn't due yet. */
+    const EVISITOR_DUE_DAYS = 3;
+    const evisitorDueIn = (checkIn: string) => {
+      const d = daysUntil(checkIn);
+      return d >= 0 && d <= EVISITOR_DUE_DAYS ? d : null;
+    };
+
     /**
      * Renders a guest-email send button plus its sent-at stamp. Green + "Send …" until the
      * email has gone out, then grey + "Resend …" with the timestamp underneath.
-     * Adding another guest email (e.g. eVisitor) is one more call to this.
+     * Adding another guest email is one more call to this.
+     *
+     * `dueInDays` marks a not-yet-sent email as due: the button turns amber and gains a
+     * hint. Pass it only for emails that have a moment they should go out (eVisitor).
      */
-    const guestEmailButton = (sentAt: number | null, label: string, onclick: string) => `
+    const guestEmailButton = (sentAt: number | null, label: string, onclick: string, dueInDays?: number | null) => {
+      const due = sentAt === null && dueInDays !== null && dueInDays !== undefined;
+      const dueHint = dueInDays === 0 ? 'arriving today'
+        : dueInDays === 1 ? 'arriving tomorrow'
+        : `arriving in ${dueInDays} days`;
+      return `
       <div class="adm-send-group">
-        <button class="adm-btn ${sentAt ? 'adm-btn--resend' : 'adm-btn--send'}" onclick="${onclick}">${sentAt ? 'Resend' : 'Send'} ${label}</button>
+        <button class="adm-btn ${sentAt ? 'adm-btn--resend' : due ? 'adm-btn--due' : 'adm-btn--send'}" onclick="${onclick}">${sentAt ? 'Resend' : 'Send'} ${label}</button>
         ${sentAt ? `<span class="adm-sent-note">&#10003; Email sent ${fmtTs(sentAt)}</span>` : ''}
+        ${due ? `<span class="adm-sent-note adm-sent-note--due">&#9679; Due now — ${dueHint}</span>` : ''}
       </div>`;
+    };
 
     async function api<T>(path: string, init?: RequestInit): Promise<T> {
       const res = await fetch(path, {
@@ -1114,6 +1144,17 @@ import '../../styles/global.css';
       }
     }
     (window as any).__sendWelcomeInfo = sendWelcomeInfo;
+
+    async function sendEvisitorRequest(id: string, email: string) {
+      if (!confirm(`Send the guest registration request — including the key-locker code — to ${email}?`)) return;
+      try {
+        await api(`/api/admin/reservations/${id}/evisitor-email`, { method: 'POST' });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to send email');
+      }
+    }
+    (window as any).__sendEvisitorRequest = sendEvisitorRequest;
 
     function invoiceModal(email: string, defaultNumber: string): Promise<string | null> {
       return new Promise(resolve => {
@@ -1442,6 +1483,29 @@ import '../../styles/global.css';
     }
     (window as any).__saveMinAdvanceDays = saveMinAdvanceDays;
 
+    async function saveKeyLockerCode() {
+      const input = document.getElementById('setting-key-locker-code') as HTMLInputElement;
+      const btn   = document.getElementById('setting-key-locker-btn') as HTMLButtonElement;
+      const code  = input.value.trim();
+      if (!/^\d{4}$/.test(code)) { alert('Enter exactly 4 digits'); return; }
+      try {
+        await api('/api/admin/settings', {
+          method: 'POST',
+          body: JSON.stringify({ keyLockerCode: code }),
+        });
+        btn.classList.add('adm-pricing-row__btn--saved');
+        btn.textContent = 'Saved ✓';
+        setTimeout(() => {
+          btn.classList.remove('adm-pricing-row__btn--saved');
+          btn.textContent = 'Save';
+        }, 1800);
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Save failed');
+      }
+    }
+    (window as any).__saveKeyLockerCode = saveKeyLockerCode;
+
     async function savePricing(month: number) {
       const rateInput     = document.getElementById(`pr-rate-${month}`) as HTMLInputElement;
       const discountInput = document.getElementById(`pr-discount-${month}`) as HTMLInputElement;
@@ -1599,6 +1663,7 @@ import '../../styles/global.css';
       document.getElementById('confirmedList')!.innerHTML = tableRows(confirmed, r => `
         ${guestEmailButton(r.deposit_confirmation_sent_at, 'deposit confirmation', `__sendDepositConfirmation('${r.id}')`)}
         ${guestEmailButton(r.welcome_email_sent_at, 'welcome info', `__sendWelcomeInfo('${r.id}','${escAttrArg(r.email)}')`)}
+        ${guestEmailButton(r.evisitor_email_sent_at, 'eVisitor mail', `__sendEvisitorRequest('${r.id}','${escAttrArg(r.email)}')`, evisitorDueIn(r.check_in))}
         <button class="adm-btn adm-btn--cancel" onclick="__decide('${r.id}','cancel')">Delete reservation</button>
       `);
       document.getElementById('otherList')!.innerHTML = tableRows(other, () => '');
@@ -1655,6 +1720,14 @@ import '../../styles/global.css';
           </div>
           <input type="number" id="setting-min-advance-days" class="adm-settings-row__input" value="${settingsData.minAdvanceDays}" min="0" max="30" />
           <button class="adm-pricing-row__btn" id="setting-min-advance-btn" onclick="__saveMinAdvanceDays()">Save</button>
+        </div>
+        <div class="adm-settings-row">
+          <div style="flex:1;">
+            <div class="adm-settings-row__label">Key-locker combination</div>
+            <div class="adm-settings-row__hint">Four digits. Sent to guests in the arrival email — change it here and every mail sent afterwards carries the new code.</div>
+          </div>
+          <input type="text" id="setting-key-locker-code" class="adm-settings-row__input" value="${esc(settingsData.keyLockerCode)}" inputmode="numeric" maxlength="4" pattern="\\d{4}" />
+          <button class="adm-pricing-row__btn" id="setting-key-locker-btn" onclick="__saveKeyLockerCode()">Save</button>
         </div>
       `;
 
