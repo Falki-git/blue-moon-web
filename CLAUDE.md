@@ -6,7 +6,7 @@ Marketing website for **Blue Moon Apartment**, a luxury 2-bedroom short-term ren
 
 **Status: Live (v1.0) — launched 2026-05-08.** Treat all changes as production-affecting.
 
-Operates seasonally (June–September). Multi-language support (7 languages) is framework-ready but not yet implemented — only English content exists.
+Operates seasonally (June–September). The site is live in **7 languages** — English (default, unprefixed) plus Croatian, German, Slovenian, Italian, Polish and Czech. See [Internationalization](#internationalization) before touching any user-facing copy.
 
 ## Tech Stack
 
@@ -17,7 +17,7 @@ Operates seasonally (June–September). Multi-language support (7 languages) is 
 | Styling | Vanilla CSS — scoped component styles + global design system |
 | Fonts | Google Fonts: Playfair Display (serif headings), Nunito (sans-serif body) |
 | Hosting | Cloudflare Workers — static assets via `[assets]` binding; `src/worker/index.ts` is the Worker entry point |
-| Database | Cloudflare D1 (SQLite at the edge) — reservations, manual date blocks, per-month pricing rules |
+| Database | Cloudflare D1 (SQLite at the edge) — reservations, manual date blocks, per-month pricing rules, guest data, invoices, crew docs, settings |
 | Forms | Worker-handled — `POST /api/contact` → `src/worker/contact.ts`; `POST /api/booking` → `src/worker/booking.ts` — both use Resend email API + Cloudflare Turnstile |
 | Interactivity | Vanilla JS inline `<script>` blocks only — no frontend framework |
 
@@ -26,20 +26,24 @@ Operates seasonally (June–September). Multi-language support (7 languages) is 
 ```
 src/
   layouts/          # BaseLayout.astro (root shell), PageLayout.astro (inner-page hero wrapper)
-  components/       # Nav, Footer, WhatsAppButton, CookieBanner
-  pages/            # File-based routes — one .astro file per URL
+  components/       # Nav, Footer, WhatsAppButton, CookieBanner, BookingCalendar
+    pages/          # One *Content.astro per page — the shared body both locale routes render
+  pages/            # File-based routes — English at the root, other languages under [lang]/
   styles/           # global.css — CSS variables, resets, utility classes
   assets/
     gallery/        # Real apartment & destination photos — processed by Astro Image at build time
-  i18n/             # en.json — translation strings (multi-lang framework, not yet active)
+  i18n/             # en/hr/de/si/it/pl/cz.json translation strings + utils.ts (lang maps, lookup)
   worker/
     index.ts        # Worker entry point — routes all /api/* paths, serves assets
     contact.ts      # Contact form handler (Resend + Turnstile)
     booking.ts      # Booking form + availability API (creates reservations in D1, fires emails)
     admin.ts        # Admin dashboard API (list/approve/decline reservations, manage blocks, set pricing)
-    auth.ts         # Session cookie auth for admin; signed decision tokens for owner emails
-    db.ts           # D1 query layer — reservations, manual_blocks, pricing_rules tables
-    email.ts        # Email builders (owner notification, guest pending/approved)
+    crew.ts         # Cleaning-crew API — crew login, guest list, reference docs
+    auth.ts         # Session cookie auth for admin and crew; signed decision tokens for owner emails
+    db.ts           # D1 query layer — reservations, manual_blocks, pricing_rules, settings,
+                    #   cleaning_guests, guest_stay_ranges, invoices, crew_docs tables
+    email.ts        # Email builders (owner notification; guest pending/deposit/approved/welcome/eVisitor/invoice)
+    invoice.ts      # Bilingual PDF invoice generation (pdf-lib + embedded DejaVu fonts)
     pricing.ts      # Per-month pricing logic, season config, deposit calculation
 public/
   images/           # logo.svg, nav-logo.svg, og-image.jpg, favicon.svg
@@ -48,7 +52,7 @@ public/
   _headers          # Cloudflare Workers static-asset security/cache headers
 ```
 
-Most content is hardcoded in page files. The exception is the booking system: availability, occupied dates, and per-month pricing are stored in Cloudflare D1 and fetched client-side from `/api/availability` on the booking page.
+Page copy lives in the `src/i18n/*.json` files rather than inline in the `.astro` files. Layout and styling stay in the components. Data that changes without a rebuild — availability, occupied dates, per-month pricing — lives in Cloudflare D1 and is fetched client-side from `/api/availability` on the booking page.
 
 ## Build & Dev Commands
 
@@ -71,6 +75,8 @@ No test or lint scripts are configured.
 
 ## Pages
 
+Localized pages exist twice: `src/pages/<page>.astro` serves English at `/<page>`, and `src/pages/[lang]/<page>.astro` serves the other six at `/<lang>/<page>`. Both are thin shells around the same `src/components/pages/*Content.astro`.
+
 | File | Route | Notes |
 |------|-------|-------|
 | `src/pages/index.astro` | `/` | Homepage — hero, features, pricing teaser, reviews |
@@ -78,14 +84,34 @@ No test or lint scripts are configured.
 | `src/pages/gallery.astro` | `/gallery` | Photo gallery with Astro Image component, JS filter, lightbox |
 | `src/pages/pricelist.astro` | `/pricelist` | Rates, policies, check-in times |
 | `src/pages/booking.astro` | `/booking` | Direct booking page — calendar, availability fetch, pricing calc, guest form + Turnstile |
-| `src/pages/booking/confirm.astro` | `/booking/confirm` | Post-submission confirmation screen (noindex) |
 | `src/pages/contact.astro` | `/contact` | Short inquiry form → `/api/contact` |
 | `src/pages/about-mandre.astro` | `/about-mandre` | Destination guide with image carousels and Google Maps embed |
 | `src/pages/reviews.astro` | `/reviews` | Guest testimonials |
 | `src/pages/directions.astro` | `/directions` | Travel info with Google Maps embed |
+| `src/pages/guest-guide.astro` | `/guest-guide` | Pre-arrival guide sent to booked guests — arrival, parking, Wi-Fi, house notes (noindex) |
+| `src/pages/[lang]/*.astro` | `/<lang>/…` | The same ten pages for hr, de, si, it, pl, cz |
+
+Single-locale, English-only routes:
+
+| File | Route | Notes |
+|------|-------|-------|
+| `src/pages/booking/confirm.astro` | `/booking/confirm` | Post-submission confirmation screen (noindex) |
 | `src/pages/admin/login.astro` | `/admin/login` | Password login for admin (noindex) |
 | `src/pages/admin/index.astro` | `/admin` | Reservations dashboard — pending/confirmed/declined, manual blocks, pricing (noindex) |
+| `src/pages/cleaning/login.astro` | `/cleaning/login` | Password login for the cleaning crew (noindex) |
+| `src/pages/cleaning/index.astro` | `/cleaning` | Cleaning-crew guest list from `/api/crew/guests`, plus doc links (noindex) |
+| `src/pages/cleaning/docs/index.astro` | `/cleaning/docs` | Crew reference docs rendered from `/api/crew/docs` (noindex) |
 | `src/pages/404.astro` | 404 | Custom error page |
+
+## Internationalization
+
+`src/i18n/utils.ts` holds `SUPPORTED_LANGS` (`en, hr, de, si, it, pl, cz`), the hreflang and `Intl` locale maps, and `getTranslations(lang)`.
+
+`getTranslations` deep-merges the locale file over `en.json`, and treats `null`/`undefined`/`""` as "not yet translated". **A key missing from a locale file silently falls back to English rather than failing the build** — so a half-finished copy change looks fine locally and ships English text to six languages.
+
+**IMPORTANT**: any change to user-facing copy must be applied to all seven `src/i18n/*.json` files — including new keys. `en.json` is the schema (`type Translations = typeof en`); add the key there first, then translate it everywhere else.
+
+Copy edits go in the JSON files, never inline in the `.astro` components.
 
 ## Images
 

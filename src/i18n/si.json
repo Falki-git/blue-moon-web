@@ -193,7 +193,27 @@
     "subgroupBedroom1": "Spalnica 1",
     "subgroupBedroom2": "Spalnica 2",
     "subgroupBathroom1": "Kopalnica 1",
-    "subgroupBathroom2": "Kopalnica 2"
+    "subgroupBathroom2": "Kopalnica 2",
+    "labels": {
+      "terraceHotTub": "Terasa z jacuzzijem",
+      "terrace": "Terasa",
+      "terracePanorama": "Panorama terase",
+      "livingRoom": "Dnevna soba",
+      "diningArea": "Jedilnica",
+      "openPlanLiving": "Odprt bivalni prostor",
+      "hallway": "Hodnik",
+      "kitchen": "Kuhinja",
+      "kitchenDetail": "Kuhinja — detajl",
+      "bedroom1": "Spalnica 1",
+      "bedroom2": "Spalnica 2",
+      "bathroom1": "Kopalnica 1",
+      "bathroom2": "Kopalnica 2",
+      "mandre": "Mandre",
+      "buildingOutdoor": "Stavba in okolica",
+      "floorPlan": "Tloris",
+      "inRoomSafe": "Sef v apartmaju",
+      "mandreLocation": "Mandre — lokacija"
+    }
   },
   "pricelist": {
     "metaTitle": "Cenik | Blue Moon Apartment, Mandre",
@@ -404,7 +424,63 @@
     "leaveReviewBody": "Radi bi slišali o vaši izkušnji. Vaše mnenje pomaga drugim družinam najti idealne počitnice.",
     "leaveReviewBtn": "Pustite mnenje na Booking.com →",
     "contactBtn": "Kontaktirajte nas",
-    "bookCta": "Preverite razpoložljivost →"
+    "bookCta": "Preverite razpoložljivost →",
+    "countryPoland": "Poljska",
+    "countryGermany": "Nemčija",
+    "countrySlovenia": "Slovenija",
+    "countrySlovakia": "Slovaška",
+    "countryItaly": "Italija",
+    "countryCzechia": "Češka",
+    "monthJune": "junij",
+    "monthAugust": "avgust",
+    "monthSeptember": "september",
+    "items": [
+      {
+        "title": "Čisto, dobro vzdrževano in odlično opremljeno",
+        "text": "Nepremičnina je zelo čista, dobro vzdrževana in odlično opremljena. Terasa je čista ter opremljena z ležalniki in žarom. Apartma je odlično umeščen, blizu plaže, promenade in restavracij.",
+        "highlights": ["Žar na terasi", "Plaža in promenada", "Brezhibno čisto"]
+      },
+      {
+        "title": "Jacuzzi je pravljica",
+        "text": "Čudovit apartma, zelo udoben. Imel je vse, kar bi lahko potrebovali med bivanjem, in še več. Zelo čist, blizu plaže in restavracij, majhna trgovina takoj čez cesto. Pogled na morje s terase je čudovit — jacuzzi pa je pravljica.",
+        "highlights": ["Jacuzzi", "Pogled na morje s terase", "Trgovina čez cesto"]
+      },
+      {
+        "title": "Čudovit čas v Mandrah",
+        "text": "Penthouse ima vse, kar potrebujete. Odlična terasa z novim jacuzzijem, sedežno garnituro in senčnikom. Bruno (lokalni kontakt) nas je toplo sprejel in nam pokazal celoten apartma. Kuhinja je bila popolnoma opremljena — ves pribor in celo začimbe, olje itd. — v hladilniku pa sta bila celo sveže sadje in pijača. Kopalnica je bila enako dobro pripravljena: dezodorant, vatirane blazinice, pralni prašek — imela je vse. Manjši supermarket je oddaljen le 20 metrov. Promenada, plaža, restavracije in trgovinice so 2–3 minute hoje. Goran nam je uredil tudi zgodnjo prijavo, saj smo prejšnji teden preživeli v Mandrah — povsem brez zapletov. Najlepša hvala za to!",
+        "highlights": ["Nov jacuzzi", "Popolnoma opremljena kuhinja", "Urejena zgodnja prijava"]
+      },
+      {
+        "title": "Izpolnil bo tudi najzahtevnejša pričakovanja",
+        "text": "Sodoben, odlično opremljen apartma. Po mojem mnenju bo izpolnil tudi najzahtevnejša pričakovanja. Zelo dobra komunikacija z Brunom, ki je bil vedno dosegljiv in ni nikoli odrekel pomoči. Toplo priporočam!",
+        "highlights": ["Sodoben in opremljen", "Bruno vedno dosegljiv", "Toplo priporočamo"]
+      },
+      {
+        "title": "Gostoljubni, prijazni gostitelji — priporočam",
+        "text": "Gostoljubni, prijazni gostitelji. Odlična lokacija, čudovit apartma — zelo čist in urejen. Priporočamo vsem.",
+        "highlights": ["Prijazni gostitelji", "Čisto in urejeno", "Odlična lokacija"]
+      },
+      {
+        "title": "Odličen dopust",
+        "text": "Čudovit, povsem nov apartma, popolnoma opremljen, brezhibno čist, dve kopalnici, trije LCD televizorji, velika terasa s sedežno garnituro in ležalniki. WiFi je deloval brezhibno. Vse fotografije v oglasu so pristne. Čudoviti Bruno nas je pričakal s skledo svežega sadja, ohlajeno mineralno vodo in sokom. Imeli smo parkirno mesto in garažo. Komunikacija je bila odlična. Hvala Brunu in Goranu za izvrstno bivanje!",
+        "highlights": ["Dve kopalnici", "Dobrodošlica", "Parkirišče in garaža"]
+      },
+      {
+        "title": "Vse je bilo popolno — vi ste najboljši!",
+        "text": "Vse je bilo popolno! Vi ste najboljši! Čestitke! Preživeli smo čudovite počitnice v apartmaju in v kraju Mandre! Hvala za vaše delo!",
+        "highlights": ["Popolno bivanje", "Kraj Mandre", "Izjemni gostitelji"]
+      },
+      {
+        "title": "Hvala ekipi Blue Moon za odličen dopust!",
+        "text": "Čudovit apartma na odlični lokaciji v Mandrah. 1 minuta do trgovine in pekarne. 3 minute do plaže. Zelo udobna terasa z osupljivo pokrajino! Odlična podpora lokalnega kontakta Bruna. Vse je bilo popolno. Hvala ekipi Blue Moon za odličen dopust! Zame in za mojo družino je bil to čas popolne sprostitve!",
+        "highlights": ["Popolna lokacija", "Terasa in razgledi", "Bruno na kraju samem"]
+      },
+      {
+        "title": "Zasnovano s skrbnostjo in velikim občutkom za detajle",
+        "text": "Med bivanjem smo imeli povsem izjemno udobje, apartma je bil čudovito opremljen, očitno je, da je bil zasnovan s skrbnostjo in velikim občutkom za detajle. Imeli smo vse, kar smo potrebovali, in več, kot smo pričakovali. Terasa je absoluten vrhunec. Gostitelj je bil zelo ustrežljiv in prijazen.",
+        "highlights": ["Terasa", "Čudovita oprema", "Prijazen gostitelj"]
+      }
+    ]
   },
   "aboutMandre": {
     "metaTitle": "O Mandre | Blue Moon Apartment, Otok Pag",
@@ -471,6 +547,11 @@
     "trip2Body": "Organizirani izleti s čolnom iz Luke Mandre — otoki brez avtomobilov z izjemnim čarom.",
     "trip3Title": "🏞️ Narodni parki Krka in Plitvička jezera",
     "trip3Body": "Dva od najosupljivejših parkov Hrvaške v dosegu — Krka (~90 min) za slapove in kopanje, Plitvice (~2 uri) za osupljiva turkizna jezera. Organizirani izleti so na voljo za oba.",
+    "tripCaptionLifeOnMars": "Pot Life on Mars",
+    "tripCaptionBoat": "Izlet z ladjo iz Luke Mandre",
+    "tripCaptionSilba": "Otok Silba",
+    "tripCaptionKrka": "Narodni park Krka",
+    "tripCaptionPlitvice": "Narodni park Plitviška jezera",
     "aroundLabel": "Onkraj Mandre",
     "aroundTitle": "🏝️ Po otoku in naprej",
     "dist1Time": "20 min",
@@ -656,6 +737,7 @@
     "arrivalTipTitle": "Na dan potovanja preverite razmere",
     "arrivalTipBody": "Močan veter lahko upočasni ali zapre trajektno povezavo ali most. Radijski program HRT-HR2 redno poroča o prometnih razmerah, aplikacija HAK pa prikazuje sprotno stanje cest, mostu in trajektov.",
     "arrivalDirectionsLink": "Oglejte si podrobne opise poti",
+    "arrivalBridgeBadge": "Paški most",
     "findingLabel": "Zadnjih nekaj minut",
     "findingTitle": "Kako najti apartma",
     "findingBody": "Ko prispete v Mandre, sledite glavni cesti navzdol proti središču. Zavijte levo na Široko ulico, nato tretjič desno in še drugič desno na Riječko ulico. Apartma je skoraj neposredno nasproti trgovine Bakmaz.",
@@ -671,7 +753,7 @@
     "checkinLabel": "Prijava",
     "checkinTitle": "Ključi vas bodo čakali",
     "checkinTime": "Od 16:00",
-    "checkinBody": "Pred odhodom nam sporočite, kdaj približno pričakujete prihod — kratko sporočilo prek WhatsAppa povsem zadostuje. Če prispete prej, vam z veseljem shranimo prtljago, dokler apartma ni pripravljen.",
+    "checkinBody": "Ključi vas čakajo v omarici za ključe, zato se vam ob prihodu ni treba z nikomer sestati. Če prispete prej, vam z veseljem shranimo prtljago, dokler apartma ni pripravljen.",
     "apartmentLabel": "Dobro je vedeti",
     "apartmentTitle": "Med bivanjem v apartmaju",
     "apartmentIntro": "Nekaj malenkosti, ki bivanje naredijo prijetnejše.",
@@ -724,11 +806,11 @@
     "adventure3Title": "Kolesa in čolni",
     "adventure3Body": "Najemite kolesa ali manjši čoln in raziščite otok povsem po svojem tempu.",
     "adventure4Title": "Pot Life on Mars",
-    "adventure4Body": "Najbolj osupljiva in nezemeljska pohodniška pot na Hrvaškem, tik pred vrati.",
+    "adventure4Body": "Najbolj osupljiva in nezemeljska pohodniška pot na Hrvaškem — in je prav tu, na Pagu.",
     "adventure5Title": "Sirarna Gligora",
     "adventure5Body": "Ogledi obrata in degustacija sira v bližnjem Kolanu — kratka in zelo okusna vožnja.",
     "adventure6Title": "Paška sol",
-    "adventure6Body": "Obiščite stalno razstavo o pridobivanju soli v mestu Pag ali se pridružite jutranji delavnici na solnih poljih — za oboje se prijavite vnaprej.",
+    "adventure6Body": "Obiščite stalno razstavo o pridobivanju soli v mestu Pag ali se pridružite jutranji delavnici na solnih poljih.",
     "adventure6Badge1": "Razstava",
     "adventure6Badge2": "Solna polja",
     "familyLabel": "Z otroki",
@@ -768,6 +850,35 @@
     "welcomeBody": "Za vaš prihod v Mandre je vse pripravljeno. Pripravili smo kratek vodnik z vsem, kar boste potrebovali — kako nas najti, kje parkirati, geslo za Wi-Fi, prijavo in odjavo ter nekaj naših osebnih priporočil za otok.",
     "welcomeCta": "Odprite vodnik za bivanje",
     "welcomeFollowUp": "Shranite to povezavo — odprete jo lahko kadar koli pred bivanjem ali med njim. Če se medtem kaj pojavi, preprosto odgovorite na to e-pošto.",
+    "evisitorSubject": "Pred vašim prihodom — prijava gostov in koda ključavnice za ključe",
+    "evisitorHeading": "Vse je pripravljeno za vas, {{name}}!",
+    "evisitorBody": "Vaše bivanje v Blue Moon Apartmentu se začne {{checkin}}. Dve stvari, preden se odpravite na pot: kratek seznam podatkov, ki jih potrebujemo za uradno prijavo gostov, in koda vaše ključavnice za ključe.",
+    "evisitorRegSection": "Prijava gostov",
+    "evisitorRegBody": "Hrvaška zakonodaja nam nalaga, da vsakega gosta v 24 urah po prihodu prijavimo nacionalni turistični zvezi (sistem eVisitor). Da bo vaša prijava hitra in brez zapletov, nam prosimo pošljite naslednje podatke za vsako osebo, ki bo bivala pri nas, vključno z otroki:",
+    "evisitorFieldFirstName": "Ime",
+    "evisitorFieldLastName": "Priimek",
+    "evisitorFieldDocType": "Vrsta dokumenta (osebna izkaznica ali potni list)",
+    "evisitorFieldDocNumber": "Številka dokumenta",
+    "evisitorFieldGender": "Spol",
+    "evisitorFieldCountryResidence": "Država prebivališča",
+    "evisitorFieldCityResidence": "Kraj prebivališča",
+    "evisitorFieldNationality": "Državljanstvo",
+    "evisitorFieldCountryBirth": "Država rojstva",
+    "evisitorFieldDateOfBirth": "Datum rojstva (DD.MM.LLLL)",
+    "evisitorRegAlt": "Če vam je lažje, preprosto fotografirajte vsako osebno izkaznico ali potni list in nam pošljite slike — tudi to povsem zadostuje.",
+    "evisitorRegPrivacy": "Ti podatki se uporabljajo izključno za uradno prijavo in se obdelujejo varno, skladno s pravili o zasebnosti.",
+    "evisitorSendBody": "Pošljite jih na način, ki vam najbolj ustreza — odgovorite na to e-pošto ali nam pišite prek WhatsAppa: gumb spodaj takoj odpre pogovor z nami.",
+    "evisitorWhatsappCta": "Pošljite prek WhatsAppa",
+    "evisitorWhatsappPrefill": "Dober dan! Pošiljamo vam naše podatke za prijavo gostov:",
+    "evisitorLockerSection": "Koda vaše ključavnice",
+    "evisitorLockerLabel": "Koda ključavnice",
+    "evisitorLockerBody": "Ključavnica za ključe je v 2. nadstropju, tik ob vratih apartmaja. V njej so ključi apartmaja in daljinec za garažo.",
+    "evisitorCheckinSection": "Vaš prihod",
+    "evisitorCheckinTime": "16:00",
+    "evisitorCheckinBody": "Prijava je od {{time}} na {{checkin}}. Če nam še niste sporočili, nam prosim povejte, kdaj približno pričakujete prihod.",
+    "evisitorParkingBody": "Ko prispete, pustite avto na zasebnem parkirnem mestu pred stavbo. Vhodna vrata stavbe bodo odklenjena, zato lahko prosto vstopite in se po stopnicah povzpnete v drugo nadstropje — ključi vas čakajo v ključavnici ob vratih apartmaja.",
+    "evisitorGuideBody": "Navodila za pot, parkiranje, Wi-Fi in naša osebna priporočila za otok najdete v vodniku za bivanje.",
+    "evisitorGuideCta": "Odprite vodnik za bivanje",
     "pendingSubject": "Prejeli smo vašo zahtevo za rezervacijo — Blue Moon Apartment",
     "pendingHeading": "Hvala, {{name}}!",
     "pendingBody": "Prejeli smo vašo zahtevo za rezervacijo. Pregledali jo bomo in odgovorili v 24 urah. Vaši izbrani datumi so zadržani do takrat.",

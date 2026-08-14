@@ -1,6 +1,6 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
-import type { Translations } from '../../i18n/utils';
+import { HREFLANG_MAP, type SupportedLang, type Translations } from '../../i18n/utils';
 import heroBg from '../../assets/gallery/reviews-1.jpg';
 
 interface Props {
@@ -11,129 +11,38 @@ interface Props {
 const { lang, T } = Astro.props;
 const prefix = lang === 'en' ? '' : `/${lang}`;
 
-const reviews = [
-  {
-    id: 1,
-    name: 'Bartosz',
-    country: 'Poland',
-    flag: '🇵🇱',
-    rating: 10,
-    date: 'September 2025',
-    title: 'Clean, well-maintained, and brilliantly equipped',
-    text: 'The property is very clean, well-maintained and brilliantly equipped. The terrace is clean and stocked with sunbeds and a barbecue grill. The apartment is perfectly placed close to the beach, promenade and restaurants.',
-    highlights: ['BBQ grill on terrace', 'Beach & promenade', 'Spotlessly clean'],
-    booking: 'Booking.com',
-  },
-  {
-    id: 2,
-    name: 'Tomasz',
-    country: 'Poland',
-    flag: '🇵🇱',
-    rating: 10,
-    date: 'September 2025',
-    title: 'The jacuzzi is a fairy tale',
-    text: 'A beautiful apartment, very comfortable. It had everything you could need for your stay, and more. Very clean, close to the beach and restaurants, small shop right across the street. The sea view from the terrace is gorgeous — and the jacuzzi is a fairy tale.',
-    highlights: ['Jacuzzi', 'Sea view from terrace', 'Shop across the street'],
-    booking: 'Booking.com',
-  },
-  {
-    id: 3,
-    name: 'Alex',
-    country: 'Germany',
-    flag: '🇩🇪',
-    rating: 10,
-    date: 'June 2025',
-    title: 'A wonderful time in Mandre',
-    text: 'The penthouse has everything you need. Great terrace with the new whirlpool, seating and parasol. Bruno (local contact) welcomed us warmly and showed us the entire apartment. The kitchen was fully equipped — all utensils and even spices, oil etc. — and even had fresh fruit and drinks in the fridge. The bathroom was equally well-prepared: deodorant, cotton pads, washing powder — it had everything. A small supermarket is just 20 metres away. The promenade, beach, restaurants and small shops are a 2–3 minute walk. Goran also arranged an early check-in since we had spent the previous week in Mandre — a seamless transition. Many thanks for that!',
-    highlights: ['New whirlpool', 'Fully stocked kitchen', 'Early check-in arranged'],
-    booking: 'Booking.com',
-  },
-  {
-    id: 4,
-    name: 'Patryk',
-    country: 'Poland',
-    flag: '🇵🇱',
-    rating: 10,
-    date: 'September 2024',
-    title: 'Will meet even the most demanding expectations',
-    text: 'Modern, brilliantly equipped apartment. In my opinion it will meet even the most demanding expectations. Very good communication with Bruno, who was always available and never refused to help. Highly recommend!',
-    highlights: ['Modern & equipped', 'Bruno always available', 'Highly recommended'],
-    booking: 'Booking.com',
-  },
-  {
-    id: 5,
-    name: 'Žiga',
-    country: 'Slovenia',
-    flag: '🇸🇮',
-    rating: 10,
-    date: 'September 2024',
-    title: 'Hospitable, friendly hosts — highly recommend',
-    text: 'Hospitable, friendly hosts. Great location, beautiful apartment — very clean and tidy. We recommend to everyone.',
-    highlights: ['Friendly hosts', 'Clean & tidy', 'Great location'],
-    booking: 'Booking.com',
-  },
-  {
-    id: 6,
-    name: 'Iveta',
-    country: 'Slovakia',
-    flag: '🇸🇰',
-    rating: 10,
-    date: 'August 2024',
-    title: 'Great holiday',
-    text: 'A beautiful brand-new apartment, fully equipped, spotlessly clean, two bathrooms, three LCD TVs, large terrace with seating and sunbeds. WiFi worked flawlessly. All listing photos are genuine. The wonderful Bruno welcomed us with a bowl of fresh fruit, chilled mineral water and juice. We had a parking space and garage. Communication was excellent. Thank you Bruno and Goran for a superb stay!',
-    highlights: ['Two bathrooms', 'Welcome basket', 'Parking & garage'],
-    booking: 'Booking.com',
-  },
-  {
-    id: 7,
-    name: 'Paolo',
-    country: 'Italy',
-    flag: '🇮🇹',
-    rating: 10,
-    date: 'August 2024',
-    title: 'Everything was perfect — you are the best!',
-    text: 'Everything was perfect! You are the best! Congratulations! We spent a wonderful vacation in the apartment and in the village of Mandre! Thank you for your work!',
-    highlights: ['Perfect stay', 'Mandre village', 'Outstanding hosts'],
-    booking: 'Booking.com',
-  },
-  {
-    id: 8,
-    name: 'Korban / Łukasz',
-    country: 'Poland',
-    flag: '🇵🇱',
-    rating: 10,
-    date: 'August 2024',
-    title: 'Thank you Blue Moon Team for an excellent vacation!',
-    text: 'Beautiful apartment in excellent location in Mandre. 1 minute to shop and bakery. 3 minutes to the beach. Very comfortable terrace with amazing landscape! Great support from local contact Bruno. All was perfect. Thank you Blue Moon Team for excellent vacation! It was full relax time for me and my family!',
-    highlights: ['Perfect location', 'Terrace & views', 'Bruno on site'],
-    booking: 'Booking.com',
-  },
-  {
-    id: 9,
-    name: 'Pavla',
-    country: 'Czech Republic',
-    flag: '🇨🇿',
-    rating: 10,
-    date: 'August 2024',
-    title: 'Designed with care and a great sense for detail',
-    text: 'We had an absolutely great comfort during our stay, the apartment was wonderfully furnished, it is obvious that it was designed with care and great sense for details. We had everything we needed and more than we would expect. The terrace is absolute top. The host was very helpful and welcoming.',
-    highlights: ['Terrace', 'Beautiful furnishings', 'Welcoming host'],
-    booking: 'Booking.com',
-  },
+const R = T.reviews;
+
+// Guest name, flag, score and publication date are language-neutral, so they stay
+// here; the country name, display month and the review copy come from R.items,
+// which every locale file supplies in this same order.
+const reviewMeta = [
+  { name: 'Bartosz',          flag: '🇵🇱', country: R.countryPoland,   rating: 10, published: '2025-09', month: R.monthSeptember, year: 2025 },
+  { name: 'Tomasz',           flag: '🇵🇱', country: R.countryPoland,   rating: 10, published: '2025-09', month: R.monthSeptember, year: 2025 },
+  { name: 'Alex',             flag: '🇩🇪', country: R.countryGermany,  rating: 10, published: '2025-06', month: R.monthJune,      year: 2025 },
+  { name: 'Patryk',           flag: '🇵🇱', country: R.countryPoland,   rating: 10, published: '2024-09', month: R.monthSeptember, year: 2024 },
+  { name: 'Žiga',             flag: '🇸🇮', country: R.countrySlovenia, rating: 10, published: '2024-09', month: R.monthSeptember, year: 2024 },
+  { name: 'Iveta',            flag: '🇸🇰', country: R.countrySlovakia, rating: 10, published: '2024-08', month: R.monthAugust,    year: 2024 },
+  { name: 'Paolo',            flag: '🇮🇹', country: R.countryItaly,    rating: 10, published: '2024-08', month: R.monthAugust,    year: 2024 },
+  { name: 'Korban / Łukasz',  flag: '🇵🇱', country: R.countryPoland,   rating: 10, published: '2024-08', month: R.monthAugust,    year: 2024 },
+  { name: 'Pavla',            flag: '🇨🇿', country: R.countryCzechia,  rating: 10, published: '2024-08', month: R.monthAugust,    year: 2024 },
 ];
+
+const reviews = reviewMeta.map((meta, i) => ({
+  ...meta,
+  ...R.items[i],
+  id: i + 1,
+  date: `${meta.month} ${meta.year}`,
+  booking: R.bookingComSource,
+}));
 
 const avgRating = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
 
-const monthMap: Record<string, string> = {
-  January: '01', February: '02', March: '03', April: '04',
-  May: '05', June: '06', July: '07', August: '08',
-  September: '09', October: '10', November: '11', December: '12',
-};
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'LodgingBusiness',
   'name': 'Blue Moon Apartment',
-  'url': 'https://bluemoonmandre.eu',
+  'url': `https://bluemoonmandre.eu${prefix}/`,
   'aggregateRating': {
     '@type': 'AggregateRating',
     'ratingValue': '10',
@@ -141,22 +50,20 @@ const jsonLd = {
     'worstRating': '1',
     'reviewCount': '12',
   },
-  'review': reviews.map(r => {
-    const [month, year] = r.date.split(' ');
-    return {
-      '@type': 'Review',
-      'name': r.title,
-      'reviewBody': r.text,
-      'datePublished': `${year}-${monthMap[month] ?? '01'}`,
-      'author': { '@type': 'Person', 'name': r.name },
-      'reviewRating': {
-        '@type': 'Rating',
-        'ratingValue': String(r.rating),
-        'bestRating': '10',
-        'worstRating': '1',
-      },
-    };
-  }),
+  'review': reviews.map(r => ({
+    '@type': 'Review',
+    'inLanguage': HREFLANG_MAP[lang as SupportedLang] ?? 'en',
+    'name': r.title,
+    'reviewBody': r.text,
+    'datePublished': r.published,
+    'author': { '@type': 'Person', 'name': r.name },
+    'reviewRating': {
+      '@type': 'Rating',
+      'ratingValue': String(r.rating),
+      'bestRating': '10',
+      'worstRating': '1',
+    },
+  })),
 };
 ---
 

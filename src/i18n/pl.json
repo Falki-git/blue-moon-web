@@ -193,7 +193,27 @@
     "subgroupBedroom1": "Sypialnia 1",
     "subgroupBedroom2": "Sypialnia 2",
     "subgroupBathroom1": "Łazienka 1",
-    "subgroupBathroom2": "Łazienka 2"
+    "subgroupBathroom2": "Łazienka 2",
+    "labels": {
+      "terraceHotTub": "Taras z jacuzzi",
+      "terrace": "Taras",
+      "terracePanorama": "Panorama tarasu",
+      "livingRoom": "Salon",
+      "diningArea": "Jadalnia",
+      "openPlanLiving": "Otwarta przestrzeń dzienna",
+      "hallway": "Przedpokój",
+      "kitchen": "Kuchnia",
+      "kitchenDetail": "Kuchnia — detal",
+      "bedroom1": "Sypialnia 1",
+      "bedroom2": "Sypialnia 2",
+      "bathroom1": "Łazienka 1",
+      "bathroom2": "Łazienka 2",
+      "mandre": "Mandre",
+      "buildingOutdoor": "Budynek i otoczenie",
+      "floorPlan": "Rzut mieszkania",
+      "inRoomSafe": "Sejf w apartamencie",
+      "mandreLocation": "Mandre — lokalizacja"
+    }
   },
   "pricelist": {
     "metaTitle": "Cennik | Blue Moon Apartment, Mandre",
@@ -404,7 +424,63 @@
     "leaveReviewBody": "Chętnie usłyszymy o Twoich doświadczeniach. Twoja opinia pomaga innym rodzinom znaleźć idealne wakacje.",
     "leaveReviewBtn": "Zostaw opinię na Booking.com →",
     "contactBtn": "Skontaktuj się z nami",
-    "bookCta": "Sprawdź dostępność →"
+    "bookCta": "Sprawdź dostępność →",
+    "countryPoland": "Polska",
+    "countryGermany": "Niemcy",
+    "countrySlovenia": "Słowenia",
+    "countrySlovakia": "Słowacja",
+    "countryItaly": "Włochy",
+    "countryCzechia": "Czechy",
+    "monthJune": "czerwiec",
+    "monthAugust": "sierpień",
+    "monthSeptember": "wrzesień",
+    "items": [
+      {
+        "title": "Czysty, zadbany i znakomicie wyposażony",
+        "text": "Obiekt jest bardzo czysty, zadbany i znakomicie wyposażony. Taras jest czysty i wyposażony w leżaki oraz grill. Apartament jest doskonale położony, blisko plaży, promenady i restauracji.",
+        "highlights": ["Grill na tarasie", "Plaża i promenada", "Nieskazitelna czystość"]
+      },
+      {
+        "title": "Jacuzzi to bajka",
+        "text": "Piękny apartament, bardzo wygodny. Miał wszystko, czego można potrzebować podczas pobytu, i jeszcze więcej. Bardzo czysty, blisko plaży i restauracji, mały sklep zaraz po drugiej stronie ulicy. Widok na morze z tarasu jest przepiękny — a jacuzzi to bajka.",
+        "highlights": ["Jacuzzi", "Widok na morze z tarasu", "Sklep naprzeciwko"]
+      },
+      {
+        "title": "Wspaniały czas w Mandre",
+        "text": "Penthouse ma wszystko, czego potrzeba. Świetny taras z nowym jacuzzi, miejscami do siedzenia i parasolem. Bruno (kontakt na miejscu) przywitał nas ciepło i pokazał cały apartament. Kuchnia była w pełni wyposażona — wszystkie przybory, a nawet przyprawy, olej itd. — a w lodówce były nawet świeże owoce i napoje. Łazienka była równie dobrze przygotowana: dezodorant, płatki kosmetyczne, proszek do prania — było wszystko. Mały supermarket jest oddalony zaledwie o 20 metrów. Promenada, plaża, restauracje i sklepiki to 2–3 minuty spacerem. Goran zorganizował nam też wcześniejsze zameldowanie, ponieważ poprzedni tydzień spędziliśmy w Mandre — przejście bez żadnych przeszkód. Wielkie dzięki za to!",
+        "highlights": ["Nowe jacuzzi", "W pełni wyposażona kuchnia", "Wcześniejsze zameldowanie"]
+      },
+      {
+        "title": "Spełni nawet najbardziej wymagające oczekiwania",
+        "text": "Nowoczesny, znakomicie wyposażony apartament. Moim zdaniem spełni nawet najbardziej wymagające oczekiwania. Bardzo dobry kontakt z Bruno, który był zawsze dostępny i nigdy nie odmówił pomocy. Gorąco polecam!",
+        "highlights": ["Nowoczesny i wyposażony", "Bruno zawsze dostępny", "Gorąco polecamy"]
+      },
+      {
+        "title": "Gościnni, życzliwi gospodarze — polecam",
+        "text": "Gościnni, życzliwi gospodarze. Świetna lokalizacja, piękny apartament — bardzo czysty i zadbany. Polecamy wszystkim.",
+        "highlights": ["Życzliwi gospodarze", "Czysto i schludnie", "Świetna lokalizacja"]
+      },
+      {
+        "title": "Wspaniałe wakacje",
+        "text": "Piękny, całkiem nowy apartament, w pełni wyposażony, nieskazitelnie czysty, dwie łazienki, trzy telewizory LCD, duży taras z miejscami do siedzenia i leżakami. WiFi działało bez zarzutu. Wszystkie zdjęcia z ogłoszenia są prawdziwe. Wspaniały Bruno przywitał nas miską świeżych owoców, schłodzoną wodą mineralną i sokiem. Mieliśmy miejsce parkingowe i garaż. Komunikacja była doskonała. Dziękujemy Bruno i Goranowi za znakomity pobyt!",
+        "highlights": ["Dwie łazienki", "Powitalny poczęstunek", "Parking i garaż"]
+      },
+      {
+        "title": "Wszystko było idealne — jesteście najlepsi!",
+        "text": "Wszystko było idealne! Jesteście najlepsi! Gratulacje! Spędziliśmy wspaniałe wakacje w apartamencie i w miejscowości Mandre! Dziękujemy za waszą pracę!",
+        "highlights": ["Idealny pobyt", "Miejscowość Mandre", "Wyjątkowi gospodarze"]
+      },
+      {
+        "title": "Dziękuję zespołowi Blue Moon za znakomite wakacje!",
+        "text": "Piękny apartament w doskonałej lokalizacji w Mandre. 1 minuta do sklepu i piekarni. 3 minuty do plaży. Bardzo wygodny taras z niesamowitym krajobrazem! Świetne wsparcie ze strony kontaktu na miejscu, Bruno. Wszystko było idealne. Dziękuję zespołowi Blue Moon za znakomite wakacje! To był czas pełnego relaksu dla mnie i mojej rodziny!",
+        "highlights": ["Idealna lokalizacja", "Taras i widoki", "Bruno na miejscu"]
+      },
+      {
+        "title": "Zaprojektowane z troską i wielkim wyczuciem detalu",
+        "text": "Podczas pobytu mieliśmy absolutnie znakomity komfort, apartament był wspaniale urządzony, widać, że został zaprojektowany z troską i wielkim wyczuciem detalu. Mieliśmy wszystko, czego potrzebowaliśmy, i więcej, niż się spodziewaliśmy. Taras to absolutny szczyt. Gospodarz był bardzo pomocny i serdeczny.",
+        "highlights": ["Taras", "Piękne wyposażenie", "Serdeczny gospodarz"]
+      }
+    ]
   },
   "aboutMandre": {
     "metaTitle": "O Mandre | Blue Moon Apartment, wyspa Pag",
@@ -471,6 +547,11 @@
     "trip2Body": "Zorganizowane wycieczki łodzią dostępne z Luka Mandre — wyspy bez samochodów o niezwykłym uroku.",
     "trip3Title": "🏞️ Parki Narodowe Krka i Plitvička Jezera",
     "trip3Body": "Dwa z najbardziej spektakularnych parków Chorwacji w zasięgu — Krka (~90 min) ze wodospadami i kąpieliskami, Plitvice (~2 godz.) z zapierającymi dech turkusowymi jeziorami. Dostępne wycieczki z przewodnikiem do obu.",
+    "tripCaptionLifeOnMars": "Szlak Life on Mars",
+    "tripCaptionBoat": "Rejs statkiem z Luki Mandre",
+    "tripCaptionSilba": "Wyspa Silba",
+    "tripCaptionKrka": "Park Narodowy Krka",
+    "tripCaptionPlitvice": "Park Narodowy Jezior Plitwickich",
     "aroundLabel": "Poza Mandre",
     "aroundTitle": "🏝️ Po wyspie i dalej",
     "dist1Time": "20 min",
@@ -656,6 +737,7 @@
     "arrivalTipTitle": "Sprawdźcie warunki w dniu podróży",
     "arrivalTipBody": "Silny wiatr może opóźnić lub zamknąć prom albo most. Kanał radiowy HRT-HR2 regularnie podaje sytuację na drogach, a aplikacja HAK pokazuje na bieżąco stan dróg, mostu i promów.",
     "arrivalDirectionsLink": "Zobacz pełne opisy tras",
+    "arrivalBridgeBadge": "Most na Pag",
     "findingLabel": "Ostatnie kilka minut",
     "findingTitle": "Jak znaleźć apartament",
     "findingBody": "Po przyjeździe do Mandre jedźcie główną drogą w dół w stronę centrum. Skręćcie w lewo w Široką ulicę, następnie w trzecią w prawo, a potem w drugą w prawo w Riječką ulicę. Apartament znajduje się niemal naprzeciwko sklepu Bakmaz.",
@@ -671,7 +753,7 @@
     "checkinLabel": "Zameldowanie",
     "checkinTitle": "Klucze będą na Was czekać",
     "checkinTime": "Od 16:00",
-    "checkinBody": "Przed wyjazdem dajcie nam znać, kiedy mniej więcej planujecie dotrzeć — wystarczy krótka wiadomość na WhatsAppie. Jeśli przyjedziecie wcześniej, chętnie przechowamy bagaże, dopóki apartament nie będzie gotowy.",
+    "checkinBody": "Klucze czekają na Was w skrzynce na klucze, więc po przyjeździe nie musicie się z nikim spotykać. Jeśli przyjedziecie wcześniej, chętnie przechowamy bagaże, dopóki apartament nie będzie gotowy.",
     "apartmentLabel": "Warto wiedzieć",
     "apartmentTitle": "Podczas pobytu w apartamencie",
     "apartmentIntro": "Kilka drobiazgów, które umilają pobyt.",
@@ -724,11 +806,11 @@
     "adventure3Title": "Rowery i łodzie",
     "adventure3Body": "Wypożyczcie rowery lub małą łódź i zwiedzajcie wyspę we własnym tempie.",
     "adventure4Title": "Szlak Life on Mars",
-    "adventure4Body": "Najbardziej niezwykły i nieziemski szlak pieszy w Chorwacji, tuż za progiem.",
+    "adventure4Body": "Najbardziej niezwykły i nieziemski szlak pieszy w Chorwacji — i znajduje się właśnie tu, na wyspie Pag.",
     "adventure5Title": "Serowarnia Gligora",
     "adventure5Body": "Zwiedzanie zakładu i degustacja serów w pobliskim Kolan — krótka i bardzo smaczna wycieczka.",
     "adventure6Title": "Sól z Pagu",
-    "adventure6Body": "Odwiedźcie stałą wystawę o produkcji soli w mieście Pag albo dołączcie do porannych warsztatów na polach solnych — na oba trzeba zapisać się wcześniej.",
+    "adventure6Body": "Odwiedźcie stałą wystawę o produkcji soli w mieście Pag albo dołączcie do porannych warsztatów na polach solnych.",
     "adventure6Badge1": "Wystawa",
     "adventure6Badge2": "Pola solne",
     "familyLabel": "Z dziećmi",
@@ -768,6 +850,35 @@
     "welcomeBody": "Wszystko jest gotowe na Wasz przyjazd do Mandre. Przygotowaliśmy krótki przewodnik ze wszystkim, co będzie Wam potrzebne — jak nas znaleźć, gdzie zaparkować, hasło do Wi-Fi, zameldowanie i wymeldowanie oraz kilka naszych osobistych poleceń na wyspie.",
     "welcomeCta": "Otwórz przewodnik po pobycie",
     "welcomeFollowUp": "Zachowajcie ten link — możecie go otworzyć w dowolnej chwili przed pobytem lub w jego trakcie. Gdyby coś się pojawiło, po prostu odpowiedzcie na tego e-maila.",
+    "evisitorSubject": "Przed przyjazdem — rejestracja gości i kod do skrytki na klucze",
+    "evisitorHeading": "Wszystko jest gotowe na Wasz przyjazd, {{name}}!",
+    "evisitorBody": "Wasz pobyt w Blue Moon Apartment zaczyna się {{checkin}}. Dwie sprawy przed wyruszeniem w drogę: krótka lista danych potrzebnych do oficjalnej rejestracji gości oraz kod do Waszej skrytki na klucze.",
+    "evisitorRegSection": "Rejestracja gości",
+    "evisitorRegBody": "Chorwackie prawo zobowiązuje nas do zgłoszenia każdego gościa do krajowej organizacji turystycznej (system eVisitor) w ciągu 24 godzin od przyjazdu. Aby zameldowanie przebiegło szybko i bez formalności, prześlijcie nam poniższe dane każdej osoby nocującej, także dzieci:",
+    "evisitorFieldFirstName": "Imię",
+    "evisitorFieldLastName": "Nazwisko",
+    "evisitorFieldDocType": "Rodzaj dokumentu (dowód osobisty lub paszport)",
+    "evisitorFieldDocNumber": "Numer dokumentu",
+    "evisitorFieldGender": "Płeć",
+    "evisitorFieldCountryResidence": "Kraj zamieszkania",
+    "evisitorFieldCityResidence": "Miasto zamieszkania",
+    "evisitorFieldNationality": "Obywatelstwo",
+    "evisitorFieldCountryBirth": "Kraj urodzenia",
+    "evisitorFieldDateOfBirth": "Data urodzenia (DD.MM.RRRR)",
+    "evisitorRegAlt": "Jeśli tak Wam wygodniej, po prostu sfotografujcie każdy dowód osobisty lub paszport i prześlijcie nam zdjęcia — to również w zupełności wystarczy.",
+    "evisitorRegPrivacy": "Dane te wykorzystujemy wyłącznie do oficjalnej rejestracji i przetwarzamy je bezpiecznie, zgodnie z przepisami o ochronie prywatności.",
+    "evisitorSendBody": "Prześlijcie je w sposób, który najbardziej Wam odpowiada — odpowiadając na tego e-maila albo przez WhatsAppa: przycisk poniżej od razu otwiera czat z nami.",
+    "evisitorWhatsappCta": "Wyślij przez WhatsApp",
+    "evisitorWhatsappPrefill": "Dzień dobry! Przesyłamy nasze dane do rejestracji gości:",
+    "evisitorLockerSection": "Kod do skrytki na klucze",
+    "evisitorLockerLabel": "Kod skrytki",
+    "evisitorLockerBody": "Skrytka na klucze znajduje się na 2. piętrze, tuż obok drzwi apartamentu. W środku są klucze do apartamentu oraz pilot do garażu.",
+    "evisitorCheckinSection": "Wasz przyjazd",
+    "evisitorCheckinTime": "16:00",
+    "evisitorCheckinBody": "Zameldowanie od {{time}} w dniu {{checkin}}. Jeśli jeszcze nam nie daliście znać, napiszcie proszę, około której godziny planujecie dotrzeć.",
+    "evisitorParkingBody": "Po przyjeździe zostawcie samochód na prywatnym miejscu parkingowym przed budynkiem. Drzwi wejściowe do budynku będą otwarte, więc możecie swobodnie wejść i wspiąć się schodami na drugie piętro — klucze czekają w skrytce obok drzwi apartamentu.",
+    "evisitorGuideBody": "Dojazd, parkowanie, Wi-Fi i nasze osobiste polecenia na wyspie znajdziecie w przewodniku po pobycie.",
+    "evisitorGuideCta": "Otwórz przewodnik po pobycie",
     "pendingSubject": "Otrzymaliśmy Twoją prośbę o rezerwację — Blue Moon Apartment",
     "pendingHeading": "Dziękujemy, {{name}}!",
     "pendingBody": "Otrzymaliśmy Twoją prośbę o rezerwację. Sprawdzimy ją i odpowiemy w ciągu 24 godzin. Wybrane daty są do tego czasu zarezerwowane.",
