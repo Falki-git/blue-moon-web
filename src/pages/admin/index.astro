@@ -1071,11 +1071,18 @@ import '../../styles/global.css';
       return Math.round((new Date(y, m - 1, d).getTime() - today.getTime()) / 86400000);
     };
 
-    /** The eVisitor mail goes out a few days before arrival — null while it isn't due yet. */
+    /**
+     * How many days before arrival each pre-arrival mail should go out. The welcome info
+     * goes early so guests can read the guide while still planning; the eVisitor mail waits
+     * until arrival is close, since it carries the key-locker code.
+     */
+    const WELCOME_DUE_DAYS  = 7;
     const EVISITOR_DUE_DAYS = 3;
-    const evisitorDueIn = (checkIn: string) => {
+
+    /** Days left until arrival once the mail is due, else null — see guestEmailButton. */
+    const dueIn = (checkIn: string, withinDays: number) => {
       const d = daysUntil(checkIn);
-      return d >= 0 && d <= EVISITOR_DUE_DAYS ? d : null;
+      return d >= 0 && d <= withinDays ? d : null;
     };
 
     /**
@@ -1084,7 +1091,8 @@ import '../../styles/global.css';
      * Adding another guest email is one more call to this.
      *
      * `dueInDays` marks a not-yet-sent email as due: the button turns amber and gains a
-     * hint. Pass it only for emails that have a moment they should go out (eVisitor).
+     * hint. Pass it only for emails that have a moment they should go out — the welcome
+     * info and the eVisitor mail, via dueIn().
      */
     const guestEmailButton = (sentAt: number | null, label: string, onclick: string, dueInDays?: number | null) => {
       const due = sentAt === null && dueInDays !== null && dueInDays !== undefined;
@@ -1181,8 +1189,8 @@ import '../../styles/global.css';
         ${guestEmailButton(r.received_email_sent_at, 'booking received mail', `__sendBookingReceived('${r.id}','${escAttrArg(r.email)}')`)}
         ${guestEmailButton(r.approved_email_sent_at, 'booking approved mail', `__sendBookingApproved('${r.id}','${escAttrArg(r.email)}')`)}
         ${guestEmailButton(r.deposit_confirmation_sent_at, 'deposit confirmation', `__sendDepositConfirmation('${r.id}')`)}
-        ${guestEmailButton(r.welcome_email_sent_at, 'welcome info', `__sendWelcomeInfo('${r.id}','${escAttrArg(r.email)}')`)}
-        ${guestEmailButton(r.evisitor_email_sent_at, 'eVisitor mail', `__sendEvisitorRequest('${r.id}','${escAttrArg(r.email)}')`, evisitorDueIn(r.check_in))}
+        ${guestEmailButton(r.welcome_email_sent_at, 'welcome info', `__sendWelcomeInfo('${r.id}','${escAttrArg(r.email)}')`, dueIn(r.check_in, WELCOME_DUE_DAYS))}
+        ${guestEmailButton(r.evisitor_email_sent_at, 'eVisitor mail', `__sendEvisitorRequest('${r.id}','${escAttrArg(r.email)}')`, dueIn(r.check_in, EVISITOR_DUE_DAYS))}
         <button class="adm-btn adm-btn--cancel" onclick="__decide('${r.id}','cancel')">Delete reservation</button>
       `);
       document.getElementById('otherList')!.innerHTML = tableRows(other, () => '');
