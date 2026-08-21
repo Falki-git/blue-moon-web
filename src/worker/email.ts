@@ -486,6 +486,61 @@ ${sectionHeading(e.approvedCheckinSection)}
   return { subject, html, text };
 }
 
+// ─── Guest payment confirmation (full amount received) ────────────────────────
+
+/**
+ * Confirms that the whole stay has been paid and that nothing is left outstanding.
+ * Sent by hand from the admin dashboard, whenever the money actually lands — after a
+ * single full payment, or once the balance on a deposit booking clears.
+ *
+ * Distinct from buildGuestDepositReceived, which acknowledges the 30% deposit and
+ * still names a remaining balance. This one names no balance at all: its job is to
+ * reassure, so it closes with the stay dates and the address rather than any ask.
+ */
+export function buildGuestPaymentConfirmation(r: ReservationRow, langCode?: string): { subject: string; html: string; text: string } {
+  const lang    = safeLang(langCode ?? r.language);
+  const T       = getTranslations(lang);
+  const locale  = INTL_LOCALE_MAP[lang];
+  const e       = T.email;
+  const labels  = { checkin: e.tableCheckin, checkout: e.tableCheckout, nights: e.tableNights, guests: e.tableGuests, total: e.tableTotal };
+  const firstName = r.full_name.split(' ')[0];
+  const total     = r.total_eur.toLocaleString('en-GB');
+
+  const content = `
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(tpl(e.paymentHeading, { name: firstName }))}</div>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.paymentBody).replace('€{{total}}', `<strong style="color:#081628;">€${total}</strong>`)}</p>
+
+${sectionHeading(e.depositStaySection)}
+${detailTable(summaryRowsHtml(r, locale, labels))}
+
+${sectionHeading(e.depositCheckinSection)}
+<p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositCheckinBody, { checkin: fmtDateLong(r.check_in, locale), checkout: fmtDateLong(r.check_out, locale) }))}</p>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;">${esc(e.approvedAddress)} <strong><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Blue+Moon+Apartment&amp;destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" style="color:#1A5FAD;text-decoration:none;" target="_blank">Riječka ulica 30, Mandre, Island of Pag</a></strong>.</p>
+<p style="margin:0;font-size:14px;color:#5a7080;">${questionsHtml(e.approvedQuestions)}</p>`;
+
+  const html = emailShell(content);
+
+  const text = [
+    tpl(e.paymentHeading, { name: firstName }),
+    '',
+    tpl(e.paymentBody, { total }),
+    '',
+    `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
+    `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
+    `${e.tableNights}:   ${r.nights}`,
+    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableTotal}:    ${totalText(r)}`,
+    '',
+    tpl(e.depositCheckinBody, { checkin: r.check_in, checkout: r.check_out }),
+    'Address: Riječka ulica 30, Mandre, Island of Pag.',
+    '',
+    questionsText(e.approvedQuestions),
+    TEXT_SIG,
+  ].join('\n');
+
+  return { subject: e.paymentSubject, html, text };
+}
+
 // ─── Guest booking approved, no deposit ────────────────────────────
 
 /**

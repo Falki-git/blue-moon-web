@@ -491,6 +491,8 @@ import '../../styles/global.css';
       border: 1px solid transparent;
       cursor: pointer;
       transition: background 0.15s, color 0.15s;
+      line-height: 1.25;
+      text-align: center;
     }
     .adm-btn--approve { background: var(--ocean-blue); color: var(--white); }
     .adm-btn--approve:hover { background: #1452a0; }
@@ -506,9 +508,19 @@ import '../../styles/global.css';
     /* Amber state: the mail is due (check-in within 3 days) and has not gone out yet. */
     .adm-btn--due { background: #fff4dd; color: #8a6300; border-color: #E8A82A; }
     .adm-btn--due:hover { background: #ffe6bb; }
-    .adm-sent-note { font-size: 0.68rem; color: var(--text-muted); }
+    /* Every button in the actions row is two text lines tall with its label centred, so a
+       one-line label (Edit, Delete reservation) sits level with the two-line send buttons. */
+    .adm-actions .adm-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.75rem;
+    }
+    .adm-sent-note { font-size: 0.68rem; color: var(--text-muted); line-height: 1.35; }
     .adm-sent-note--due { color: #8a6300; font-weight: 800; }
-    .adm-send-group { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; }
+    /* Fixed width, so "Send" and "Resend" cannot shift a column: the send buttons stay in
+       line down the table however many mails have gone out for a given reservation. */
+    .adm-send-group { display: flex; flex-direction: column; align-items: stretch; gap: 0.15rem; text-align: center; flex: 0 0 10.25rem; }
     .adm-btn--remove  { background: var(--white); color: #a64141; border-color: #f1dada; }
     .adm-btn--remove:hover  { background: #f1dada; }
     .adm-btn--sm { padding: 0.25rem 0.6rem; font-size: 0.74rem; }
@@ -771,6 +783,7 @@ import '../../styles/global.css';
       evisitor_email_sent_at: number | null;
       received_email_sent_at: number | null; approved_email_sent_at: number | null;
       no_deposit_approved_email_sent_at: number | null;
+      payment_confirmation_sent_at: number | null;
       country: string | null;
     };
     type ManualBlock = { id: string; created_at: number; from_date: string; to_date: string; note: string | null };
@@ -1094,6 +1107,11 @@ import '../../styles/global.css';
      * `dueInDays` marks a not-yet-sent email as due: the button turns amber and gains a
      * hint. Pass it only for emails that have a moment they should go out — the welcome
      * info and the eVisitor mail, via dueIn().
+     *
+     * `label` carries a <br> at its natural break so the verb and the first word share
+     * one line and the rest falls to a second. Seven of these sit side by side, and on
+     * one line each they push the row far wider than the table needs to be. The sent-at
+     * and due notes wrap in the same place for the same reason.
      */
     const guestEmailButton = (sentAt: number | null, label: string, onclick: string, dueInDays?: number | null) => {
       const due = sentAt === null && dueInDays !== null && dueInDays !== undefined;
@@ -1103,8 +1121,8 @@ import '../../styles/global.css';
       return `
       <div class="adm-send-group">
         <button class="adm-btn ${sentAt ? 'adm-btn--resend' : due ? 'adm-btn--due' : 'adm-btn--send'}" onclick="${onclick}">${sentAt ? 'Resend' : 'Send'} ${label}</button>
-        ${sentAt ? `<span class="adm-sent-note">&#10003; Email sent ${fmtTs(sentAt)}</span>` : ''}
-        ${due ? `<span class="adm-sent-note adm-sent-note--due">&#9679; Due now — ${dueHint}</span>` : ''}
+        ${sentAt ? `<span class="adm-sent-note">&#10003; Email sent<br>${fmtTs(sentAt)}</span>` : ''}
+        ${due ? `<span class="adm-sent-note adm-sent-note--due">&#9679; Due now<br>${dueHint}</span>` : ''}
       </div>`;
     };
 
@@ -1187,12 +1205,13 @@ import '../../styles/global.css';
         <button class="adm-btn adm-btn--decline" onclick="__decide('${r.id}','decline')">Decline</button>
       `);
       document.getElementById('confirmedList')!.innerHTML = tableRows(confirmed, r => `
-        ${guestEmailButton(r.received_email_sent_at, 'booking received mail', `__sendBookingReceived('${r.id}','${escAttrArg(r.email)}')`)}
-        ${guestEmailButton(r.approved_email_sent_at, 'booking approved mail', `__sendBookingApproved('${r.id}','${escAttrArg(r.email)}')`)}
-        ${guestEmailButton(r.no_deposit_approved_email_sent_at, 'no-deposit approved mail', `__sendBookingApprovedNoDeposit('${r.id}','${escAttrArg(r.email)}')`)}
-        ${guestEmailButton(r.deposit_confirmation_sent_at, 'deposit confirmation', `__sendDepositConfirmation('${r.id}')`)}
-        ${guestEmailButton(r.welcome_email_sent_at, 'welcome info', `__sendWelcomeInfo('${r.id}','${escAttrArg(r.email)}')`, dueIn(r.check_in, WELCOME_DUE_DAYS))}
-        ${guestEmailButton(r.evisitor_email_sent_at, 'eVisitor mail', `__sendEvisitorRequest('${r.id}','${escAttrArg(r.email)}')`, dueIn(r.check_in, EVISITOR_DUE_DAYS))}
+        ${guestEmailButton(r.received_email_sent_at, 'booking<br>received mail', `__sendBookingReceived('${r.id}','${escAttrArg(r.email)}')`)}
+        ${guestEmailButton(r.approved_email_sent_at, 'booking<br>approved mail', `__sendBookingApproved('${r.id}','${escAttrArg(r.email)}')`)}
+        ${guestEmailButton(r.no_deposit_approved_email_sent_at, 'no-deposit<br>booking approved mail', `__sendBookingApprovedNoDeposit('${r.id}','${escAttrArg(r.email)}')`)}
+        ${guestEmailButton(r.deposit_confirmation_sent_at, 'deposit<br>confirmation', `__sendDepositConfirmation('${r.id}')`)}
+        ${guestEmailButton(r.payment_confirmation_sent_at, 'full payment<br>confirmation', `__sendPaymentConfirmation('${r.id}','${escAttrArg(r.email)}')`)}
+        ${guestEmailButton(r.welcome_email_sent_at, 'welcome<br>info', `__sendWelcomeInfo('${r.id}','${escAttrArg(r.email)}')`, dueIn(r.check_in, WELCOME_DUE_DAYS))}
+        ${guestEmailButton(r.evisitor_email_sent_at, 'eVisitor<br>mail', `__sendEvisitorRequest('${r.id}','${escAttrArg(r.email)}')`, dueIn(r.check_in, EVISITOR_DUE_DAYS))}
         <button class="adm-btn adm-btn--cancel" onclick="__decide('${r.id}','cancel')">Delete reservation</button>
       `);
       document.getElementById('otherList')!.innerHTML = tableRows(other, () => '');
@@ -1222,6 +1241,17 @@ import '../../styles/global.css';
       }
     }
     (window as any).__sendDepositConfirmation = sendDepositConfirmation;
+
+    async function sendPaymentConfirmation(id: string, email: string) {
+      if (!confirm(`Send the payment confirmation to ${email}? It states the stay is paid in full, with no balance outstanding.`)) return;
+      try {
+        await api(`/api/admin/reservations/${id}/payment-confirmation-email`, { method: 'POST' });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to send email');
+      }
+    }
+    (window as any).__sendPaymentConfirmation = sendPaymentConfirmation;
 
     async function sendWelcomeInfo(id: string, email: string) {
       if (!confirm(`Send the welcome info (link to the guest guide) to ${email}?`)) return;

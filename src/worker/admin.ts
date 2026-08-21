@@ -20,6 +20,7 @@ import {
   sendEmail, buildGuestBookingApproved, buildGuestDepositReceived, buildGuestInvoiceEmail,
   buildGuestWelcome, buildGuestEvisitorRequest, buildGuestBookingPending,
   buildOwnerBookingNotification, buildGuestBookingApprovedNoDeposit,
+  buildGuestPaymentConfirmation,
 } from './email';
 import { buildInvoicePdf } from './invoice';
 
@@ -571,6 +572,28 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
         subject: msg.subject, html: msg.html, text: msg.text,
       }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend no-deposit approved email failed:', r.status, t)); })
         .catch(e => console.error('Resend no-deposit approved email failed:', e))
+    );
+
+    return ok();
+  }
+
+  // Confirms the stay is paid in full and nothing is outstanding — sent whenever the
+  // money actually lands, whether in one payment or as the balance on a deposit booking.
+  const paymentMatch = path.match(/^reservations\/([^/]+)\/payment-confirmation-email$/);
+  if (paymentMatch && request.method === 'POST') {
+    const id = paymentMatch[1];
+    const row = await getReservation(env.DB, id);
+    if (!row) return err(404, 'Reservation not found');
+    if (row.status !== 'confirmed') return err(409, `Cannot send the payment confirmation for a ${row.status} reservation`);
+
+    await markGuestEmailSent(env.DB, id, 'payment');
+    const msg = buildGuestPaymentConfirmation(row, row.language ?? 'en');
+    ctx.waitUntil(
+      sendEmail(env, {
+        to: row.email, replyTo: env.CONTACT_TO_EMAIL,
+        subject: msg.subject, html: msg.html, text: msg.text,
+      }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend payment-confirmation failed:', r.status, t)); })
+        .catch(e => console.error('Resend payment-confirmation failed:', e))
     );
 
     return ok();
