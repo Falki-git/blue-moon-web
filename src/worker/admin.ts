@@ -1,23 +1,25 @@
 import type { Env } from './index';
 import {
   buildSessionCookie, clearSessionCookie, constantTimeEqual, requireSession,
-  signSession, SESSION_COOKIE_NAME,
+  signSession, signDecisionToken, SESSION_COOKIE_NAME,
 } from './auth';
 import {
   listReservations, listManualBlocks, listPricing,
   getReservation, updateReservationStatus, markGuestEmailSent,
+  insertReservation, updateReservation,
   insertManualBlock, deleteManualBlock,
   upsertPricingRule, getSetting, upsertSetting,
   getKeyLockerCode, isValidKeyLockerCode, KEY_LOCKER_CODE_KEY,
   listCleaningGuests, insertCleaningGuest, updateCleaningGuest, deleteCleaningGuest,
   getCleaningGuestWithRanges, getInvoice, getNextInvoiceSeq, upsertInvoice,
   listCrewDocs, getCrewDoc, insertCrewDoc, updateCrewDoc, deleteCrewDoc,
-  type ReservationStatus, type GuestStayRange,
+  type ReservationStatus, type GuestStayRange, type UpdateReservationInput,
 } from './db';
-import { isInSeason, SEASON_MONTHS } from './pricing';
+import { isInSeason, SEASON_MONTHS, computeTotal, loadPricing } from './pricing';
 import {
   sendEmail, buildGuestBookingApproved, buildGuestDepositReceived, buildGuestInvoiceEmail,
-  buildGuestWelcome, buildGuestEvisitorRequest,
+  buildGuestWelcome, buildGuestEvisitorRequest, buildGuestBookingPending,
+  buildOwnerBookingNotification,
 } from './email';
 import { buildInvoicePdf } from './invoice';
 
@@ -210,6 +212,78 @@ async function readJson(request: Request): Promise<Record<string, unknown> | nul
   catch { return null; }
 }
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Reads the reservation fields out of a manual create / edit request body.
+ *
+ * Deliberately permissive: past dates, single-night or 60-night stays and ranges that
+ * overlap existing reservations all pass. The public booking form enforces the season,
+ * minimum-nights and availability rules; this path is the owner overriding them by hand,
+ * so only the things that would corrupt the row (missing name/email/dates, non-numeric
+ * money) are rejected.
+ */
+function parseReservationBody(
+  body: Record<string, unknown>,
+): { fields: Omit<UpdateReservationInput, 'status'> } | { error: string } {
+  const str = (k: string) => String(body[k] ?? '').trim();
+  const nullable = (k: string) => { const v = str(k); return v === '' ? null : v; };
+
+  const full_name = str('full_name');
+  const email     = str('email');
+  const check_in  = str('check_in');
+  const check_out = str('check_out');
+
+  if (!full_name) return { error: 'Guest name is required' };
+  if (!email) return { error: 'Email is required' };
+  if (!ISO_DATE.test(check_in)) return { error: 'Check-in must be a yyyy-mm-dd date' };
+  if (!ISO_DATE.test(check_out)) return { error: 'Check-out must be a yyyy-mm-dd date' };
+
+  const guests = Number(body.guests);
+  if (!Number.isFinite(guests) || guests < 1) return { error: 'Guests must be at least 1' };
+
+  const nights = Number(body.nights);
+  if (!Number.isFinite(nights) || nights < 1) return { error: 'Nights must be at least 1' };
+
+  const total_eur = Number(body.total_eur);
+  if (!Number.isFinite(total_eur) || total_eur < 0) return { error: 'Total must be a number' };
+
+  const rawFull = body.full_total_eur;
+  const full_total_eur = rawFull === null || rawFull === undefined || rawFull === ''
+    ? null : Number(rawFull);
+  if (full_total_eur !== null && !Number.isFinite(full_total_eur)) {
+    return { error: 'Full total must be a number' };
+  }
+
+  const rawPct = body.discount_pct;
+  const discount_pct = rawPct === null || rawPct === undefined || rawPct === ''
+    ? null : Number(rawPct);
+  if (discount_pct !== null && !Number.isFinite(discount_pct)) {
+    return { error: 'Discount % must be a number' };
+  }
+
+  return {
+    fields: {
+      full_name, email,
+      phone: nullable('phone'),
+      language: nullable('language'),
+      country: nullable('country'),
+      address: nullable('address'),
+      source: nullable('source'),
+      guests: Math.round(guests),
+      children_ages: nullable('children_ages'),
+      check_in, check_out,
+      nights: Math.round(nights),
+      total_eur: Math.round(total_eur),
+      full_total_eur: full_total_eur === null ? null : Math.round(full_total_eur),
+      discount_pct: discount_pct === null ? null : Math.round(discount_pct),
+      message: nullable('message'),
+    },
+  };
+}
+
+const RESERVATION_STATUSES: ReservationStatus[] = ['pending', 'confirmed', 'declined', 'cancelled'];
+
 export async function handleAdmin(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   const url = new URL(request.url);
   const path = url.pathname.replace(/^\/api\/admin\/?/, '');
@@ -250,6 +324,72 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     return ok({ reservations: rows });
   }
 
+  // Manual reservation entry. Lands straight in 'confirmed' with decided_at set to now,
+  // bypasses every booking rule, and sends no email at all — the owner triggers any mail
+  // afterwards from the reservation's own send buttons.
+  if (path === 'reservations' && request.method === 'POST') {
+    const body = await readJson(request);
+    if (!body) return err(400, 'Invalid JSON');
+
+    const parsed = parseReservationBody(body);
+    if ('error' in parsed) return err(400, parsed.error);
+
+    const id = crypto.randomUUID();
+    await insertReservation(env.DB, {
+      id,
+      status: 'confirmed',
+      ...parsed.fields,
+      full_total_eur: parsed.fields.full_total_eur ?? parsed.fields.total_eur,
+      discount_pct: parsed.fields.discount_pct ?? 0,
+      pricing_snapshot: JSON.stringify([]),
+      decision_token: await signDecisionToken(id, 'approve', env),
+      decided_at: Math.floor(Date.now() / 1000),
+    });
+
+    return ok({ id });
+  }
+
+  // Price helper for the manual entry form — the same per-month calculation the public
+  // booking page uses, offered as a starting point the owner is free to overwrite.
+  if (path === 'reservations/quote' && request.method === 'GET') {
+    const checkIn  = url.searchParams.get('checkin')  ?? '';
+    const checkOut = url.searchParams.get('checkout') ?? '';
+    if (!ISO_DATE.test(checkIn) || !ISO_DATE.test(checkOut)) {
+      return err(400, 'checkin and checkout must be yyyy-mm-dd dates');
+    }
+    if (checkOut <= checkIn) return err(400, 'Check-out must be after check-in');
+    const total = computeTotal(checkIn, checkOut, await loadPricing(env.DB));
+    return ok({
+      nights: total.nights,
+      totalEur: total.totalEur,
+      fullTotalEur: total.fullTotalEur,
+      discountPct: total.discountPct,
+    });
+  }
+
+  // Full manual edit of an existing reservation, status included. Same no-rules stance as
+  // manual entry, and saving never sends email.
+  const editMatch = path.match(/^reservations\/([^/]+)$/);
+  if (editMatch && request.method === 'PUT') {
+    const id = editMatch[1];
+    const body = await readJson(request);
+    if (!body) return err(400, 'Invalid JSON');
+
+    const row = await getReservation(env.DB, id);
+    if (!row) return err(404, 'Reservation not found');
+
+    const status = String(body.status ?? '') as ReservationStatus;
+    if (!RESERVATION_STATUSES.includes(status)) {
+      return err(400, 'Status must be pending, confirmed, declined or cancelled');
+    }
+
+    const parsed = parseReservationBody(body);
+    if ('error' in parsed) return err(400, parsed.error);
+
+    await updateReservation(env.DB, id, { status, ...parsed.fields });
+    return ok();
+  }
+
   const decisionMatch = path.match(/^reservations\/([^/]+)\/decision$/);
   if (decisionMatch && request.method === 'POST') {
     const id = decisionMatch[1];
@@ -279,6 +419,7 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     await updateReservationStatus(env.DB, id, newStatus);
 
     if (action === 'approve') {
+      await markGuestEmailSent(env.DB, id, 'approved');
       const updated = { ...row, status: newStatus } as typeof row;
       const msg = buildGuestBookingApproved(updated);
       ctx.waitUntil(
@@ -351,6 +492,63 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
         subject: msg.subject, html: msg.html, text: msg.text,
       }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend evisitor-email failed:', r.status, t)); })
         .catch(e => console.error('Resend evisitor-email failed:', e))
+    );
+
+    return ok();
+  }
+
+  // The pair that normally fires the moment a guest submits the booking form: the guest
+  // "we received your request" mail and the owner notification carrying the approve /
+  // decline links. One button sends both, and one stamp tracks them.
+  const receivedMatch = path.match(/^reservations\/([^/]+)\/received-email$/);
+  if (receivedMatch && request.method === 'POST') {
+    const id = receivedMatch[1];
+    const row = await getReservation(env.DB, id);
+    if (!row) return err(404, 'Reservation not found');
+    if (row.status !== 'confirmed') return err(409, `Cannot send the booking received mail for a ${row.status} reservation`);
+
+    const origin = url.origin;
+    const links = {
+      approve: `${origin}/booking/confirm?token=${await signDecisionToken(id, 'approve', env)}`,
+      decline: `${origin}/booking/confirm?token=${await signDecisionToken(id, 'decline', env)}`,
+    };
+
+    await markGuestEmailSent(env.DB, id, 'received');
+
+    const guestMsg = buildGuestBookingPending(row, row.language ?? 'en');
+    const ownerMsg = buildOwnerBookingNotification(row, links);
+    ctx.waitUntil(
+      Promise.all([
+        sendEmail(env, {
+          to: row.email, replyTo: env.CONTACT_TO_EMAIL,
+          subject: guestMsg.subject, html: guestMsg.html, text: guestMsg.text,
+        }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend guest received failed:', r.status, t)); }),
+        sendEmail(env, {
+          to: env.CONTACT_TO_EMAIL, replyTo: row.email,
+          subject: ownerMsg.subject, html: ownerMsg.html, text: ownerMsg.text,
+        }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend owner notification failed:', r.status, t)); }),
+      ]).catch(e => console.error('Resend booking received failed:', e))
+    );
+
+    return ok();
+  }
+
+  // The confirmation mail that normally fires on approval.
+  const approvedMatch = path.match(/^reservations\/([^/]+)\/approved-email$/);
+  if (approvedMatch && request.method === 'POST') {
+    const id = approvedMatch[1];
+    const row = await getReservation(env.DB, id);
+    if (!row) return err(404, 'Reservation not found');
+    if (row.status !== 'confirmed') return err(409, `Cannot send the approval mail for a ${row.status} reservation`);
+
+    await markGuestEmailSent(env.DB, id, 'approved');
+    const msg = buildGuestBookingApproved(row, row.language ?? 'en');
+    ctx.waitUntil(
+      sendEmail(env, {
+        to: row.email, replyTo: env.CONTACT_TO_EMAIL,
+        subject: msg.subject, html: msg.html, text: msg.text,
+      }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend approved-email failed:', r.status, t)); })
+        .catch(e => console.error('Resend approved-email failed:', e))
     );
 
     return ok();

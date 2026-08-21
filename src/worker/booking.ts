@@ -5,7 +5,7 @@ import {
 } from './pricing';
 import {
   insertReservation, listOccupiedDates, rangeOverlapsOccupied,
-  getReservation, updateReservationStatus, getSetting,
+  getReservation, updateReservationStatus, getSetting, markGuestEmailSent,
 } from './db';
 import { signDecisionToken, verifyDecisionToken } from './auth';
 import {
@@ -169,6 +169,10 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
       .catch(e => console.error('Resend guest pending failed:', e))
   );
 
+  // Both booking-time mails have now gone out, so the admin dashboard shows the pair
+  // as "Resend booking received mail" rather than offering a first send.
+  await markGuestEmailSent(env.DB, id, 'received');
+
   return Response.json({ ok: true, reservationId: id });
 }
 
@@ -210,6 +214,7 @@ export async function handleDecision(request: Request, env: Env, ctx: ExecutionC
   const updated = { ...row, status: newStatus } as typeof row;
 
   if (newStatus === 'confirmed') {
+    await markGuestEmailSent(env.DB, v.reservationId, 'approved');
     const guestMsg = buildGuestBookingApproved(updated, updated.language ?? 'en');
     ctx.waitUntil(
       sendEmail(env, {

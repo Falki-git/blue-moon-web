@@ -41,6 +41,22 @@ import '../../styles/global.css';
 
         <section class="adm-section">
           <div class="adm-section__head">
+            <h2>Add reservation</h2>
+            <button class="adm-btn adm-btn--approve" id="newResToggle" type="button" onclick="__toggleNewReservation()">+ New reservation</button>
+          </div>
+          <div id="newResPanel" hidden>
+            <p class="adm-section__hint">Entered by hand, so none of the booking rules apply — past dates, any number of nights and stays that overlap other reservations are all accepted. The reservation is saved as <strong>confirmed</strong> straight away and <strong>no email is sent</strong>; use the send buttons on the reservation itself afterwards.</p>
+            <div class="adm-guest-form" id="newResFields"></div>
+            <div class="adm-form-row" style="margin-top:0.75rem;gap:0.5rem;">
+              <button class="btn btn-primary" type="button" onclick="__createReservation()">Add reservation</button>
+              <button class="adm-btn" type="button" style="background:var(--white);border:1px solid #d4d9de;" onclick="__toggleNewReservation()">Cancel</button>
+            </div>
+            <p class="adm-form-error" id="nr-error" hidden></p>
+          </div>
+        </section>
+
+        <section class="adm-section">
+          <div class="adm-section__head">
             <h2>Pending requests</h2>
             <span class="adm-count" id="pendingCount">0</span>
           </div>
@@ -326,7 +342,7 @@ import '../../styles/global.css';
       box-shadow: var(--shadow-xs);
     }
     .adm-header__inner {
-      max-width: 1180px;
+      max-width: none;
       margin: 0 auto;
       padding: 0.85rem 2rem;
       display: flex;
@@ -348,7 +364,7 @@ import '../../styles/global.css';
       border-bottom: 2px solid rgba(74,159,212,0.15);
     }
     .adm-tabnav__inner {
-      max-width: 1180px;
+      max-width: none;
       margin: 0 auto;
       padding: 0 2rem;
       display: flex;
@@ -386,7 +402,7 @@ import '../../styles/global.css';
       line-height: 1.5;
     }
 
-    .adm-main { max-width: 1180px; margin: 0 auto; padding: 2rem; }
+    .adm-main { max-width: none; margin: 0 auto; padding: 2rem; }
 
     .adm-loading {
       text-align: center;
@@ -502,6 +518,8 @@ import '../../styles/global.css';
     .adm-guest-form .adm-form-row + .adm-form-row { margin-top: 0.75rem; }
     .adm-guest-edit-row td { background: var(--white); padding: 0.75rem 0.75rem 1rem; border-top: 2px solid var(--sky-blue); }
     .adm-guest-edit-form .adm-form-row + .adm-form-row { margin-top: 0.6rem; }
+    .adm-btn--edit { background: var(--soft-sky); color: var(--ocean-blue); border-color: rgba(74,159,212,0.3); }
+    .adm-btn--edit:hover { background: #c6e8f7; }
     .adm-form-row {
       display: flex;
       align-items: end;
@@ -751,6 +769,8 @@ import '../../styles/global.css';
       message: string | null; decided_at: number | null;
       deposit_confirmation_sent_at: number | null; welcome_email_sent_at: number | null;
       evisitor_email_sent_at: number | null;
+      received_email_sent_at: number | null; approved_email_sent_at: number | null;
+      country: string | null;
     };
     type ManualBlock = { id: string; created_at: number; from_date: string; to_date: string; note: string | null };
     type PricingRule = { month: number; rate_eur: number; discount_rate_eur: number | null; updated_at: number };
@@ -778,6 +798,8 @@ import '../../styles/global.css';
     const content = document.getElementById('content')!;
     const logoutBtn = document.getElementById('logoutBtn') as HTMLButtonElement;
 
+    let editingReservationId: string | null = null;
+    let currentReservations: Reservation[] = [];
     let editingGuestId: string | null = null;
     let currentGuests: CleaningGuest[] = [];
     let editingDocId: string | null = null;
@@ -1103,10 +1125,67 @@ import '../../styles/global.css';
             : `<strong>${fmtEur(r.total_eur)}</strong>`
           }<br><span style="color:var(--text-muted);font-size:0.72rem;">Dep: ${fmtEur(depositEur(r.total_eur))} &middot; Arr: ${fmtEur(r.total_eur - depositEur(r.total_eur))}</span></td>
           <td><span class="adm-status adm-status--${r.status}">${r.status}</span><br><span style="color:var(--text-muted);font-size:0.72rem;">${fmtTs(r.created_at)}</span></td>
-          <td><div class="adm-actions">${actions(r)}</div></td>
+          <td><div class="adm-actions">
+            <button class="adm-btn adm-btn--edit" onclick="__editReservation('${r.id}')">Edit</button>
+            ${actions(r)}
+          </div></td>
         </tr>
+        ${editingReservationId === r.id ? reservationEditRow(r) : ''}
       `).join('');
       return `<table class="adm-table"><thead><tr><th>Guest</th><th>Stay</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    /** The expanded edit form, as a full-width row under the reservation it belongs to. */
+    function reservationEditRow(r: Reservation): string {
+      const prefix = `re-${r.id}`;
+      return `
+        <tr class="adm-guest-edit-row">
+          <td colspan="5">
+            <div class="adm-guest-edit-form">
+              ${reservationFields(prefix, r)}
+              <div class="adm-form-row" style="margin-top:0.5rem;gap:0.5rem;">
+                <button class="btn btn-primary" style="font-size:0.85rem;padding:0.6rem 1.25rem;" onclick="__saveReservation('${r.id}')">Save changes</button>
+                <button class="adm-btn" style="background:var(--white);border:1px solid #d4d9de;" onclick="__cancelResEdit()">Cancel</button>
+                <span class="adm-sent-note">Saved as entered — no rules checked, no email sent.</span>
+              </div>
+              <p class="adm-form-error" id="${prefix}-error" hidden></p>
+            </div>
+          </td>
+        </tr>`;
+    }
+
+    /**
+     * Redraws the three reservation tables from `currentReservations`. Split out of
+     * refresh() so opening or closing an Edit form re-renders without refetching.
+     *
+     * Email buttons live on confirmed reservations only — pending ones are still awaiting
+     * a decision, and their booking-received pair already went out automatically.
+     */
+    function renderReservationLists() {
+      const pending   = currentReservations.filter(r => r.status === 'pending');
+      const confirmed = currentReservations.filter(r => r.status === 'confirmed');
+      const other     = currentReservations.filter(r => r.status === 'declined' || r.status === 'cancelled');
+
+      document.getElementById('pendingCount')!.textContent   = String(pending.length);
+      document.getElementById('confirmedCount')!.textContent = String(confirmed.length);
+      document.getElementById('otherCount')!.textContent     = String(other.length);
+
+      tabPendingBadge.textContent = String(pending.length);
+      tabPendingBadge.hidden = pending.length === 0;
+
+      document.getElementById('pendingList')!.innerHTML = tableRows(pending, r => `
+        <button class="adm-btn adm-btn--approve" onclick="__decide('${r.id}','approve')">Approve</button>
+        <button class="adm-btn adm-btn--decline" onclick="__decide('${r.id}','decline')">Decline</button>
+      `);
+      document.getElementById('confirmedList')!.innerHTML = tableRows(confirmed, r => `
+        ${guestEmailButton(r.received_email_sent_at, 'booking received mail', `__sendBookingReceived('${r.id}','${escAttrArg(r.email)}')`)}
+        ${guestEmailButton(r.approved_email_sent_at, 'booking approved mail', `__sendBookingApproved('${r.id}','${escAttrArg(r.email)}')`)}
+        ${guestEmailButton(r.deposit_confirmation_sent_at, 'deposit confirmation', `__sendDepositConfirmation('${r.id}')`)}
+        ${guestEmailButton(r.welcome_email_sent_at, 'welcome info', `__sendWelcomeInfo('${r.id}','${escAttrArg(r.email)}')`)}
+        ${guestEmailButton(r.evisitor_email_sent_at, 'eVisitor mail', `__sendEvisitorRequest('${r.id}','${escAttrArg(r.email)}')`, evisitorDueIn(r.check_in))}
+        <button class="adm-btn adm-btn--cancel" onclick="__decide('${r.id}','cancel')">Delete reservation</button>
+      `);
+      document.getElementById('otherList')!.innerHTML = tableRows(other, () => '');
     }
 
     async function decide(id: string, action: 'approve' | 'decline' | 'cancel') {
@@ -1155,6 +1234,281 @@ import '../../styles/global.css';
       }
     }
     (window as any).__sendEvisitorRequest = sendEvisitorRequest;
+
+    // ── Manual reservation entry & editing ───────────────────────────────────
+    //
+    // The create form and every row's Edit form share one field renderer, so the two
+    // stay in step. `prefix` namespaces the input ids: 'nr' for the create form,
+    // `re-<id>` for an edit row.
+    //
+    // Nothing here validates against the booking rules — that is the point of the
+    // feature. Dates in the past, one-night stays and overlapping stays all save fine,
+    // and no email is ever sent as a side effect of creating or saving.
+
+    const RES_LANGS: Array<[string, string]> = [
+      ['en', 'English'], ['hr', 'Hrvatski'], ['de', 'Deutsch'], ['si', 'Slovenščina'],
+      ['it', 'Italiano'], ['pl', 'Polski'], ['cz', 'Čeština'],
+    ];
+
+    const RES_STATUSES: Array<Reservation['status']> = ['pending', 'confirmed', 'declined', 'cancelled'];
+
+    function reservationFields(prefix: string, r: Reservation | null): string {
+      const v = (x: string | number | null | undefined) => x === null || x === undefined ? '' : esc(String(x));
+      const langOptions = `<option value="">— none —</option>` + RES_LANGS
+        .map(([code, name]) => `<option value="${code}"${r?.language === code ? ' selected' : ''}>${name}</option>`).join('');
+      const statusOptions = RES_STATUSES
+        .map(st => `<option value="${st}"${r?.status === st ? ' selected' : ''}>${st}</option>`).join('');
+      const statusField = r ? `
+          <div class="form-group">
+            <label>Status</label>
+            <select id="${prefix}-status">${statusOptions}</select>
+          </div>` : '';
+
+      return `
+        <div class="adm-form-row">
+          <div class="form-group" style="flex:2;">
+            <label>Guest name *</label>
+            <input type="text" id="${prefix}-full_name" value="${v(r?.full_name)}" placeholder="Full name" />
+          </div>
+          <div class="form-group" style="flex:2;">
+            <label>Email *</label>
+            <input type="email" id="${prefix}-email" value="${v(r?.email)}" />
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Phone</label>
+            <input type="tel" id="${prefix}-phone" value="${v(r?.phone)}" />
+          </div>
+          ${statusField}
+        </div>
+        <div class="adm-form-row">
+          <div class="form-group">
+            <label>Language</label>
+            <select id="${prefix}-language">${langOptions}</select>
+          </div>
+          <div class="form-group">
+            <label>Country</label>
+            <select id="${prefix}-country">${countryOptions(r?.country ?? null)}</select>
+          </div>
+          <div class="form-group" style="flex:2;">
+            <label>Address</label>
+            <input type="text" id="${prefix}-address" value="${v(r?.address)}" />
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Source</label>
+            <input type="text" id="${prefix}-source" value="${v(r?.source)}" placeholder="e.g. booking.com" />
+          </div>
+        </div>
+        <div class="adm-form-row">
+          <div class="form-group">
+            <label>Check-in *</label>
+            <input type="date" id="${prefix}-check_in" value="${v(r?.check_in)}" oninput="__calcResNights('${prefix}')" />
+          </div>
+          <div class="form-group">
+            <label>Check-out *</label>
+            <input type="date" id="${prefix}-check_out" value="${v(r?.check_out)}" oninput="__calcResNights('${prefix}')" />
+          </div>
+          <div class="form-group">
+            <label>Nights *</label>
+            <input type="number" id="${prefix}-nights" min="1" value="${v(r?.nights)}" />
+          </div>
+          <div class="form-group">
+            <label>Guests *</label>
+            <input type="number" id="${prefix}-guests" min="1" value="${r ? v(r.guests) : '2'}" />
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Children's ages</label>
+            <input type="text" id="${prefix}-children_ages" value="${v(r?.children_ages)}" placeholder="e.g. 3, 7" />
+          </div>
+        </div>
+        <div class="adm-form-row">
+          <div class="form-group">
+            <label>Full total (EUR)</label>
+            <input type="number" id="${prefix}-full_total_eur" min="0" step="1" value="${v(r?.full_total_eur)}"
+                   oninput="__calcResDiscount('${prefix}')" />
+          </div>
+          <div class="form-group">
+            <label>Total charged (EUR) *</label>
+            <input type="number" id="${prefix}-total_eur" min="0" step="1" value="${v(r?.total_eur)}"
+                   oninput="__calcResDiscount('${prefix}')" />
+          </div>
+          <div class="form-group">
+            <label>Discount %</label>
+            <input type="number" id="${prefix}-discount_pct" min="0" max="100" step="1" value="${v(r?.discount_pct)}" />
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button type="button" class="adm-btn adm-btn--edit" onclick="__quoteReservation('${prefix}')">Calculate from pricing rules</button>
+          </div>
+          <div class="form-group">
+            <label>Deposit / on arrival</label>
+            <span class="adm-derived-value" id="${prefix}-split">—</span>
+          </div>
+        </div>
+        <div class="adm-form-row">
+          <div class="form-group" style="flex:1;">
+            <label>Message</label>
+            <textarea id="${prefix}-message" rows="2">${v(r?.message)}</textarea>
+          </div>
+        </div>`;
+    }
+
+    /** Reads a namespaced field out of a reservation form. */
+    const resField = (prefix: string, name: string) =>
+      document.getElementById(`${prefix}-${name}`) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+    const resValue = (prefix: string, name: string) => resField(prefix, name)?.value ?? '';
+
+    /** Fills nights from the two dates. Never blocks a range — a negative span just clears it. */
+    function calcResNights(prefix: string) {
+      const from = resValue(prefix, 'check_in');
+      const to   = resValue(prefix, 'check_out');
+      const el   = resField(prefix, 'nights') as HTMLInputElement | null;
+      if (!el || !from || !to) return;
+      const [y1, m1, d1] = from.split('-').map(Number);
+      const [y2, m2, d2] = to.split('-').map(Number);
+      const nights = Math.round((new Date(y2, m2 - 1, d2).getTime() - new Date(y1, m1 - 1, d1).getTime()) / 86400000);
+      el.value = nights > 0 ? String(nights) : '';
+      calcResDiscount(prefix);
+    }
+    (window as any).__calcResNights = calcResNights;
+
+    /** Keeps discount % and the deposit / on-arrival split in step with the two totals. */
+    function calcResDiscount(prefix: string) {
+      const full  = Number(resValue(prefix, 'full_total_eur'));
+      const total = Number(resValue(prefix, 'total_eur'));
+      const pctEl = resField(prefix, 'discount_pct') as HTMLInputElement | null;
+      if (pctEl && Number.isFinite(full) && Number.isFinite(total) && full > 0) {
+        pctEl.value = String(Math.max(0, Math.round((1 - total / full) * 100)));
+      }
+      const splitEl = document.getElementById(`${prefix}-split`);
+      if (splitEl) {
+        splitEl.textContent = Number.isFinite(total) && total > 0
+          ? `${fmtEur(depositEur(total))} / ${fmtEur(total - depositEur(total))}`
+          : '—';
+      }
+    }
+    (window as any).__calcResDiscount = calcResDiscount;
+
+    /** Offers the pricing-rule total as a starting point — the fields stay editable after. */
+    async function quoteReservation(prefix: string) {
+      const from = resValue(prefix, 'check_in');
+      const to   = resValue(prefix, 'check_out');
+      if (!from || !to) { alert('Set check-in and check-out first.'); return; }
+      try {
+        const q = await api<{ nights: number; totalEur: number; fullTotalEur: number; discountPct: number }>(
+          `/api/admin/reservations/quote?checkin=${from}&checkout=${to}`
+        );
+        (resField(prefix, 'nights')         as HTMLInputElement).value = String(q.nights);
+        (resField(prefix, 'full_total_eur') as HTMLInputElement).value = String(q.fullTotalEur);
+        (resField(prefix, 'total_eur')      as HTMLInputElement).value = String(q.totalEur);
+        (resField(prefix, 'discount_pct')   as HTMLInputElement).value = String(q.discountPct);
+        calcResDiscount(prefix);
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Could not calculate a price for those dates');
+      }
+    }
+    (window as any).__quoteReservation = quoteReservation;
+
+    /** The request body shared by create and edit. Empty optional fields become null. */
+    function collectReservation(prefix: string): Record<string, unknown> {
+      const t = (name: string) => resValue(prefix, name).trim();
+      const orNull = (name: string) => t(name) || null;
+      const numOrNull = (name: string) => t(name) === '' ? null : Number(t(name));
+      return {
+        full_name:      t('full_name'),
+        email:          t('email'),
+        phone:          orNull('phone'),
+        language:       orNull('language'),
+        country:        orNull('country'),
+        address:        orNull('address'),
+        source:         orNull('source'),
+        guests:         Number(t('guests')),
+        children_ages:  orNull('children_ages'),
+        check_in:       t('check_in'),
+        check_out:      t('check_out'),
+        nights:         Number(t('nights')),
+        total_eur:      Number(t('total_eur')),
+        full_total_eur: numOrNull('full_total_eur'),
+        discount_pct:   numOrNull('discount_pct'),
+        message:        orNull('message'),
+      };
+    }
+
+    function toggleNewReservation() {
+      const panel  = document.getElementById('newResPanel')!;
+      const toggle = document.getElementById('newResToggle') as HTMLButtonElement;
+      const opening = panel.hidden;
+      panel.hidden = !opening;
+      toggle.textContent = opening ? 'Close' : '+ New reservation';
+      if (opening) {
+        document.getElementById('newResFields')!.innerHTML = reservationFields('nr', null);
+        (document.getElementById('nr-error') as HTMLElement).hidden = true;
+      }
+    }
+    (window as any).__toggleNewReservation = toggleNewReservation;
+
+    async function createReservation() {
+      const errEl = document.getElementById('nr-error') as HTMLElement;
+      errEl.hidden = true;
+      try {
+        await api('/api/admin/reservations', { method: 'POST', body: JSON.stringify(collectReservation('nr')) });
+        toggleNewReservation();
+        await refresh();
+      } catch (e) {
+        errEl.textContent = e instanceof Error ? e.message : 'Could not add the reservation';
+        errEl.hidden = false;
+      }
+    }
+    (window as any).__createReservation = createReservation;
+
+    function editReservation(id: string) {
+      editingReservationId = editingReservationId === id ? null : id;
+      renderReservationLists();
+    }
+    (window as any).__editReservation = editReservation;
+
+    function cancelResEdit() {
+      editingReservationId = null;
+      renderReservationLists();
+    }
+    (window as any).__cancelResEdit = cancelResEdit;
+
+    async function saveReservation(id: string) {
+      const prefix = `re-${id}`;
+      const errEl = document.getElementById(`${prefix}-error`) as HTMLElement | null;
+      if (errEl) errEl.hidden = true;
+      const body = { ...collectReservation(prefix), status: resValue(prefix, 'status') };
+      try {
+        await api(`/api/admin/reservations/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+        editingReservationId = null;
+        await refresh();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Save failed';
+        if (errEl) { errEl.textContent = msg; errEl.hidden = false; } else alert(msg);
+      }
+    }
+    (window as any).__saveReservation = saveReservation;
+
+    async function sendBookingReceived(id: string, email: string) {
+      if (!confirm(`Send the booking received mail to ${email}, plus the owner notification to yourself?`)) return;
+      try {
+        await api(`/api/admin/reservations/${id}/received-email`, { method: 'POST' });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to send email');
+      }
+    }
+    (window as any).__sendBookingReceived = sendBookingReceived;
+
+    async function sendBookingApproved(id: string, email: string) {
+      if (!confirm(`Send the booking approved confirmation to ${email}?`)) return;
+      try {
+        await api(`/api/admin/reservations/${id}/approved-email`, { method: 'POST' });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to send email');
+      }
+    }
+    (window as any).__sendBookingApproved = sendBookingApproved;
 
     function invoiceModal(email: string, defaultNumber: string): Promise<string | null> {
       return new Promise(resolve => {
@@ -1644,29 +1998,8 @@ import '../../styles/global.css';
         api<{ docs: DocItem[] }>('/api/admin/docs'),
       ]);
 
-      const reservations = resData.reservations;
-      const pending   = reservations.filter(r => r.status === 'pending');
-      const confirmed = reservations.filter(r => r.status === 'confirmed');
-      const other     = reservations.filter(r => r.status === 'declined' || r.status === 'cancelled');
-
-      document.getElementById('pendingCount')!.textContent   = String(pending.length);
-      document.getElementById('confirmedCount')!.textContent = String(confirmed.length);
-      document.getElementById('otherCount')!.textContent     = String(other.length);
-
-      tabPendingBadge.textContent = String(pending.length);
-      tabPendingBadge.hidden = pending.length === 0;
-
-      document.getElementById('pendingList')!.innerHTML = tableRows(pending, r => `
-        <button class="adm-btn adm-btn--approve" onclick="__decide('${r.id}','approve')">Approve</button>
-        <button class="adm-btn adm-btn--decline" onclick="__decide('${r.id}','decline')">Decline</button>
-      `);
-      document.getElementById('confirmedList')!.innerHTML = tableRows(confirmed, r => `
-        ${guestEmailButton(r.deposit_confirmation_sent_at, 'deposit confirmation', `__sendDepositConfirmation('${r.id}')`)}
-        ${guestEmailButton(r.welcome_email_sent_at, 'welcome info', `__sendWelcomeInfo('${r.id}','${escAttrArg(r.email)}')`)}
-        ${guestEmailButton(r.evisitor_email_sent_at, 'eVisitor mail', `__sendEvisitorRequest('${r.id}','${escAttrArg(r.email)}')`, evisitorDueIn(r.check_in))}
-        <button class="adm-btn adm-btn--cancel" onclick="__decide('${r.id}','cancel')">Delete reservation</button>
-      `);
-      document.getElementById('otherList')!.innerHTML = tableRows(other, () => '');
+      currentReservations = resData.reservations;
+      renderReservationLists();
 
       const blocks = blockData.blocks;
       const blocksHtml = blocks.length === 0

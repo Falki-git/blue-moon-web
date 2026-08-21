@@ -26,6 +26,8 @@ export interface ReservationRow {
   deposit_confirmation_sent_at: number | null;
   welcome_email_sent_at: number | null;
   evisitor_email_sent_at: number | null;
+  received_email_sent_at: number | null;
+  approved_email_sent_at: number | null;
 }
 
 /**
@@ -37,6 +39,10 @@ export const GUEST_EMAIL_COLUMNS = {
   deposit: 'deposit_confirmation_sent_at',
   welcome: 'welcome_email_sent_at',
   evisitor: 'evisitor_email_sent_at',
+  // 'received' covers the pair sent together at booking time: the guest
+  // "request received" mail and the owner notification.
+  received: 'received_email_sent_at',
+  approved: 'approved_email_sent_at',
 } as const;
 
 export type GuestEmailKind = keyof typeof GUEST_EMAIL_COLUMNS;
@@ -229,6 +235,12 @@ export interface InsertReservationInput {
   pricing_snapshot: string;
   message: string | null;
   decision_token: string;
+  /**
+   * Only set for reservations created straight into a decided state — the admin
+   * dashboard's manual entry, which lands as 'confirmed' at the moment it is entered.
+   * Left undefined for the public booking form, where the decision happens later.
+   */
+  decided_at?: number | null;
 }
 
 export async function insertReservation(db: D1Database, row: InsertReservationInput): Promise<void> {
@@ -236,14 +248,60 @@ export async function insertReservation(db: D1Database, row: InsertReservationIn
     `INSERT INTO reservations
       (id, created_at, status, full_name, email, phone, language, country, address, source,
        guests, children_ages, check_in, check_out, nights, total_eur, message, decision_token,
-       full_total_eur, discount_pct, pricing_snapshot)
+       full_total_eur, discount_pct, pricing_snapshot, decided_at)
      VALUES
-      (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20)`
+      (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21)`
   ).bind(
     row.id, row.status, row.full_name, row.email, row.phone, row.language, row.country, row.address, row.source,
     row.guests, row.children_ages, row.check_in, row.check_out, row.nights, row.total_eur,
     row.message, row.decision_token,
     row.full_total_eur, row.discount_pct, row.pricing_snapshot,
+    row.decided_at ?? null,
+  ).run();
+}
+
+/**
+ * Every reservation field the admin dashboard's Edit form may rewrite. Deliberately
+ * unvalidated — past dates, overlapping ranges and any nights count are all allowed,
+ * because this is the owner correcting the record by hand. Saving never sends email.
+ *
+ * The email sent-at stamps and created_at are not editable and stay as they are.
+ */
+export interface UpdateReservationInput {
+  status: ReservationStatus;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  language: string | null;
+  country: string | null;
+  address: string | null;
+  source: string | null;
+  guests: number;
+  children_ages: string | null;
+  check_in: string;
+  check_out: string;
+  nights: number;
+  total_eur: number;
+  full_total_eur: number | null;
+  discount_pct: number | null;
+  message: string | null;
+}
+
+export async function updateReservation(
+  db: D1Database, id: string, row: UpdateReservationInput,
+): Promise<void> {
+  await db.prepare(
+    `UPDATE reservations SET
+       status = ?2, full_name = ?3, email = ?4, phone = ?5, language = ?6, country = ?7,
+       address = ?8, source = ?9, guests = ?10, children_ages = ?11, check_in = ?12,
+       check_out = ?13, nights = ?14, total_eur = ?15, full_total_eur = ?16,
+       discount_pct = ?17, message = ?18
+     WHERE id = ?1`
+  ).bind(
+    id, row.status, row.full_name, row.email, row.phone, row.language, row.country,
+    row.address, row.source, row.guests, row.children_ages, row.check_in,
+    row.check_out, row.nights, row.total_eur, row.full_total_eur,
+    row.discount_pct, row.message,
   ).run();
 }
 
