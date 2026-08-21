@@ -28,6 +28,7 @@ export interface ReservationRow {
   evisitor_email_sent_at: number | null;
   received_email_sent_at: number | null;
   approved_email_sent_at: number | null;
+  no_deposit_approved_email_sent_at: number | null;
 }
 
 /**
@@ -43,6 +44,7 @@ export const GUEST_EMAIL_COLUMNS = {
   // "request received" mail and the owner notification.
   received: 'received_email_sent_at',
   approved: 'approved_email_sent_at',
+  approvedNoDeposit: 'no_deposit_approved_email_sent_at',
 } as const;
 
 export type GuestEmailKind = keyof typeof GUEST_EMAIL_COLUMNS;

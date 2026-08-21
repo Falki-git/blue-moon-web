@@ -770,6 +770,7 @@ import '../../styles/global.css';
       deposit_confirmation_sent_at: number | null; welcome_email_sent_at: number | null;
       evisitor_email_sent_at: number | null;
       received_email_sent_at: number | null; approved_email_sent_at: number | null;
+      no_deposit_approved_email_sent_at: number | null;
       country: string | null;
     };
     type ManualBlock = { id: string; created_at: number; from_date: string; to_date: string; note: string | null };
@@ -1188,6 +1189,7 @@ import '../../styles/global.css';
       document.getElementById('confirmedList')!.innerHTML = tableRows(confirmed, r => `
         ${guestEmailButton(r.received_email_sent_at, 'booking received mail', `__sendBookingReceived('${r.id}','${escAttrArg(r.email)}')`)}
         ${guestEmailButton(r.approved_email_sent_at, 'booking approved mail', `__sendBookingApproved('${r.id}','${escAttrArg(r.email)}')`)}
+        ${guestEmailButton(r.no_deposit_approved_email_sent_at, 'no-deposit approved mail', `__sendBookingApprovedNoDeposit('${r.id}','${escAttrArg(r.email)}')`)}
         ${guestEmailButton(r.deposit_confirmation_sent_at, 'deposit confirmation', `__sendDepositConfirmation('${r.id}')`)}
         ${guestEmailButton(r.welcome_email_sent_at, 'welcome info', `__sendWelcomeInfo('${r.id}','${escAttrArg(r.email)}')`, dueIn(r.check_in, WELCOME_DUE_DAYS))}
         ${guestEmailButton(r.evisitor_email_sent_at, 'eVisitor mail', `__sendEvisitorRequest('${r.id}','${escAttrArg(r.email)}')`, dueIn(r.check_in, EVISITOR_DUE_DAYS))}
@@ -1517,6 +1519,17 @@ import '../../styles/global.css';
       }
     }
     (window as any).__sendBookingApproved = sendBookingApproved;
+
+    async function sendBookingApprovedNoDeposit(id: string, email: string) {
+      if (!confirm(`Send the no-deposit booking approved confirmation to ${email}? It asks for the full amount by check-in day and mentions no deposit.`)) return;
+      try {
+        await api(`/api/admin/reservations/${id}/approved-no-deposit-email`, { method: 'POST' });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to send email');
+      }
+    }
+    (window as any).__sendBookingApprovedNoDeposit = sendBookingApprovedNoDeposit;
 
     function invoiceModal(email: string, defaultNumber: string): Promise<string | null> {
       return new Promise(resolve => {

@@ -19,7 +19,7 @@ import { isInSeason, SEASON_MONTHS, computeTotal, loadPricing } from './pricing'
 import {
   sendEmail, buildGuestBookingApproved, buildGuestDepositReceived, buildGuestInvoiceEmail,
   buildGuestWelcome, buildGuestEvisitorRequest, buildGuestBookingPending,
-  buildOwnerBookingNotification,
+  buildOwnerBookingNotification, buildGuestBookingApprovedNoDeposit,
 } from './email';
 import { buildInvoicePdf } from './invoice';
 
@@ -549,6 +549,28 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
         subject: msg.subject, html: msg.html, text: msg.text,
       }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend approved-email failed:', r.status, t)); })
         .catch(e => console.error('Resend approved-email failed:', e))
+    );
+
+    return ok();
+  }
+
+  // Same confirmation, minus the deposit: the full amount is settled by check-in day.
+  // Manual send only — nothing in the booking flow reaches for this one.
+  const noDepositMatch = path.match(/^reservations\/([^/]+)\/approved-no-deposit-email$/);
+  if (noDepositMatch && request.method === 'POST') {
+    const id = noDepositMatch[1];
+    const row = await getReservation(env.DB, id);
+    if (!row) return err(404, 'Reservation not found');
+    if (row.status !== 'confirmed') return err(409, `Cannot send the approval mail for a ${row.status} reservation`);
+
+    await markGuestEmailSent(env.DB, id, 'approvedNoDeposit');
+    const msg = buildGuestBookingApprovedNoDeposit(row, row.language ?? 'en');
+    ctx.waitUntil(
+      sendEmail(env, {
+        to: row.email, replyTo: env.CONTACT_TO_EMAIL,
+        subject: msg.subject, html: msg.html, text: msg.text,
+      }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend no-deposit approved email failed:', r.status, t)); })
+        .catch(e => console.error('Resend no-deposit approved email failed:', e))
     );
 
     return ok();
