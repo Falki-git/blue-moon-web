@@ -3,6 +3,7 @@ import PageLayout from '../../layouts/PageLayout.astro';
 import BookingCalendar from '../BookingCalendar.astro';
 import type { Translations, SupportedLang } from '../../i18n/utils';
 import { INTL_LOCALE_MAP } from '../../i18n/utils';
+import { MAX_GUESTS } from '../../worker/pricing';
 import heroImg from '../../assets/gallery/terrace-14.jpg';
 
 interface Props {
@@ -37,6 +38,9 @@ const locale = INTL_LOCALE_MAP[lang as SupportedLang] ?? 'en-GB';
     data-error-field-required={b.errorFieldRequired}
     data-error-email-invalid={b.errorEmailInvalid}
     data-error-country-required={b.errorCountryRequired}
+    data-error-max-guests={b.errorMaxGuests}
+    data-error-children-ages={b.errorChildrenAges}
+    data-max-guests={MAX_GUESTS}
     data-error-select-dates={b.errorSelectDates}
     data-no-countries={b.countrySearchPlaceholder}
   ></div>
@@ -194,14 +198,22 @@ const locale = INTL_LOCALE_MAP[lang as SupportedLang] ?? 'en-GB';
 
             <div class="form-row">
               <div class="form-group">
-                <label for="bk-guests">{b.labelGuests} <span class="required">*</span></label>
-                <input type="number" id="bk-guests" name="guests" min="1" max="6" required />
+                <label for="bk-adults">{b.labelAdults} <span class="required">*</span></label>
+                <input type="number" id="bk-adults" name="adults" min="1" max={MAX_GUESTS} value="2" required />
+                <span class="form-error" aria-live="polite"></span>
                 <span class="form-hint">{b.guestsHint}</span>
               </div>
               <div class="form-group">
                 <label for="bk-children">{b.labelChildren}</label>
-                <input type="text" id="bk-children" name="children" placeholder={b.childrenPlaceholder} />
+                <input type="number" id="bk-children" name="children" min="0" max={MAX_GUESTS - 1} value="0" />
+                <span class="form-error" aria-live="polite"></span>
               </div>
+            </div>
+
+            <div class="form-group">
+              <label for="bk-children-ages">{b.labelChildrenAges}</label>
+              <input type="text" id="bk-children-ages" name="children_ages" placeholder={b.childrenPlaceholder} disabled />
+              <span class="form-error" aria-live="polite"></span>
             </div>
 
             <div class="form-group">
@@ -676,6 +688,9 @@ const locale = INTL_LOCALE_MAP[lang as SupportedLang] ?? 'en-GB';
   const errorFieldRequired    = i18nEl.getAttribute('data-error-field-required')!;
   const errorEmailInvalid     = i18nEl.getAttribute('data-error-email-invalid')!;
   const errorCountryRequired  = i18nEl.getAttribute('data-error-country-required')!;
+  const errorMaxGuests        = i18nEl.getAttribute('data-error-max-guests')!;
+  const errorChildrenAges     = i18nEl.getAttribute('data-error-children-ages')!;
+  const maxGuests             = parseInt(i18nEl.getAttribute('data-max-guests') ?? '6', 10);
   const errorSelectDates      = i18nEl.getAttribute('data-error-select-dates')!;
 
   const empty   = document.getElementById('bkSumEmpty')!;
@@ -927,6 +942,47 @@ const locale = INTL_LOCALE_MAP[lang as SupportedLang] ?? 'en-GB';
   });
   // ── End country combobox ─────────────────────────────────────────────────
 
+  // The ages only mean anything once there is a child to age, so the field stays locked
+  // until then — and is emptied on the way back down, so a stale string can't be sent.
+  const adultsEl     = document.getElementById('bk-adults') as HTMLInputElement;
+  const childrenEl   = document.getElementById('bk-children') as HTMLInputElement;
+  const childAgesEl  = document.getElementById('bk-children-ages') as HTMLInputElement;
+
+  function syncChildAges() {
+    const n = parseInt(childrenEl.value, 10) || 0;
+    childAgesEl.disabled = n < 1;
+    if (n < 1) {
+      childAgesEl.value = '';
+      childAgesEl.classList.remove('is-error');
+      const err = childAgesEl.parentElement?.querySelector('.form-error');
+      if (err) err.textContent = '';
+    }
+  }
+  childrenEl.addEventListener('input', syncChildAges);
+  syncChildAges();
+
+  function setFieldError(input: HTMLInputElement, message: string) {
+    input.classList.add('is-error');
+    const errorEl = input.parentElement?.querySelector('.form-error');
+    if (errorEl) errorEl.textContent = message;
+  }
+
+  /** Adults + children against the apartment's capacity, and the ages once unlocked. */
+  function validateParty() {
+    let valid = true;
+    const adults   = parseInt(adultsEl.value, 10)   || 0;
+    const children = parseInt(childrenEl.value, 10) || 0;
+    if (adults + children > maxGuests) {
+      setFieldError(adultsEl, errorMaxGuests);
+      valid = false;
+    }
+    if (!childAgesEl.disabled && !childAgesEl.value.trim()) {
+      setFieldError(childAgesEl, errorChildrenAges);
+      valid = false;
+    }
+    return valid;
+  }
+
   function validateField(input: HTMLInputElement) {
     const errorEl = input.parentElement?.querySelector('.form-error');
     if (input.required && !input.value.trim()) {
@@ -957,6 +1013,7 @@ const locale = INTL_LOCALE_MAP[lang as SupportedLang] ?? 'en-GB';
     let valid = true;
     inputs.forEach(input => { if (!validateField(input)) valid = false; });
     if (!validateCountry()) valid = false;
+    if (!validateParty()) valid = false;
     if (!valid) return;
 
     const label = submitBtn.querySelector('.btn-label') as HTMLElement;

@@ -11,6 +11,7 @@ import {
   upsertPricingRule, getSetting, upsertSetting,
   getKeyLockerCode, isValidKeyLockerCode, KEY_LOCKER_CODE_KEY,
   listCleaningGuests, insertCleaningGuest, updateCleaningGuest, deleteCleaningGuest,
+  setGuestReservationLink,
   getCleaningGuestWithRanges, getInvoice, getNextInvoiceSeq, upsertInvoice,
   listCrewDocs, getCrewDoc, insertCrewDoc, updateCrewDoc, deleteCrewDoc,
   type ReservationStatus, type GuestStayRange, type UpdateReservationInput,
@@ -23,6 +24,11 @@ import {
   buildGuestPaymentConfirmation,
 } from './email';
 import { buildInvoicePdf } from './invoice';
+import { parseRanges, rangesFromPriceTotal, totalsFromRanges } from './ranges';
+import {
+  computeGuestDerived, createGuestFromReservation, detachGuestForReservation,
+  saveLinkedGuest, syncGuestFromReservation, type GuestOwnedFields,
+} from './guestSync';
 
 const INVOICE_BCC = 'bluemoon.mandre@gmail.com';
 
@@ -232,36 +238,24 @@ function parseReservationBody(
 
   const full_name = str('full_name');
   const email     = str('email');
-  const check_in  = str('check_in');
-  const check_out = str('check_out');
 
   if (!full_name) return { error: 'Guest name is required' };
   if (!email) return { error: 'Email is required' };
-  if (!ISO_DATE.test(check_in)) return { error: 'Check-in must be a yyyy-mm-dd date' };
-  if (!ISO_DATE.test(check_out)) return { error: 'Check-out must be a yyyy-mm-dd date' };
 
-  const guests = Number(body.guests);
-  if (!Number.isFinite(guests) || guests < 1) return { error: 'Guests must be at least 1' };
+  // Deliberately no upper bound: the manual path checks no rules. The stored `guests`
+  // total is always the sum, so nothing downstream has to add them up again.
+  const adults = Number(body.adults);
+  if (!Number.isFinite(adults) || adults < 1) return { error: 'At least one adult is required' };
 
-  const nights = Number(body.nights);
-  if (!Number.isFinite(nights) || nights < 1) return { error: 'Nights must be at least 1' };
+  const children = Number(body.children ?? 0);
+  if (!Number.isFinite(children) || children < 0) return { error: 'Children cannot be negative' };
 
-  const total_eur = Number(body.total_eur);
-  if (!Number.isFinite(total_eur) || total_eur < 0) return { error: 'Total must be a number' };
-
-  const rawFull = body.full_total_eur;
-  const full_total_eur = rawFull === null || rawFull === undefined || rawFull === ''
-    ? null : Number(rawFull);
-  if (full_total_eur !== null && !Number.isFinite(full_total_eur)) {
-    return { error: 'Full total must be a number' };
-  }
-
-  const rawPct = body.discount_pct;
-  const discount_pct = rawPct === null || rawPct === undefined || rawPct === ''
-    ? null : Number(rawPct);
-  if (discount_pct !== null && !Number.isFinite(discount_pct)) {
-    return { error: 'Discount % must be a number' };
-  }
+  // The stay and both totals come from the ranges, so a nightly rate can never disagree
+  // with the amount charged. Everything else about them stays unvalidated.
+  const parsedRanges = parseRanges(body.ranges);
+  if ('error' in parsedRanges) return { error: parsedRanges.error };
+  const { ranges } = parsedRanges;
+  const totals = totalsFromRanges(ranges);
 
   return {
     fields: {
@@ -271,15 +265,45 @@ function parseReservationBody(
       country: nullable('country'),
       address: nullable('address'),
       source: nullable('source'),
-      guests: Math.round(guests),
+      guests: Math.round(adults) + Math.round(children),
+      adults: Math.round(adults),
+      children: Math.round(children),
       children_ages: nullable('children_ages'),
-      check_in, check_out,
-      nights: Math.round(nights),
-      total_eur: Math.round(total_eur),
-      full_total_eur: full_total_eur === null ? null : Math.round(full_total_eur),
-      discount_pct: discount_pct === null ? null : Math.round(discount_pct),
+      check_in: totals.check_in,
+      check_out: totals.check_out,
+      nights: totals.nights,
+      total_eur: totals.total_eur,
+      full_total_eur: totals.full_total_eur,
+      discount_pct: totals.discount_pct,
+      pricing_snapshot: JSON.stringify(ranges),
       message: nullable('message'),
     },
+  };
+}
+
+/**
+ * The subset of a guest-data save that a linked row still accepts. Everything else on
+ * such a row belongs to the reservation and is re-derived from it, so a request that
+ * names those fields simply has them ignored rather than rewriting a quoted price.
+ *
+ * Booking number is not here on purpose: it is the Booking.com reference, which a
+ * direct booking does not have.
+ */
+function parseGuestOwnedBody(body: Record<string, unknown>): GuestOwnedFields {
+  const str = (k: string) => String(body[k] ?? '').trim() || null;
+  const money = (k: string) => {
+    const raw = body[k];
+    if (raw === undefined || raw === null || raw === '') return null;
+    const n = Number(raw);
+    return Number.isFinite(n) ? Math.round(n * 100) / 100 : null;
+  };
+  return {
+    notes: str('notes'),
+    checkin_hour: str('checkin_hour'),
+    checkout_hour: str('checkout_hour'),
+    commission: money('commission'),
+    vat: body.vat ? 1 : 0,
+    cleaning_fee: money('cleaning_fee'),
   };
 }
 
@@ -342,10 +366,12 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
       ...parsed.fields,
       full_total_eur: parsed.fields.full_total_eur ?? parsed.fields.total_eur,
       discount_pct: parsed.fields.discount_pct ?? 0,
-      pricing_snapshot: JSON.stringify([]),
       decision_token: await signDecisionToken(id, 'approve', env),
       decided_at: Math.floor(Date.now() / 1000),
     });
+
+    const created = await getReservation(env.DB, id);
+    if (created) await createGuestFromReservation(env.DB, created);
 
     return ok({ id });
   }
@@ -365,7 +391,23 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
       totalEur: total.totalEur,
       fullTotalEur: total.fullTotalEur,
       discountPct: total.discountPct,
+      ranges: rangesFromPriceTotal(total, checkIn),
     });
+  }
+
+  // Nothing is propagated retroactively, so a reservation confirmed before this feature
+  // existed never appears in guest data on its own — this is how one is pulled in, which
+  // keeps it a decision rather than a surprise duplicate of a hand-entered row.
+  const toGuestDataMatch = path.match(/^reservations\/([^/]+)\/guest-data$/);
+  if (toGuestDataMatch && request.method === 'POST') {
+    const id = toGuestDataMatch[1];
+    const row = await getReservation(env.DB, id);
+    if (!row) return err(404, 'Reservation not found');
+    if (row.status !== 'confirmed') {
+      return err(409, `Only a confirmed reservation can be added to guest data, not a ${row.status} one`);
+    }
+    await createGuestFromReservation(env.DB, row);
+    return ok();
   }
 
   // Full manual edit of an existing reservation, status included. Same no-rules stance as
@@ -388,6 +430,16 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     if ('error' in parsed) return err(400, parsed.error);
 
     await updateReservation(env.DB, id, { status, ...parsed.fields });
+
+    // Deliberately sync-only: an edit follows a link that already exists but never makes
+    // one, so reservations predating this feature stay out of guest data until they are
+    // pulled in on purpose. A status leaving 'confirmed' takes the guest row with it.
+    const saved = await getReservation(env.DB, id);
+    if (saved) {
+      if (status === 'confirmed') await syncGuestFromReservation(env.DB, saved);
+      else await detachGuestForReservation(env.DB, id);
+    }
+
     return ok();
   }
 
@@ -418,6 +470,10 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     }
 
     await updateReservationStatus(env.DB, id, newStatus);
+
+    const decided = { ...row, status: newStatus } as typeof row;
+    if (newStatus === 'confirmed') await createGuestFromReservation(env.DB, decided);
+    else await detachGuestForReservation(env.DB, id);
 
     if (action === 'approve') {
       await markGuestEmailSent(env.DB, id, 'approved');
@@ -701,7 +757,9 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     const { fields, ranges } = guestResult;
     const id = crypto.randomUUID();
     const rangesWithIds: GuestStayRange[] = ranges.map(r => ({ ...r, id: crypto.randomUUID(), guest_id: id }));
-    await insertCleaningGuest(env.DB, { id, guest_name, ...fields }, rangesWithIds);
+    // Hand-entered, so unlinked: this form only ever creates rows the booking tab does
+    // not own. Propagated rows come in through createGuestFromReservation instead.
+    await insertCleaningGuest(env.DB, { id, reservation_id: null, guest_name, ...fields }, rangesWithIds);
     return ok({ id });
   }
 
@@ -843,12 +901,35 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
     return ok();
   }
 
+  // Breaks a row's tie to its reservation, leaving an ordinary hand-entered guest that
+  // stops following the booking tab and becomes fully editable again.
+  const guestUnlinkMatch = path.match(/^cleaning-guests\/([^/]+)\/unlink$/);
+  if (guestUnlinkMatch && request.method === 'POST') {
+    const guest = await getCleaningGuestWithRanges(env.DB, guestUnlinkMatch[1]);
+    if (!guest) return err(404, 'Guest not found');
+    if (!guest.reservation_id) return err(409, 'This guest is not linked to a reservation');
+    await setGuestReservationLink(env.DB, guest.id, null);
+    return ok();
+  }
+
   const cleaningGuestMatch = path.match(/^cleaning-guests\/([^/]+)$/);
 
   if (cleaningGuestMatch && request.method === 'PUT') {
     const id = cleaningGuestMatch[1];
     const body = await readJson(request);
     if (!body) return err(400, 'Invalid JSON');
+
+    // A row propagated from a reservation takes only its guest-owned fields from the
+    // request; the stay, party and price come back off the reservation. The check lives
+    // here rather than in the UI because a hand-rolled request would otherwise be able to
+    // contradict the amount already quoted in a sent confirmation mail.
+    const linked = await getCleaningGuestWithRanges(env.DB, id);
+    if (linked?.reservation_id) {
+      const res = await getReservation(env.DB, linked.reservation_id);
+      if (!res) return err(409, 'The linked reservation no longer exists — unlink this row to edit it');
+      await saveLinkedGuest(env.DB, id, res, parseGuestOwnedBody(body));
+      return ok();
+    }
 
     const guest_name = String(body.guest_name ?? '').trim();
     if (!guest_name) return err(400, 'guest_name is required');
@@ -940,14 +1021,14 @@ function parseGuestBody(
                           ? Number(body.commission) : null;
   const commission      = comm_raw !== null && Number.isFinite(comm_raw) ? round2(comm_raw) : null;
   const vat             = body.vat ? 1 : 0;
-  const commission_pct  = commission !== null && final_price > 0 ? round1(commission / final_price * 100) : null;
-  const payout          = commission !== null ? round2(final_price - commission) : null;
-  const vat_amount      = commission !== null ? (vat ? round2(commission * 0.25) : 0) : null;
   const cf_raw          = body.cleaning_fee !== undefined && body.cleaning_fee !== null && body.cleaning_fee !== ''
                           ? Number(body.cleaning_fee) : null;
   const cleaning_fee    = cf_raw !== null && Number.isFinite(cf_raw) ? round2(cf_raw) : round2(140 + 7 * total_guests);
-  const net_gain        = commission !== null && vat_amount !== null
-                          ? round2(final_price - commission - vat_amount - cleaning_fee) : null;
+  // Shared with the propagation path, so a hand-filled row and a synced one can never
+  // disagree about how payout and net gain are worked out.
+  const { commission_pct, vat_amount, payout, net_gain } = computeGuestDerived({
+    finalPrice: final_price, commission, vat: vat === 1, cleaningFee: cleaning_fee,
+  });
 
   return {
     fields: {

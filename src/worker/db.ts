@@ -12,6 +12,8 @@ export interface ReservationRow {
   address: string | null;
   source: string | null;
   guests: number;
+  adults: number;
+  children: number;
   children_ages: string | null;
   check_in: string;
   check_out: string;
@@ -229,6 +231,8 @@ export interface InsertReservationInput {
   address: string | null;
   source: string | null;
   guests: number;
+  adults: number;
+  children: number;
   children_ages: string | null;
   check_in: string;
   check_out: string;
@@ -251,13 +255,14 @@ export async function insertReservation(db: D1Database, row: InsertReservationIn
   await db.prepare(
     `INSERT INTO reservations
       (id, created_at, status, full_name, email, phone, language, country, address, source,
-       guests, children_ages, check_in, check_out, nights, total_eur, message, decision_token,
-       full_total_eur, discount_pct, pricing_snapshot, decided_at)
+       guests, adults, children, children_ages, check_in, check_out, nights, total_eur, message,
+       decision_token, full_total_eur, discount_pct, pricing_snapshot, decided_at)
      VALUES
-      (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21)`
+      (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23)`
   ).bind(
     row.id, row.status, row.full_name, row.email, row.phone, row.language, row.country, row.address, row.source,
-    row.guests, row.children_ages, row.check_in, row.check_out, row.nights, row.total_eur,
+    row.guests, row.adults, row.children, row.children_ages,
+    row.check_in, row.check_out, row.nights, row.total_eur,
     row.message, row.decision_token,
     row.full_total_eur, row.discount_pct, row.pricing_snapshot,
     row.decided_at ?? null,
@@ -281,6 +286,8 @@ export interface UpdateReservationInput {
   address: string | null;
   source: string | null;
   guests: number;
+  adults: number;
+  children: number;
   children_ages: string | null;
   check_in: string;
   check_out: string;
@@ -288,6 +295,8 @@ export interface UpdateReservationInput {
   total_eur: number;
   full_total_eur: number | null;
   discount_pct: number | null;
+  /** The dated pricing ranges the stay and totals above were derived from. */
+  pricing_snapshot: string;
   message: string | null;
 }
 
@@ -297,15 +306,16 @@ export async function updateReservation(
   await db.prepare(
     `UPDATE reservations SET
        status = ?2, full_name = ?3, email = ?4, phone = ?5, language = ?6, country = ?7,
-       address = ?8, source = ?9, guests = ?10, children_ages = ?11, check_in = ?12,
-       check_out = ?13, nights = ?14, total_eur = ?15, full_total_eur = ?16,
-       discount_pct = ?17, message = ?18
+       address = ?8, source = ?9, guests = ?10, adults = ?11, children = ?12,
+       children_ages = ?13, check_in = ?14, check_out = ?15, nights = ?16,
+       total_eur = ?17, full_total_eur = ?18, discount_pct = ?19,
+       pricing_snapshot = ?20, message = ?21
      WHERE id = ?1`
   ).bind(
     id, row.status, row.full_name, row.email, row.phone, row.language, row.country,
-    row.address, row.source, row.guests, row.children_ages, row.check_in,
-    row.check_out, row.nights, row.total_eur, row.full_total_eur,
-    row.discount_pct, row.message,
+    row.address, row.source, row.guests, row.adults, row.children, row.children_ages,
+    row.check_in, row.check_out, row.nights, row.total_eur, row.full_total_eur,
+    row.discount_pct, row.pricing_snapshot, row.message,
   ).run();
 }
 
@@ -427,6 +437,13 @@ export interface GuestStayRange {
 export interface CleaningGuestRow {
   id: string;
   created_at: number;
+  /**
+   * The reservation this row was propagated from, or null for a hand-entered guest.
+   * While it is set, the booking tab owns the stay fields and rewrites them on every
+   * sync; only the guest-only fields (hours, notes, financials, invoice) are editable
+   * here. Cleared by "Unlink from booking", which turns the row into an ordinary one.
+   */
+  reservation_id: string | null;
   guest_name: string;
   booking_number: string | null;
   country: string | null;
@@ -565,9 +582,9 @@ export async function insertCleaningGuest(
          check_in, check_out, booking_date, total_guests, adults, children,
          children_ages, nights, email, phone, notes, checkin_hour, checkout_hour,
          channel, commission, commission_pct, vat, vat_amount, cleaning_fee,
-         final_price, payout, net_gain)
+         final_price, payout, net_gain, reservation_id)
        VALUES (?1, unixepoch(), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17,
-               ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26)`,
+               ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27)`,
     ).bind(
       row.id, row.guest_name, row.booking_number, row.country,
       row.check_in, row.check_out, row.booking_date, row.total_guests,
@@ -575,6 +592,7 @@ export async function insertCleaningGuest(
       row.email, row.phone, row.notes, row.checkin_hour, row.checkout_hour,
       row.channel, row.commission, row.commission_pct, row.vat, row.vat_amount,
       row.cleaning_fee, row.final_price, row.payout, row.net_gain,
+      row.reservation_id,
     ),
     ...ranges.map(r => db.prepare(
       `INSERT INTO guest_stay_ranges
@@ -587,7 +605,7 @@ export async function insertCleaningGuest(
 export async function updateCleaningGuest(
   db: D1Database,
   id: string,
-  fields: Omit<CleaningGuestRow, 'id' | 'created_at'>,
+  fields: Omit<CleaningGuestRow, 'id' | 'created_at' | 'reservation_id'>,
   ranges: GuestStayRange[],
 ): Promise<void> {
   await db.batch([
@@ -619,6 +637,27 @@ export async function updateCleaningGuest(
        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`,
     ).bind(r.id, r.guest_id, r.sort_order, r.start_date, r.end_date, r.full_price, r.discounted_price, r.nights, r.range_total)),
   ]);
+}
+
+/** The guest row propagated from a reservation, if one has been created for it. */
+export async function getCleaningGuestByReservation(
+  db: D1Database, reservationId: string,
+): Promise<CleaningGuestWithRanges | null> {
+  const guest = await db
+    .prepare('SELECT id FROM cleaning_guests WHERE reservation_id = ?1').bind(reservationId)
+    .first<{ id: string }>();
+  return guest ? getCleaningGuestWithRanges(db, guest.id) : null;
+}
+
+/**
+ * Attaches a guest row to a reservation, or detaches it with null. Kept out of
+ * updateCleaningGuest so an ordinary save can never link or unlink a row by accident.
+ */
+export async function setGuestReservationLink(
+  db: D1Database, guestId: string, reservationId: string | null,
+): Promise<void> {
+  await db.prepare('UPDATE cleaning_guests SET reservation_id = ?2 WHERE id = ?1')
+    .bind(guestId, reservationId).run();
 }
 
 export async function deleteCleaningGuest(db: D1Database, id: string): Promise<void> {

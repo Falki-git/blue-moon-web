@@ -185,12 +185,51 @@ function totalText(r: ReservationRow): string {
 
 // ─── Booking summary rows ─────────────────────────────────────────────────────
 
-function summaryRowsHtml(r: ReservationRow, locale: string, labels: { checkin: string; checkout: string; nights: string; guests: string; total: string }): string {
+type EmailStrings = ReturnType<typeof getTranslations>['email'];
+
+/**
+ * What goes in brackets after the guest total: the adults/children split, and the ages
+ * when they were given. Empty for an adults-only party, where the total already says
+ * everything. The ages show whenever they are recorded, so reservations from before the
+ * split (which carry ages but children = 0) still read the way they always did.
+ */
+function guestsBreakdown(r: ReservationRow, e: EmailStrings): string {
+  const parts: string[] = [];
+  if (r.children > 0) {
+    const adults   = r.adults   === 1 ? e.guestsAdultsOne   : tpl(e.guestsAdults,   { n: r.adults });
+    const children = r.children === 1 ? e.guestsChildrenOne : tpl(e.guestsChildren, { n: r.children });
+    parts.push(`${adults}, ${children}`);
+  }
+  if (r.children_ages) parts.push(r.children_ages);
+  return parts.join(' · ');
+}
+
+function guestsHtml(r: ReservationRow, e: EmailStrings): string {
+  const extra = guestsBreakdown(r, e);
+  return String(r.guests) + (extra ? ` <span style="color:#5a7080;font-size:13px;">(${esc(extra)})</span>` : '');
+}
+
+function guestsText(r: ReservationRow, e: EmailStrings): string {
+  const extra = guestsBreakdown(r, e);
+  return String(r.guests) + (extra ? ` (${extra})` : '');
+}
+
+/** The owner notification labels everything in English, whatever the guest's language. */
+function guestsOwner(r: ReservationRow): string {
+  const parts: string[] = [];
+  if (r.children > 0) {
+    parts.push(`${r.adults} adult${r.adults !== 1 ? 's' : ''}, ${r.children} child${r.children !== 1 ? 'ren' : ''}`);
+  }
+  if (r.children_ages) parts.push(`ages: ${r.children_ages}`);
+  return String(r.guests) + (parts.length ? ` (${parts.join('; ')})` : '');
+}
+
+function summaryRowsHtml(r: ReservationRow, locale: string, labels: { checkin: string; checkout: string; nights: string; guests: string; total: string }, e: EmailStrings): string {
   return [
     detailRow(labels.checkin,  `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_in, locale)}</strong>`),
     detailRow(labels.checkout, `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_out, locale)}</strong>`),
     detailRow(labels.nights,   String(r.nights)),
-    detailRow(labels.guests,   r.guests + (r.children_ages ? ` <span style="color:#5a7080;font-size:13px;">(${esc(r.children_ages)})</span>` : '')),
+    detailRow(labels.guests,   guestsHtml(r, e)),
     detailRow(labels.total,    totalHtml(r)),
   ].join('\n');
 }
@@ -232,7 +271,7 @@ export function buildOwnerBookingNotification(
     detailRow('Check-in',  `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_in)}</strong>`),
     detailRow('Check-out', `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_out)}</strong>`),
     detailRow('Nights',    String(r.nights)),
-    detailRow('Guests',    r.guests + (r.children_ages ? ` (children: ${esc(r.children_ages)})` : '')),
+    detailRow('Guests',    esc(guestsOwner(r))),
     detailRow('Total',          totalHtml(r)),
     detailRow('Deposit (30%)',  `<strong style="color:#1A5FAD;">€${deposit.toLocaleString('en-GB')}</strong>`),
     detailRow('Pay within',     '<strong>3 days</strong> of approval'),
@@ -276,7 +315,7 @@ ${detailTable(bookingRows)}
     `Check-in:  ${r.check_in}`,
     `Check-out: ${r.check_out}`,
     `Nights:    ${r.nights}`,
-    `Guests:    ${r.guests}${r.children_ages ? ` (children: ${r.children_ages})` : ''}`,
+    `Guests:    ${guestsOwner(r)}`,
     `Total:     ${totalText(r)}`,
     `Deposit:   €${deposit} (due within 3 days of approval)`,
     r.message  ? `Message: ${r.message}`   : null,
@@ -303,7 +342,7 @@ export function buildGuestBookingPending(r: ReservationRow, langCode?: string): 
 <p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.pendingBody)}</p>
 
 ${sectionHeading(e.pendingSection)}
-${detailTable(summaryRowsHtml(r, locale, labels))}
+${detailTable(summaryRowsHtml(r, locale, labels, e))}
 
 <p style="margin:0;font-size:14px;color:#5a7080;">${esc(e.pendingFollowUp)}</p>`;
 
@@ -318,7 +357,7 @@ ${detailTable(summaryRowsHtml(r, locale, labels))}
     `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
-    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableGuests}:   ${guestsText(r, e)}`,
     `${e.tableTotal}:    ${totalText(r)}`,
     TEXT_SIG,
   ].join('\n');
@@ -342,7 +381,7 @@ export function buildGuestDepositReceived(r: ReservationRow, langCode?: string):
 <p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositBody, { deposit: deposit.toLocaleString('en-GB') }))}</p>
 
 ${sectionHeading(e.depositStaySection)}
-${detailTable(summaryRowsHtml(r, locale, labels))}
+${detailTable(summaryRowsHtml(r, locale, labels, e))}
 
 ${sectionHeading(e.depositBalanceSection)}
 <p style="margin:12px 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.depositBalanceBody).replace('€{{remainder}}', `<strong style="color:#081628;">€${remainder.toLocaleString('en-GB')}</strong>`)}</p>
@@ -361,7 +400,7 @@ ${sectionHeading(e.depositCheckinSection)}
     `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
-    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableGuests}:   ${guestsText(r, e)}`,
     `${e.tableTotal}:    ${totalText(r)}`,
     '',
     tpl(e.depositBalanceBody, { remainder: String(remainder) }),
@@ -451,7 +490,7 @@ export function buildGuestBookingApproved(r: ReservationRow, langCode?: string):
 <p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.approvedBody)}</p>
 
 ${sectionHeading(e.approvedStaySection)}
-${detailTable(summaryRowsHtml(r, locale, labels))}
+${detailTable(summaryRowsHtml(r, locale, labels, e))}
 
 ${sectionHeading(e.approvedPaymentSection)}
 <p style="margin:12px 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.approvedPaymentBody).replace('€{{deposit}}', `<strong style="color:#081628;">€${deposit.toLocaleString('en-GB')}</strong>`).replace('{{remainder}}', remainder.toLocaleString('en-GB'))}</p>
@@ -472,7 +511,7 @@ ${sectionHeading(e.approvedCheckinSection)}
     `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
-    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableGuests}:   ${guestsText(r, e)}`,
     `${e.tableTotal}:    ${totalText(r)}`,
     '',
     tpl(e.approvedPaymentBody, { deposit: String(deposit), remainder: String(remainder) }),
@@ -511,7 +550,7 @@ export function buildGuestPaymentConfirmation(r: ReservationRow, langCode?: stri
 <p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.paymentBody).replace('€{{total}}', `<strong style="color:#081628;">€${total}</strong>`)}</p>
 
 ${sectionHeading(e.depositStaySection)}
-${detailTable(summaryRowsHtml(r, locale, labels))}
+${detailTable(summaryRowsHtml(r, locale, labels, e))}
 
 ${sectionHeading(e.depositCheckinSection)}
 <p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositCheckinBody, { checkin: fmtDateLong(r.check_in, locale), checkout: fmtDateLong(r.check_out, locale) }))}</p>
@@ -528,7 +567,7 @@ ${sectionHeading(e.depositCheckinSection)}
     `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
-    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableGuests}:   ${guestsText(r, e)}`,
     `${e.tableTotal}:    ${totalText(r)}`,
     '',
     tpl(e.depositCheckinBody, { checkin: r.check_in, checkout: r.check_out }),
@@ -565,7 +604,7 @@ export function buildGuestBookingApprovedNoDeposit(r: ReservationRow, langCode?:
 <p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.noDepositBody)}</p>
 
 ${sectionHeading(e.approvedStaySection)}
-${detailTable(summaryRowsHtml(r, locale, labels))}
+${detailTable(summaryRowsHtml(r, locale, labels, e))}
 
 ${sectionHeading(e.approvedPaymentSection)}
 <p style="margin:12px 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.noDepositPaymentBody).replace('€{{total}}', `<strong style="color:#081628;">€${total}</strong>`)}</p>
@@ -582,7 +621,7 @@ ${bankDetailsPanel()}
     `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
-    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableGuests}:   ${guestsText(r, e)}`,
     `${e.tableTotal}:    ${totalText(r)}`,
     '',
     tpl(e.noDepositPaymentBody, { total }),
