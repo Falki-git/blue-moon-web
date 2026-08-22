@@ -1,13 +1,15 @@
 import type { Env } from './index';
 import {
   computeTotal, depositEur, isInSeason, loadPricing,
-  MIN_NIGHTS, SEASON_2026, DEPOSIT_PCT, SEASON_MONTHS,
+  MIN_NIGHTS, MAX_GUESTS, SEASON_2026, DEPOSIT_PCT, SEASON_MONTHS,
 } from './pricing';
 import {
   insertReservation, listOccupiedDates, rangeOverlapsOccupied,
-  getReservation, updateReservationStatus, getSetting,
+  getReservation, updateReservationStatus, getSetting, markGuestEmailSent,
 } from './db';
 import { signDecisionToken, verifyDecisionToken } from './auth';
+import { createGuestFromReservation, detachGuestForReservation } from './guestSync';
+import { rangesFromPriceTotal } from './ranges';
 import {
   sendEmail, buildOwnerBookingNotification, buildGuestBookingPending,
   buildGuestBookingApproved,
@@ -72,11 +74,12 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
   const country  = String(body.country  ?? '').trim();
   const address  = String(body.address  ?? '').trim();
   const source   = String(body.source   ?? '').trim();
-  const children = String(body.children ?? '').trim();
+  const childrenAges = String(body.children_ages ?? '').trim();
   const message  = String(body.message  ?? '').trim();
   const checkin  = String(body.checkin  ?? '').trim();
   const checkout = String(body.checkout ?? '').trim();
-  const guests   = Number(body.guests);
+  const adults   = Number(body.adults);
+  const children = Number(body.children ?? 0);
   const tsToken  = String(body['cf-turnstile-response'] ?? '');
 
   if (!fullName)                           return err(400, 'Full name is required');
@@ -85,7 +88,10 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
   if (!country)                            return err(400, 'Country is required');
   if (!checkin)                            return err(400, 'Check-in date is required');
   if (!checkout)                           return err(400, 'Check-out date is required');
-  if (!guests || guests < 1 || guests > 6) return err(400, 'Guests must be between 1 and 6');
+  if (!Number.isFinite(adults) || adults < 1)   return err(400, 'At least one adult is required');
+  if (!Number.isFinite(children) || children < 0) return err(400, 'Children cannot be negative');
+  const guests = Math.round(adults) + Math.round(children);
+  if (guests > MAX_GUESTS) return err(400, `Maximum ${MAX_GUESTS} guests in total`);
 
   if (!isInSeason(checkin) || !isInSeason(checkout)) {
     return err(400, 'Dates must be within the season (1 Jun – 30 Sep 2026)');
@@ -129,12 +135,13 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
     id, status: 'pending',
     full_name: fullName, email, phone: phone || null, language: language || null,
     country: country || null, address: address || null, source: source || null,
-    guests, children_ages: children || null,
+    guests, adults: Math.round(adults), children: Math.round(children),
+    children_ages: childrenAges || null,
     check_in: checkin, check_out: checkout, nights,
     total_eur: total.totalEur,
     full_total_eur: total.fullTotalEur,
     discount_pct: total.discountPct,
-    pricing_snapshot: JSON.stringify(total.monthly),
+    pricing_snapshot: JSON.stringify(rangesFromPriceTotal(total, checkin)),
     message: message || null,
     decision_token: decisionToken,
   });
@@ -168,6 +175,10 @@ export async function handleBooking(request: Request, env: Env, ctx: ExecutionCo
     }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend guest pending failed:', r.status, t)); })
       .catch(e => console.error('Resend guest pending failed:', e))
   );
+
+  // Both booking-time mails have now gone out, so the admin dashboard shows the pair
+  // as "Resend booking received mail" rather than offering a first send.
+  await markGuestEmailSent(env.DB, id, 'received');
 
   return Response.json({ ok: true, reservationId: id });
 }
@@ -209,7 +220,19 @@ export async function handleDecision(request: Request, env: Env, ctx: ExecutionC
 
   const updated = { ...row, status: newStatus } as typeof row;
 
+  // Deliberately swallowed: this renders a page to the owner after the status has already
+  // changed and the guest mail is on its way, so a propagation failure must not turn into
+  // an error screen suggesting nothing happened. The row can be added by hand afterwards
+  // from admin -> Booking -> "Add to guest data".
+  try {
+    if (newStatus === 'confirmed') await createGuestFromReservation(env.DB, updated);
+    else await detachGuestForReservation(env.DB, v.reservationId);
+  } catch (e) {
+    console.error('Guest-data propagation failed for', v.reservationId, e);
+  }
+
   if (newStatus === 'confirmed') {
+    await markGuestEmailSent(env.DB, v.reservationId, 'approved');
     const guestMsg = buildGuestBookingApproved(updated, updated.language ?? 'en');
     ctx.waitUntil(
       sendEmail(env, {

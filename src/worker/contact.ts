@@ -1,6 +1,7 @@
 import type { Env } from './index';
 import { esc, emailShell, detailRow, detailTable, sectionHeading } from './email';
 import { getTranslations, INTL_LOCALE_MAP, type SupportedLang, SUPPORTED_LANGS } from '../i18n/utils';
+import { MAX_GUESTS } from './pricing';
 
 const EMAIL_RE     = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const SEASON_START = '2026-06-01';
@@ -63,8 +64,8 @@ export async function handleContact(request: Request, env: Env, ctx: ExecutionCo
   if (checkin && checkout && checkout < addDays(checkin, 5)) {
     return err(400, 'Minimum stay is 5 nights');
   }
-  if (guests !== null && (guests < 1 || guests > 6)) {
-    return err(400, 'Guests must be between 1 and 6');
+  if (guests !== null && (guests < 1 || guests > MAX_GUESTS)) {
+    return err(400, `Guests must be between 1 and ${MAX_GUESTS}`);
   }
 
   // Turnstile verification

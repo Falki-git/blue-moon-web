@@ -21,6 +21,7 @@ const BANK_HOLDER = 'Goran Falkoni';
 const BANK_NAME   = 'Revolut';
 const BANK_BIC    = 'REVOLT21';
 const REVOLUT_URL = 'https://revolut.me/gfalkoni';
+const WHATSAPP_URL = 'https://wa.me/385914691204';
 export const BANK_DETAILS_PLACEHOLDER = `IBAN: ${BANK_IBAN} (${BANK_HOLDER}, ${BANK_NAME}, BIC/SWIFT ${BANK_BIC})`;
 
 export function esc(s: string): string {
@@ -184,12 +185,51 @@ function totalText(r: ReservationRow): string {
 
 // ─── Booking summary rows ─────────────────────────────────────────────────────
 
-function summaryRowsHtml(r: ReservationRow, locale: string, labels: { checkin: string; checkout: string; nights: string; guests: string; total: string }): string {
+type EmailStrings = ReturnType<typeof getTranslations>['email'];
+
+/**
+ * What goes in brackets after the guest total: the adults/children split, and the ages
+ * when they were given. Empty for an adults-only party, where the total already says
+ * everything. The ages show whenever they are recorded, so reservations from before the
+ * split (which carry ages but children = 0) still read the way they always did.
+ */
+function guestsBreakdown(r: ReservationRow, e: EmailStrings): string {
+  const parts: string[] = [];
+  if (r.children > 0) {
+    const adults   = r.adults   === 1 ? e.guestsAdultsOne   : tpl(e.guestsAdults,   { n: r.adults });
+    const children = r.children === 1 ? e.guestsChildrenOne : tpl(e.guestsChildren, { n: r.children });
+    parts.push(`${adults}, ${children}`);
+  }
+  if (r.children_ages) parts.push(r.children_ages);
+  return parts.join(' · ');
+}
+
+function guestsHtml(r: ReservationRow, e: EmailStrings): string {
+  const extra = guestsBreakdown(r, e);
+  return String(r.guests) + (extra ? ` <span style="color:#5a7080;font-size:13px;">(${esc(extra)})</span>` : '');
+}
+
+function guestsText(r: ReservationRow, e: EmailStrings): string {
+  const extra = guestsBreakdown(r, e);
+  return String(r.guests) + (extra ? ` (${extra})` : '');
+}
+
+/** The owner notification labels everything in English, whatever the guest's language. */
+function guestsOwner(r: ReservationRow): string {
+  const parts: string[] = [];
+  if (r.children > 0) {
+    parts.push(`${r.adults} adult${r.adults !== 1 ? 's' : ''}, ${r.children} child${r.children !== 1 ? 'ren' : ''}`);
+  }
+  if (r.children_ages) parts.push(`ages: ${r.children_ages}`);
+  return String(r.guests) + (parts.length ? ` (${parts.join('; ')})` : '');
+}
+
+function summaryRowsHtml(r: ReservationRow, locale: string, labels: { checkin: string; checkout: string; nights: string; guests: string; total: string }, e: EmailStrings): string {
   return [
     detailRow(labels.checkin,  `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_in, locale)}</strong>`),
     detailRow(labels.checkout, `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_out, locale)}</strong>`),
     detailRow(labels.nights,   String(r.nights)),
-    detailRow(labels.guests,   r.guests + (r.children_ages ? ` <span style="color:#5a7080;font-size:13px;">(${esc(r.children_ages)})</span>` : '')),
+    detailRow(labels.guests,   guestsHtml(r, e)),
     detailRow(labels.total,    totalHtml(r)),
   ].join('\n');
 }
@@ -231,7 +271,7 @@ export function buildOwnerBookingNotification(
     detailRow('Check-in',  `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_in)}</strong>`),
     detailRow('Check-out', `<strong style="color:#1A5FAD;">${fmtDateLong(r.check_out)}</strong>`),
     detailRow('Nights',    String(r.nights)),
-    detailRow('Guests',    r.guests + (r.children_ages ? ` (children: ${esc(r.children_ages)})` : '')),
+    detailRow('Guests',    esc(guestsOwner(r))),
     detailRow('Total',          totalHtml(r)),
     detailRow('Deposit (30%)',  `<strong style="color:#1A5FAD;">€${deposit.toLocaleString('en-GB')}</strong>`),
     detailRow('Pay within',     '<strong>3 days</strong> of approval'),
@@ -275,7 +315,7 @@ ${detailTable(bookingRows)}
     `Check-in:  ${r.check_in}`,
     `Check-out: ${r.check_out}`,
     `Nights:    ${r.nights}`,
-    `Guests:    ${r.guests}${r.children_ages ? ` (children: ${r.children_ages})` : ''}`,
+    `Guests:    ${guestsOwner(r)}`,
     `Total:     ${totalText(r)}`,
     `Deposit:   €${deposit} (due within 3 days of approval)`,
     r.message  ? `Message: ${r.message}`   : null,
@@ -302,7 +342,7 @@ export function buildGuestBookingPending(r: ReservationRow, langCode?: string): 
 <p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.pendingBody)}</p>
 
 ${sectionHeading(e.pendingSection)}
-${detailTable(summaryRowsHtml(r, locale, labels))}
+${detailTable(summaryRowsHtml(r, locale, labels, e))}
 
 <p style="margin:0;font-size:14px;color:#5a7080;">${esc(e.pendingFollowUp)}</p>`;
 
@@ -317,7 +357,7 @@ ${detailTable(summaryRowsHtml(r, locale, labels))}
     `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
-    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableGuests}:   ${guestsText(r, e)}`,
     `${e.tableTotal}:    ${totalText(r)}`,
     TEXT_SIG,
   ].join('\n');
@@ -341,7 +381,7 @@ export function buildGuestDepositReceived(r: ReservationRow, langCode?: string):
 <p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositBody, { deposit: deposit.toLocaleString('en-GB') }))}</p>
 
 ${sectionHeading(e.depositStaySection)}
-${detailTable(summaryRowsHtml(r, locale, labels))}
+${detailTable(summaryRowsHtml(r, locale, labels, e))}
 
 ${sectionHeading(e.depositBalanceSection)}
 <p style="margin:12px 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.depositBalanceBody).replace('€{{remainder}}', `<strong style="color:#081628;">€${remainder.toLocaleString('en-GB')}</strong>`)}</p>
@@ -360,7 +400,7 @@ ${sectionHeading(e.depositCheckinSection)}
     `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
-    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableGuests}:   ${guestsText(r, e)}`,
     `${e.tableTotal}:    ${totalText(r)}`,
     '',
     tpl(e.depositBalanceBody, { remainder: String(remainder) }),
@@ -373,27 +413,28 @@ ${sectionHeading(e.depositCheckinSection)}
   return { subject, html, text };
 }
 
-export function buildGuestBookingApproved(r: ReservationRow, langCode?: string): { subject: string; html: string; text: string } {
-  const lang    = safeLang(langCode ?? r.language);
-  const T       = getTranslations(lang);
-  const locale  = INTL_LOCALE_MAP[lang];
-  const e       = T.email;
-  const labels  = { checkin: e.tableCheckin, checkout: e.tableCheckout, nights: e.tableNights, guests: e.tableGuests, total: e.tableTotal };
-  const firstName = r.full_name.split(' ')[0];
-  const deposit   = depositEur(r.total_eur);
-  const remainder = r.total_eur - deposit;
-  const subject   = e.approvedSubject;
+/**
+ * The "any questions" line, whose {{whatsapp}} placeholder becomes a tappable link in
+ * the HTML part and a spelled-out URL in the text part — so the word is never a dead
+ * end in a plain-text client. esc() leaves the braces alone, so escaping first is safe.
+ */
+function questionsHtml(line: string): string {
+  return esc(line).replace(
+    '{{whatsapp}}',
+    `<a href="${WHATSAPP_URL}" style="color:#1A5FAD;text-decoration:none;font-weight:bold;">WhatsApp</a>`,
+  );
+}
 
-  const content = `
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(e.approvedHeading)}</div>
-<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.approvedBody)}</p>
+function questionsText(line: string): string {
+  return line.replace('{{whatsapp}}', `WhatsApp (${WHATSAPP_URL})`);
+}
 
-${sectionHeading(e.approvedStaySection)}
-${detailTable(summaryRowsHtml(r, locale, labels))}
-
-${sectionHeading(e.approvedPaymentSection)}
-<p style="margin:12px 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.approvedPaymentBody).replace('€{{deposit}}', `<strong style="color:#081628;">€${deposit.toLocaleString('en-GB')}</strong>`).replace('{{remainder}}', remainder.toLocaleString('en-GB'))}</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px;background-color:#EAF6FC;border-radius:8px;border-left:4px solid #E8A82A;">
+/**
+ * The IBAN / account panel shared by both approval mails. Inline styles only — email
+ * clients strip <style> blocks, so every rule has to live on the element.
+ */
+function bankDetailsPanel(): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px;background-color:#EAF6FC;border-radius:8px;border-left:4px solid #E8A82A;">
   <tr><td style="padding:16px 20px;">
     <div style="font-size:11px;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#5a7080;margin-bottom:4px;">IBAN</div>
     <div style="font-size:19px;font-family:'Courier New',Courier,monospace;font-weight:bold;color:#081628;letter-spacing:2px;margin-bottom:16px;">${BANK_IBAN}</div>
@@ -418,13 +459,47 @@ ${sectionHeading(e.approvedPaymentSection)}
       </tr>
     </table>
   </td></tr>
-</table>
-<p style="margin:0 0 24px;font-size:14px;color:#5a7080;">${esc(e.approvedQuestions)}</p>
+</table>`;
+}
+
+/**
+ * Plain-text counterpart of bankDetailsPanel(), as the lines of a text-part body.
+ */
+function bankDetailsText(): string[] {
+  return [
+    `IBAN: ${BANK_IBAN}`,
+    `Account holder: ${BANK_HOLDER}`,
+    `Bank: ${BANK_NAME}`,
+    `BIC/SWIFT: ${BANK_BIC}`,
+  ];
+}
+
+export function buildGuestBookingApproved(r: ReservationRow, langCode?: string): { subject: string; html: string; text: string } {
+  const lang    = safeLang(langCode ?? r.language);
+  const T       = getTranslations(lang);
+  const locale  = INTL_LOCALE_MAP[lang];
+  const e       = T.email;
+  const labels  = { checkin: e.tableCheckin, checkout: e.tableCheckout, nights: e.tableNights, guests: e.tableGuests, total: e.tableTotal };
+  const firstName = r.full_name.split(' ')[0];
+  const deposit   = depositEur(r.total_eur);
+  const remainder = r.total_eur - deposit;
+  const subject   = e.approvedSubject;
+
+  const content = `
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(e.approvedHeading)}</div>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.approvedBody)}</p>
+
+${sectionHeading(e.approvedStaySection)}
+${detailTable(summaryRowsHtml(r, locale, labels, e))}
+
+${sectionHeading(e.approvedPaymentSection)}
+<p style="margin:12px 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.approvedPaymentBody).replace('€{{deposit}}', `<strong style="color:#081628;">€${deposit.toLocaleString('en-GB')}</strong>`).replace('{{remainder}}', remainder.toLocaleString('en-GB'))}</p>
+${bankDetailsPanel()}
 
 ${sectionHeading(e.approvedCheckinSection)}
 <p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.approvedCheckinBody, { checkin: fmtDateLong(r.check_in, locale), checkout: fmtDateLong(r.check_out, locale) }))}</p>
 <p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;">${esc(e.approvedAddress)} <strong><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Blue+Moon+Apartment&amp;destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" style="color:#1A5FAD;text-decoration:none;" target="_blank">Riječka ulica 30, Mandre, Island of Pag</a></strong>.</p>
-<p style="margin:0;font-size:14px;color:#5a7080;">${esc(e.approvedQuestions)}</p>`;
+<p style="margin:0;font-size:14px;color:#5a7080;">${questionsHtml(e.approvedQuestions)}</p>`;
 
   const html = emailShell(content);
 
@@ -436,14 +511,11 @@ ${sectionHeading(e.approvedCheckinSection)}
     `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
     `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
     `${e.tableNights}:   ${r.nights}`,
-    `${e.tableGuests}:   ${r.guests}`,
+    `${e.tableGuests}:   ${guestsText(r, e)}`,
     `${e.tableTotal}:    ${totalText(r)}`,
     '',
     tpl(e.approvedPaymentBody, { deposit: String(deposit), remainder: String(remainder) }),
-    `IBAN: ${BANK_IBAN}`,
-    `Account holder: ${BANK_HOLDER}`,
-    `Bank: ${BANK_NAME}`,
-    `BIC/SWIFT: ${BANK_BIC}`,
+    ...bankDetailsText(),
     '',
     tpl(e.approvedCheckinBody, { checkin: r.check_in, checkout: r.check_out }),
     'Address: Riječka ulica 30, Mandre, Island of Pag.',
@@ -451,6 +523,113 @@ ${sectionHeading(e.approvedCheckinSection)}
   ].join('\n');
 
   return { subject, html, text };
+}
+
+// ─── Guest payment confirmation (full amount received) ────────────────────────
+
+/**
+ * Confirms that the whole stay has been paid and that nothing is left outstanding.
+ * Sent by hand from the admin dashboard, whenever the money actually lands — after a
+ * single full payment, or once the balance on a deposit booking clears.
+ *
+ * Distinct from buildGuestDepositReceived, which acknowledges the 30% deposit and
+ * still names a remaining balance. This one names no balance at all: its job is to
+ * reassure, so it closes with the stay dates and the address rather than any ask.
+ */
+export function buildGuestPaymentConfirmation(r: ReservationRow, langCode?: string): { subject: string; html: string; text: string } {
+  const lang    = safeLang(langCode ?? r.language);
+  const T       = getTranslations(lang);
+  const locale  = INTL_LOCALE_MAP[lang];
+  const e       = T.email;
+  const labels  = { checkin: e.tableCheckin, checkout: e.tableCheckout, nights: e.tableNights, guests: e.tableGuests, total: e.tableTotal };
+  const firstName = r.full_name.split(' ')[0];
+  const total     = r.total_eur.toLocaleString('en-GB');
+
+  const content = `
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(tpl(e.paymentHeading, { name: firstName }))}</div>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.paymentBody).replace('€{{total}}', `<strong style="color:#081628;">€${total}</strong>`)}</p>
+
+${sectionHeading(e.depositStaySection)}
+${detailTable(summaryRowsHtml(r, locale, labels, e))}
+
+${sectionHeading(e.depositCheckinSection)}
+<p style="margin:12px 0;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(tpl(e.depositCheckinBody, { checkin: fmtDateLong(r.check_in, locale), checkout: fmtDateLong(r.check_out, locale) }))}</p>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;">${esc(e.approvedAddress)} <strong><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Blue+Moon+Apartment&amp;destination_place_id=ChIJjWwKavA3YkcRtIxHt59t0pQ" style="color:#1A5FAD;text-decoration:none;" target="_blank">Riječka ulica 30, Mandre, Island of Pag</a></strong>.</p>
+<p style="margin:0;font-size:14px;color:#5a7080;">${questionsHtml(e.approvedQuestions)}</p>`;
+
+  const html = emailShell(content);
+
+  const text = [
+    tpl(e.paymentHeading, { name: firstName }),
+    '',
+    tpl(e.paymentBody, { total }),
+    '',
+    `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
+    `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
+    `${e.tableNights}:   ${r.nights}`,
+    `${e.tableGuests}:   ${guestsText(r, e)}`,
+    `${e.tableTotal}:    ${totalText(r)}`,
+    '',
+    tpl(e.depositCheckinBody, { checkin: r.check_in, checkout: r.check_out }),
+    'Address: Riječka ulica 30, Mandre, Island of Pag.',
+    '',
+    questionsText(e.approvedQuestions),
+    TEXT_SIG,
+  ].join('\n');
+
+  return { subject: e.paymentSubject, html, text };
+}
+
+// ─── Guest booking approved, no deposit ────────────────────────────
+
+/**
+ * The approval mail for stays taken without a deposit: the whole amount is settled by
+ * the day of check-in at the latest. Sent by hand from the admin dashboard only.
+ *
+ * Differs from buildGuestBookingApproved in exactly two ways — the payment paragraph
+ * asks for the full total rather than splitting it into deposit plus remainder, and the
+ * check-in information section is dropped. Everything else, the bank panel included,
+ * is the same mail.
+ */
+export function buildGuestBookingApprovedNoDeposit(r: ReservationRow, langCode?: string): { subject: string; html: string; text: string } {
+  const lang   = safeLang(langCode ?? r.language);
+  const T      = getTranslations(lang);
+  const locale = INTL_LOCALE_MAP[lang];
+  const e      = T.email;
+  const labels = { checkin: e.tableCheckin, checkout: e.tableCheckout, nights: e.tableNights, guests: e.tableGuests, total: e.tableTotal };
+  const total  = r.total_eur.toLocaleString('en-GB');
+
+  const content = `
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(e.approvedHeading)}</div>
+<p style="margin:0 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.noDepositBody)}</p>
+
+${sectionHeading(e.approvedStaySection)}
+${detailTable(summaryRowsHtml(r, locale, labels, e))}
+
+${sectionHeading(e.approvedPaymentSection)}
+<p style="margin:12px 0 16px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.noDepositPaymentBody).replace('€{{total}}', `<strong style="color:#081628;">€${total}</strong>`)}</p>
+${bankDetailsPanel()}
+<p style="margin:0;font-size:14px;color:#5a7080;">${questionsHtml(e.approvedQuestions)}</p>`;
+
+  const html = emailShell(content);
+
+  const text = [
+    e.approvedHeading,
+    '',
+    e.noDepositBody,
+    '',
+    `${e.tableCheckin}:  ${fmtDateLong(r.check_in, locale)}`,
+    `${e.tableCheckout}: ${fmtDateLong(r.check_out, locale)}`,
+    `${e.tableNights}:   ${r.nights}`,
+    `${e.tableGuests}:   ${guestsText(r, e)}`,
+    `${e.tableTotal}:    ${totalText(r)}`,
+    '',
+    tpl(e.noDepositPaymentBody, { total }),
+    ...bankDetailsText(),
+    TEXT_SIG,
+  ].join('\n');
+
+  return { subject: e.approvedSubject, html, text };
 }
 
 // ─── Guest welcome (short note; all detail lives on the guest guide page) ─────
@@ -582,7 +761,7 @@ ${sectionHeading(e.evisitorCheckinSection)}
   </tr>
 </table>
 
-<p style="margin:0;font-size:14px;color:#5a7080;">${esc(e.approvedQuestions)}</p>`;
+<p style="margin:0;font-size:14px;color:#5a7080;">${questionsHtml(e.approvedQuestions)}</p>`;
 
   const html = emailShell(content);
 
@@ -613,7 +792,7 @@ ${sectionHeading(e.evisitorCheckinSection)}
     e.evisitorGuideBody,
     `${e.evisitorGuideCta}: ${guideUrl}`,
     '',
-    e.approvedQuestions,
+    questionsText(e.approvedQuestions),
     TEXT_SIG,
   ].join('\n');
 
