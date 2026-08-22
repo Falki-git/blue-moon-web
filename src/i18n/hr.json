@@ -322,7 +322,7 @@
     "labelChildren": "Djeca",
     "labelChildrenAges": "Dob djece",
     "labelAddress": "Adresa",
-    "labelAddressOptional": "neobavezno, koristi se za račun i prijavu gostiju",
+    "labelAddressOptional": "neobavezno, koristi se za prijavu gostiju",
     "fullNamePlaceholder": "Ivan Horvat",
     "emailPlaceholder": "vaša@email.com",
     "phonePlaceholder": "+385 91 234 5678",

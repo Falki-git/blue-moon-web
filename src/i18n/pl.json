@@ -322,7 +322,7 @@
     "labelChildren": "Dzieci",
     "labelChildrenAges": "Wiek dzieci",
     "labelAddress": "Adres",
-    "labelAddressOptional": "opcjonalne, używane do faktury i rejestracji gości",
+    "labelAddressOptional": "opcjonalne, używane do rejestracji gości",
     "fullNamePlaceholder": "Jan Kowalski",
     "emailPlaceholder": "twój@email.com",
     "phonePlaceholder": "+48 123 456 789",

@@ -322,7 +322,7 @@
     "labelChildren": "Děti",
     "labelChildrenAges": "Věk dětí",
     "labelAddress": "Adresa",
-    "labelAddressOptional": "nepovinné, použito pro fakturu a registraci hostů",
+    "labelAddressOptional": "nepovinné, použito pro registraci hostů",
     "fullNamePlaceholder": "Jan Novák",
     "emailPlaceholder": "váš@email.com",
     "phonePlaceholder": "+420 123 456 789",

@@ -322,7 +322,7 @@
     "labelChildren": "Kinder",
     "labelChildrenAges": "Alter der Kinder",
     "labelAddress": "Adresse",
-    "labelAddressOptional": "optional, für Rechnung & Gästeregistrierung verwendet",
+    "labelAddressOptional": "optional, für Gästeregistrierung verwendet",
     "fullNamePlaceholder": "Thomas Müller",
     "emailPlaceholder": "ihre@email.com",
     "phonePlaceholder": "+49 123 456 789",

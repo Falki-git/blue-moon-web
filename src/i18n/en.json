@@ -322,7 +322,7 @@
     "labelChildren": "Children",
     "labelChildrenAges": "Children's ages",
     "labelAddress": "Address",
-    "labelAddressOptional": "optional, used for invoice & guest registration",
+    "labelAddressOptional": "optional, used for guest registration",
     "fullNamePlaceholder": "John Smith",
     "emailPlaceholder": "your@email.com",
     "phonePlaceholder": "+44 7911 123456",
