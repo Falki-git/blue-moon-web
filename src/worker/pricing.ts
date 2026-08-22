@@ -1,5 +1,6 @@
 export const SEASON_2026 = { start: '2026-06-01', end: '2026-09-30' };
 export const MIN_NIGHTS  = 5;
+export const MAX_GUESTS  = 6;
 export const DEPOSIT_PCT = 30;
 
 export const SEASON_MONTHS = [6, 7, 8, 9] as const;
