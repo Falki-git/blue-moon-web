@@ -818,6 +818,7 @@ import '../../styles/global.css';
       received_email_sent_at: number | null; approved_email_sent_at: number | null;
       no_deposit_approved_email_sent_at: number | null;
       payment_confirmation_sent_at: number | null;
+      goodbye_email_sent_at: number | null;
       country: string | null;
     };
     type ManualBlock = { id: string; created_at: number; from_date: string; to_date: string; note: string | null };
@@ -1144,16 +1145,21 @@ import '../../styles/global.css';
     };
 
     /**
-     * How many days before arrival each pre-arrival mail should go out. The welcome info
-     * goes early so guests can read the guide while still planning; the eVisitor mail waits
-     * until arrival is close, since it carries the key-locker code.
+     * How many days ahead each dated mail should go out. The welcome info goes early so
+     * guests can read the guide while still planning; the eVisitor mail waits until arrival
+     * is close, since it carries the key-locker code. The goodbye mail counts down to
+     * check-out rather than check-in, and goes out the day before the guest leaves.
      */
     const WELCOME_DUE_DAYS  = 7;
     const EVISITOR_DUE_DAYS = 3;
+    const GOODBYE_DUE_DAYS  = 1;
 
-    /** Days left until arrival once the mail is due, else null — see guestEmailButton. */
-    const dueIn = (checkIn: string, withinDays: number) => {
-      const d = daysUntil(checkIn);
+    /**
+     * Days left until `date` once the mail is due, else null — see guestEmailButton.
+     * Pre-arrival mails count down to check-in, the goodbye mail to check-out.
+     */
+    const dueIn = (date: string, withinDays: number) => {
+      const d = daysUntil(date);
       return d >= 0 && d <= withinDays ? d : null;
     };
 
@@ -1164,18 +1170,24 @@ import '../../styles/global.css';
      *
      * `dueInDays` marks a not-yet-sent email as due: the button turns amber and gains a
      * hint. Pass it only for emails that have a moment they should go out — the welcome
-     * info and the eVisitor mail, via dueIn().
+     * info, the eVisitor mail and the goodbye mail, via dueIn().
+     *
+     * `dueEvent` names the end of the stay that hint counts down to: 'arriving' for the
+     * pre-arrival mails, 'leaving' for the goodbye mail, which is timed off check-out.
      *
      * `label` carries a <br> at its natural break so the verb and the first word share
-     * one line and the rest falls to a second. Seven of these sit side by side, and on
+     * one line and the rest falls to a second. Eight of these sit side by side, and on
      * one line each they push the row far wider than the table needs to be. The sent-at
      * and due notes wrap in the same place for the same reason.
      */
-    const guestEmailButton = (sentAt: number | null, label: string, onclick: string, dueInDays?: number | null) => {
+    const guestEmailButton = (
+      sentAt: number | null, label: string, onclick: string,
+      dueInDays?: number | null, dueEvent: 'arriving' | 'leaving' = 'arriving',
+    ) => {
       const due = sentAt === null && dueInDays !== null && dueInDays !== undefined;
-      const dueHint = dueInDays === 0 ? 'arriving today'
-        : dueInDays === 1 ? 'arriving tomorrow'
-        : `arriving in ${dueInDays} days`;
+      const dueHint = dueInDays === 0 ? `${dueEvent} today`
+        : dueInDays === 1 ? `${dueEvent} tomorrow`
+        : `${dueEvent} in ${dueInDays} days`;
       return `
       <div class="adm-send-group">
         <button class="adm-btn ${sentAt ? 'adm-btn--resend' : due ? 'adm-btn--due' : 'adm-btn--send'}" onclick="${onclick}">${sentAt ? 'Resend' : 'Send'} ${label}</button>
@@ -1280,6 +1292,7 @@ import '../../styles/global.css';
         ${guestEmailButton(r.payment_confirmation_sent_at, 'full payment<br>confirmation', `__sendPaymentConfirmation('${r.id}','${escAttrArg(r.email)}')`)}
         ${guestEmailButton(r.welcome_email_sent_at, 'welcome<br>info', `__sendWelcomeInfo('${r.id}','${escAttrArg(r.email)}')`, dueIn(r.check_in, WELCOME_DUE_DAYS))}
         ${guestEmailButton(r.evisitor_email_sent_at, 'eVisitor<br>mail', `__sendEvisitorRequest('${r.id}','${escAttrArg(r.email)}')`, dueIn(r.check_in, EVISITOR_DUE_DAYS))}
+        ${guestEmailButton(r.goodbye_email_sent_at, 'goodbye<br>mail', `__sendGoodbyeMail('${r.id}','${escAttrArg(r.email)}')`, dueIn(r.check_out, GOODBYE_DUE_DAYS), 'leaving')}
         <button class="adm-btn adm-btn--cancel" onclick="__decide('${r.id}','cancel')">Delete reservation</button>
       `);
       document.getElementById('otherList')!.innerHTML = tableRows(other, () => '');
@@ -1342,6 +1355,17 @@ import '../../styles/global.css';
       }
     }
     (window as any).__sendEvisitorRequest = sendEvisitorRequest;
+
+    async function sendGoodbyeMail(id: string, email: string) {
+      if (!confirm(`Send the goodbye mail — check-out reminder, key return and a note about next season — to ${email}?`)) return;
+      try {
+        await api(`/api/admin/reservations/${id}/goodbye-email`, { method: 'POST' });
+        await refresh();
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to send email');
+      }
+    }
+    (window as any).__sendGoodbyeMail = sendGoodbyeMail;
 
     // ── Manual reservation entry & editing ───────────────────────────────────
     //
