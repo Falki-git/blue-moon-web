@@ -680,6 +680,24 @@ function boldDate(s: string): string {
   return `<strong style="color:#1A5FAD;">${esc(s)}</strong>`;
 }
 
+/**
+ * The dark panel that displays the key-locker combination. `size` is 'large' in the
+ * pre-arrival mail, where the code is the thing the guest opens the email for, and
+ * 'small' in the goodbye mail, where it is only a reminder alongside the check-out
+ * details.
+ */
+function lockerCodePanel(label: string, code: string, size: 'large' | 'small'): string {
+  const large = size === 'large';
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:${large ? '20px 0 14px' : '16px 0 14px'};background-color:#081628;border-radius:10px;">
+  <tr>
+    <td align="center" style="padding:${large ? '22px 20px' : '16px 20px'};border:2px solid #E8A82A;border-radius:10px;">
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#4A9FD4;margin-bottom:8px;">${esc(label)}</div>
+      <div style="font-family:'Courier New',Courier,monospace;font-size:${large ? '42px' : '32px'};font-weight:bold;color:#E8A82A;letter-spacing:${large ? '12px' : '9px'};line-height:1.1;">${esc(code)}</div>
+    </td>
+  </tr>
+</table>`;
+}
+
 /** Bulleted checklist inside the usual light-blue panel. */
 function checklistPanel(items: string[]): string {
   const rows = items.map(item => `<tr>
@@ -690,7 +708,8 @@ function checklistPanel(items: string[]): string {
 }
 
 /**
- * The one email that carries the key-locker combination. Sent by hand from the admin
+ * The pre-arrival half of the key-locker pair: this mail hands the combination out,
+ * buildGuestGoodbye repeats it when the keys go back. Sent by hand from the admin
  * dashboard a few days before arrival; `keyLockerCode` comes from the `key_locker_code`
  * setting so a change in admin applies to every mail sent afterwards.
  */
@@ -739,14 +758,7 @@ ${checklistPanel(fields.map(esc))}
 </table>
 
 ${sectionHeading(e.evisitorLockerSection)}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0 14px;background-color:#081628;border-radius:10px;">
-  <tr>
-    <td align="center" style="padding:22px 20px;border:2px solid #E8A82A;border-radius:10px;">
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#4A9FD4;margin-bottom:8px;">${esc(e.evisitorLockerLabel)}</div>
-      <div style="font-family:'Courier New',Courier,monospace;font-size:42px;font-weight:bold;color:#E8A82A;letter-spacing:12px;line-height:1.1;">${esc(keyLockerCode)}</div>
-    </td>
-  </tr>
-</table>
+${lockerCodePanel(e.evisitorLockerLabel, keyLockerCode, 'large')}
 <p style="margin:0 0 4px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.evisitorLockerBody)}</p>
 
 ${sectionHeading(e.evisitorCheckinSection)}
@@ -791,6 +803,82 @@ ${sectionHeading(e.evisitorCheckinSection)}
     '',
     e.evisitorGuideBody,
     `${e.evisitorGuideCta}: ${guideUrl}`,
+    '',
+    questionsText(e.approvedQuestions),
+    TEXT_SIG,
+  ].join('\n');
+
+  return { subject, html, text };
+}
+
+// ─── Guest goodbye (day before check-out; thanks, check-out and key return) ───
+
+/**
+ * The farewell note, sent by hand the day before the guest leaves. It thanks them,
+ * repeats the check-out time and the key-return instructions — locker code included,
+ * so nobody has to dig out the pre-arrival mail — invites feedback by reply, and
+ * offers an early-bird heads-up for next season.
+ *
+ * Guests who booked here booked directly, so unlike the OTA version of this note it
+ * asks for nothing on a booking site: the feedback comes back to us as a reply.
+ */
+export function buildGuestGoodbye(
+  r: ReservationRow, keyLockerCode: string, langCode?: string,
+): { subject: string; html: string; text: string } {
+  const lang      = safeLang(langCode ?? r.language);
+  const e         = getTranslations(lang).email;
+  const locale    = INTL_LOCALE_MAP[lang];
+  const firstName = r.full_name.split(' ')[0];
+  const checkout  = fmtDateLong(r.check_out, locale);
+  const subject   = e.goodbyeSubject;
+
+  const checkoutRows = [
+    detailRow(e.tableCheckout,    boldDate(checkout)),
+    detailRow(e.goodbyeTimeLabel, boldDate(e.goodbyeCheckoutTime)),
+  ].join('\n');
+
+  const content = `
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#081628;margin:0 0 12px;">${esc(tpl(e.goodbyeHeading, { name: firstName }))}</div>
+<p style="margin:0 0 8px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.goodbyeBody)}</p>
+
+${sectionHeading(e.goodbyeCheckoutSection)}
+${detailTable(checkoutRows)}
+
+${sectionHeading(e.goodbyeKeysSection)}
+<p style="margin:14px 0 0;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.goodbyeKeysBody)}</p>
+${lockerCodePanel(e.evisitorLockerLabel, keyLockerCode, 'small')}
+
+${sectionHeading(e.goodbyeFeedbackSection)}
+<p style="margin:14px 0 4px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.goodbyeFeedbackBody)}</p>
+
+${sectionHeading(e.goodbyeReturnSection)}
+<p style="margin:14px 0 24px;font-size:15px;color:#1a2a3a;line-height:1.6;">${esc(e.goodbyeReturnBody)}</p>
+
+<p style="margin:0 0 10px;font-size:16px;color:#081628;font-weight:bold;line-height:1.6;">${esc(e.goodbyeClosing)}</p>
+<p style="margin:0;font-size:14px;color:#5a7080;">${questionsHtml(e.approvedQuestions)}</p>`;
+
+  const html = emailShell(content);
+
+  const text = [
+    tpl(e.goodbyeHeading, { name: firstName }),
+    '',
+    e.goodbyeBody,
+    '',
+    `${e.goodbyeCheckoutSection.toUpperCase()}`,
+    `${e.tableCheckout}: ${checkout}`,
+    `${e.goodbyeTimeLabel}: ${e.goodbyeCheckoutTime}`,
+    '',
+    `${e.goodbyeKeysSection.toUpperCase()}`,
+    e.goodbyeKeysBody,
+    `${e.evisitorLockerLabel}: ${keyLockerCode}`,
+    '',
+    `${e.goodbyeFeedbackSection.toUpperCase()}`,
+    e.goodbyeFeedbackBody,
+    '',
+    `${e.goodbyeReturnSection.toUpperCase()}`,
+    e.goodbyeReturnBody,
+    '',
+    e.goodbyeClosing,
     '',
     questionsText(e.approvedQuestions),
     TEXT_SIG,

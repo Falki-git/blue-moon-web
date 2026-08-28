@@ -32,6 +32,7 @@ export interface ReservationRow {
   approved_email_sent_at: number | null;
   no_deposit_approved_email_sent_at: number | null;
   payment_confirmation_sent_at: number | null;
+  goodbye_email_sent_at: number | null;
 }
 
 /**
@@ -49,6 +50,7 @@ export const GUEST_EMAIL_COLUMNS = {
   approved: 'approved_email_sent_at',
   approvedNoDeposit: 'no_deposit_approved_email_sent_at',
   payment: 'payment_confirmation_sent_at',
+  goodbye: 'goodbye_email_sent_at',
 } as const;
 
 export type GuestEmailKind = keyof typeof GUEST_EMAIL_COLUMNS;
