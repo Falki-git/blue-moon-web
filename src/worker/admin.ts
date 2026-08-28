@@ -21,7 +21,7 @@ import {
   sendEmail, buildGuestBookingApproved, buildGuestDepositReceived, buildGuestInvoiceEmail,
   buildGuestWelcome, buildGuestEvisitorRequest, buildGuestBookingPending,
   buildOwnerBookingNotification, buildGuestBookingApprovedNoDeposit,
-  buildGuestPaymentConfirmation,
+  buildGuestPaymentConfirmation, buildGuestGoodbye,
 } from './email';
 import { buildInvoicePdf } from './invoice';
 import { parseRanges, rangesFromPriceTotal, totalsFromRanges } from './ranges';
@@ -549,6 +549,29 @@ export async function handleAdmin(request: Request, env: Env, ctx: ExecutionCont
         subject: msg.subject, html: msg.html, text: msg.text,
       }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend evisitor-email failed:', r.status, t)); })
         .catch(e => console.error('Resend evisitor-email failed:', e))
+    );
+
+    return ok();
+  }
+
+  // Farewell mail: sent by hand the day before check-out. Repeats the key-locker code
+  // so the keys can go back without the guest hunting for the pre-arrival mail.
+  const goodbyeMatch = path.match(/^reservations\/([^/]+)\/goodbye-email$/);
+  if (goodbyeMatch && request.method === 'POST') {
+    const id = goodbyeMatch[1];
+    const row = await getReservation(env.DB, id);
+    if (!row) return err(404, 'Reservation not found');
+    if (row.status !== 'confirmed') return err(409, `Cannot send the goodbye mail for a ${row.status} reservation`);
+
+    const keyLockerCode = await getKeyLockerCode(env.DB);
+    await markGuestEmailSent(env.DB, id, 'goodbye');
+    const msg = buildGuestGoodbye(row, keyLockerCode, row.language ?? 'en');
+    ctx.waitUntil(
+      sendEmail(env, {
+        to: row.email, replyTo: env.CONTACT_TO_EMAIL,
+        subject: msg.subject, html: msg.html, text: msg.text,
+      }).then(r => { if (!r.ok) r.text().then(t => console.error('Resend goodbye-email failed:', r.status, t)); })
+        .catch(e => console.error('Resend goodbye-email failed:', e))
     );
 
     return ok();
